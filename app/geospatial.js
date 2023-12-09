@@ -1,10 +1,8 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-const zoomLevel = 16;
-
 // Function to create a half-kilometer bounding box around a point
-function createBoundingBox(latitude, longitude) {
+export function createBoundingBox(latitude, longitude) {
   // Create a Turf.js point
   const point = turf.point([longitude, latitude]);
 
@@ -30,7 +28,7 @@ function latLonToTileCoords(latitude, longitude, zoom) {
 }
 
 // Function to enumerate all Mercator tiles within a bounding box
-function enumerateTilesInBoundingBox(bbox, minZoom, maxZoom) {
+export function enumerateTilesInBoundingBox(bbox, minZoom, maxZoom) {
   const tiles = [];
 
   for (let zoom = minZoom; zoom <= maxZoom; zoom++) {
@@ -47,10 +45,9 @@ function enumerateTilesInBoundingBox(bbox, minZoom, maxZoom) {
   return tiles;
 }
 
-
-function getLocation(callback) {
+export function getLocation(callback) {
   // Get the user's location
-  logToPage("Getting your location...")
+  //console.log("Getting your location...")
   if (navigator.geolocation) {
     // The navigator.geolocation object is available
     navigator.geolocation.getCurrentPosition(
@@ -88,8 +85,7 @@ function getLocation(callback) {
   }
 }
 
-
-function friendlyDistance(pointA, pointB) {
+export function friendlyDistance(pointA, pointB) {
   // Use feet or miles, depending on how far away the point is.
   var units = 'feet';
   var value = turf.distance(pointA, pointB, { units: units }).toFixed(0);

@@ -23,7 +23,7 @@ function openURLCache() {
 }
 
 // Function to fetch a URL only if it hasn't been fetched for a certain duration
-async function fetchUrlIfNotCached(url, maxAgeInMilliseconds) {
+export async function fetchUrlIfNotCached(url, maxAgeInMilliseconds) {
   const db = await openURLCache();
 
   return new Promise(async (resolve, reject) => {
@@ -84,11 +84,11 @@ async function fetchUrlIfNotCached(url, maxAgeInMilliseconds) {
   });
 }
 
-function clearURLCache() {
+export function clearURLCache() {
   return cleanDatabase('URLCache', 'urls');
 }
 
-function cleanDatabase(dbName, objectStoreName) {
+export function cleanDatabase(dbName, objectStoreName) {
     var request = indexedDB.open(dbName);
 
     request.onsuccess = function (event) {

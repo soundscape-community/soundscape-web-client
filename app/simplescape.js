@@ -1,22 +1,14 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
+import { addToCache, getAllFeatures, clearFeatureCache } from './feature_cache.js'
+import { getLocation, createBoundingBox, enumerateTilesInBoundingBox, friendlyDistance } from './geospatial.js'
+import { fetchUrlIfNotCached, clearURLCache } from './url_cache.js'
+import { speakText } from './speech.js'
+
 const tileServer = 'https://tiles.soundscape.services'
 //const tileServer = 'http://localhost:8080/tiles'
-
-function logToPage(message) {
-  // Create a new paragraph element
-  var para = document.createElement("p");
-  
-  // Create a text node with the log message
-  var node = document.createTextNode(message);
-  
-  // Append the text node to the paragraph element
-  para.appendChild(node);
-  
-  // Append the paragraph element to the log container
-  document.getElementById("log-container").appendChild(para);
-}
+const zoomLevel = 16;
 
 function vocalize(latitude, longitude) {
   // Create bounding box
@@ -65,3 +57,16 @@ function vocalize(latitude, longitude) {
     }
   })
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+  var btnNearMe = document.getElementById('btn_near_me');
+  btnNearMe.addEventListener('click', function() {
+    getLocation(vocalize);
+  });
+
+  var btnClear = document.getElementById('btn_clear');
+  btnClear.addEventListener('click', function() {
+    clearURLCache();
+    clearFeatureCache();
+  });
+});

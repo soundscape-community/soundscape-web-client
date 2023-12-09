@@ -3,7 +3,21 @@
 
 const speechRate = 2.0;
 
-function speakText(text) {
+function logToPage(message) {
+  // Create a new paragraph element
+  var para = document.createElement("p");
+
+  // Create a text node with the log message
+  var node = document.createTextNode(message);
+
+  // Append the text node to the paragraph element
+  para.appendChild(node);
+
+  // Append the paragraph element to the log container
+  document.getElementById("log-container").appendChild(para);
+}
+
+export function speakText(text) {
   // Check if the SpeechSynthesis API is available in the browser\
   if ('speechSynthesis' in window) {
     // Create a new SpeechSynthesisUtterance object

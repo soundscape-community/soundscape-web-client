@@ -1,6 +1,8 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
+import { cleanDatabase } from "./url_cache.js";
+
 // Function to open the IndexedDB database
 function openDatabase() {
   return new Promise((resolve, reject) => {
@@ -23,12 +25,12 @@ function openDatabase() {
   });
 }
 
-function clearFeatureCache() {
+export function clearFeatureCache() {
   return cleanDatabase('GeoJSONCache', 'features');
 }
 
 // Function to add GeoJSON feature to the cache
-async function addToCache(geoJSONFeature) {
+export async function addToCache(geoJSONFeature) {
   const db = await openDatabase();
 
   return new Promise((resolve, reject) => {
@@ -96,7 +98,7 @@ function calculateDistance(point1, point2) {
   return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 }*/
 
-async function getAllFeatures(targetPoint, radius) {
+export async function getAllFeatures(targetPoint, radius) {
   const db = await openDatabase();
 
   return new Promise((resolve, reject) => {
