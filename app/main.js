@@ -19,19 +19,20 @@ function vocalize(latitude, longitude) {
   const tiles = enumerateTilesInBoundingBox(boundingBox, zoomLevel, zoomLevel);
   //console.log('Mercator Tiles:', tiles);
 
-  // Pick one tile to fetch
-  const tile = tiles[0];
-  const urlToFetch = `${config.tileServer}/${tile.z}/${tile.x}/${tile.y}.json`;
-  fetchUrlIfNotCached(urlToFetch, maxAge)
-    .then((data) => {
-      data.features.forEach(feature => {
-        addToCache(feature);
+  // Populate any missing map tiles (without blocking)
+  for (const tile of tiles) {
+    const urlToFetch = `${config.tileServer}/${tile.z}/${tile.x}/${tile.y}.json`;
+    fetchUrlIfNotCached(urlToFetch, maxAge)
+      .then((data) => {
+        for (const feature of data.features) {
+          addToCache(feature);
+        };
+        console.log(`Loaded ${data.features.length} new features.`)
       })
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-  
+      .catch((error) => {
+        console.error(error);
+      });
+  }
   /*
   const myLocation = {
     type: 'Point',
