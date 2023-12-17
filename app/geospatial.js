@@ -46,45 +46,28 @@ export function enumerateTilesInBoundingBox(bbox, minZoom, maxZoom) {
 }
 
 export function getLocation(callback) {
-  // Get the user's location
-  //console.log("Getting your location...")
-  if (navigator.geolocation) {
-    // The navigator.geolocation object is available
-    navigator.geolocation.getCurrentPosition(
-      // Success callback
-      function (position) {
-        const latitude = position.coords.latitude;
-        const longitude = position.coords.longitude;
-        const heading = position.coords.heading;
-
-        console.log('Latitude:' + latitude);
-        console.log('Longitude:' + longitude);
-        console.log('Heading:' + heading);
-
-        callback(latitude, longitude, heading);
-      },
-      // Error callback
-      function (error) {
-        switch (error.code) {
-        case error.PERMISSION_DENIED:
-            console.error('User denied the request for Geolocation.');
-            break;
-        case error.POSITION_UNAVAILABLE:
-            console.error('Location information is unavailable.');
-            break;
-        case error.TIMEOUT:
-            console.error('The request to get user location timed out.');
-            break;
-        case error.UNKNOWN_ERROR:
-            console.error('An unknown error occurred.');
-            break;
+  return new Promise((resolve, reject) => {
+    // Check if the Geolocation API is supported
+    if ("geolocation" in navigator) {
+      // Request the current position
+      navigator.geolocation.getCurrentPosition(
+        function (position) {
+          resolve({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            heading: position.coords.heading || 0,  // not available on all platforms
+          });
+        },
+        function (error) {
+          // Reject the Promise with the error message
+          reject("Error getting current position: " + error.message);
         }
-      }
-    );
-  } else {
-    // Geolocation is not supported by the browser
-    console.error('Geolocation is not supported by this browser.');
-  }
+      );
+    } else {
+      // Reject the Promise if Geolocation API is not supported
+      reject("Geolocation is not supported by this browser");
+    }
+  });
 }
 
 export function friendlyDistance(pointA, pointB) {

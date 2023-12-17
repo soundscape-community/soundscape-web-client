@@ -112,11 +112,21 @@ document.addEventListener('DOMContentLoaded', function () {
     var searchParams = new URLSearchParams(window.location.search);
     var lat = parseFloat(searchParams.get('lat'));
     var lon= parseFloat(searchParams.get('lon'));
-    var heading = parseFloat(searchParams.get('heading'));
-    if (!isNaN(lat) && !isNaN(lon) && !isNaN(heading)) {
-      vocalize(lat, lon, heading);
+    var head = parseFloat(searchParams.get('heading'));
+    if (!isNaN(lat) && !isNaN(lon) && !isNaN(head)) {
+      vocalize(lat, lon, head);
     } else {
-      getLocation(vocalize);
+      getLocation()
+      .then(coords => {
+        console.log('Latitude:' + coords.latitude);
+        console.log('Longitude:' + coords.longitude);
+        console.log('Heading:' + coords.heading);
+
+        vocalize(coords.latitude, coords.longitude, coords.heading);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
     }
   });
 
