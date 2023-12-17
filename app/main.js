@@ -2,8 +2,9 @@
 // with many thanks to ChatGPT
 
 import { createSpatialPlayer } from './audio.js'
+import { plotCoordinates } from './canvas.js'
 import { addToCache, getAllFeatures, clearFeatureCache } from './feature_cache.js'
-import { getLocation, createBoundingBox, enumerateTilesInBoundingBox, friendlyDistance } from './geospatial.js'
+import { getLocation, createBoundingBox, enumerateTilesInBoundingBox, friendlyDistance, geoToXY } from './geospatial.js'
 import { fetchUrlIfNotCached, clearURLCache } from './url_cache.js'
 import config from './config.js'
 
@@ -12,7 +13,7 @@ const maxAge = 604800000; // 1 week, in ms
 
 const audioQueue = createSpatialPlayer();
 
-function vocalize(latitude, longitude) {
+function vocalize(latitude, longitude, heading) {
   // Create bounding box
   const boundingBox = createBoundingBox(latitude, longitude);
   //console.log('Bounding Box:', boundingBox);
@@ -35,27 +36,45 @@ function vocalize(latitude, longitude) {
         console.error(error);
       });
   }
-  /*
-  const myLocation = {
-    type: 'Point',
-    coordinates: [longitude, latitude],
-  };*/
+
+  const myLocation = turf.point([longitude, latitude]);
+
   getAllFeatures()
   .then((allFeatures) => {
     if (allFeatures.length === 0) {
       audioQueue.addToQueue({ text: "No places found; try again after data has loaded.", x: 0, y: 0 });
     } else {
+      //allFeatures.slice(0, 10).forEach(feature => {
       allFeatures.forEach(feature => {
         // Call out things that have names that aren't roads
         if (feature.properties.name && feature.feature_type != 'highway') {
           // Calculate the distance between the GeoJSON feature and the point
-          const distance = friendlyDistance(
-            turf.centroid(feature.geometry),
-            turf.point([longitude, latitude]),
-          );
+          const poiCentroid = turf.centroid(feature.geometry);
+          const distance = friendlyDistance(poiCentroid, myLocation);
 
-          audioQueue.addToQueue({ soundUrl: 'app/sounds/sense_poi.wav', x: 0, y: 0});
-          audioQueue.addToQueue({ text: feature.properties.name + ' is ' + distance.value + ' ' + distance.units + ' away', x: 0, y: 0 });
+          // Don't mention features that are far enough away to no longer be in feet
+          if (distance.units == 'miles') {
+            return;
+          }
+
+          // Calculate the Cartesian coordinates to position the audio.
+          const relativePosition = geoToXY(myLocation, heading, poiCentroid);
+          plotCoordinates([{
+            coordinates: [relativePosition.x, relativePosition.y],
+            label: feature.properties.name
+          }]);
+
+          // Play sound effect (positioned spatially) and speak name
+          audioQueue.addToQueue({
+            soundUrl: 'app/sounds/sense_poi.wav',
+            x: relativePosition.x,
+            y: relativePosition.y
+          });
+          audioQueue.addToQueue({
+            text: feature.properties.name + ' is ' + distance.value + ' ' + distance.units + ' away',
+            x: relativePosition.x,
+            y: relativePosition.y
+          });
         }
       })
     }
@@ -64,29 +83,38 @@ function vocalize(latitude, longitude) {
   })
 }
 
+// Actions to take when page is rendered in full
 document.addEventListener('DOMContentLoaded', function () {
+  // Draw origin point on canvase
+  plotCoordinates([{
+    coordinates: [0, 0], label: '(self)'
+  }])
+
+  // Hook up click event handlers
   var btnNearMe = document.getElementById('btn_near_me');
   btnNearMe.addEventListener('click', function() {
-    //if (audioQueue.queue.length > 0) {
-    if (btnNearMe.textContent == '(stop)') {
+    if (audioQueue.queue.length > 0) {
+    //if (btnNearMe.textContent == '(stop)') {
       audioQueue.stopAndClear();
       audioQueue.addToQueue({ soundUrl: 'app/sounds/mode_exit.wav', x: 0, y: 0 });
-      btnNearMe.textContent = 'Places Near Me';
+      //btnNearMe.textContent = 'Places Near Me';
       return;
     }
 
     // indicate that clicking button again will stop audio
-    btnNearMe.textContent  = '(stop)';
+    //FIXME automatically change back once finished speaking
+    //btnNearMe.textContent  = '(stop)';
 
-    // play mode enter sound
+    // play mode-enter sound
     audioQueue.addToQueue('app/sounds/mode_enter.wav');
 
     // use location from URL if specified, otherwise use location services
     var searchParams = new URLSearchParams(window.location.search);
     var lat = parseFloat(searchParams.get('lat'));
     var lon= parseFloat(searchParams.get('lon'));
-    if (lat && lon) {
-      vocalize(lat, lon);
+    var heading = parseFloat(searchParams.get('heading'));
+    if (!isNaN(lat) && !isNaN(lon) && !isNaN(heading)) {
+      vocalize(lat, lon, heading);
     } else {
       getLocation(vocalize);
     }

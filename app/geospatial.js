@@ -55,11 +55,13 @@ export function getLocation(callback) {
       function (position) {
         const latitude = position.coords.latitude;
         const longitude = position.coords.longitude;
-    
+        const heading = position.coords.heading;
+
         console.log('Latitude:' + latitude);
         console.log('Longitude:' + longitude);
+        console.log('Heading:' + heading);
 
-        callback(latitude, longitude);
+        callback(latitude, longitude, heading);
       },
       // Error callback
       function (error) {
@@ -89,9 +91,43 @@ export function friendlyDistance(pointA, pointB) {
   // Use feet or miles, depending on how far away the point is.
   var units = 'feet';
   var value = turf.distance(pointA, pointB, { units: units }).toFixed(0);
-  if (value > 2000) {
+  if (value > 1500) {
     units = 'miles'
     var value = turf.distance(pointA, pointB, { units: units }).toFixed(1);
   }
   return { value, units };
+}
+
+export function geoToXY(myLocation, myHeading, poiLocation) {
+  // Convert degrees to radians
+  const toRadians = degree => degree * (Math.PI / 180);
+
+  // Earth radius in meters
+  const earthRadius = 6371000;
+
+  // Calculate the relative distance in meters
+  const deltaLat = toRadians(poiLocation.geometry.coordinates[1] - myLocation.geometry.coordinates[1]);
+  const deltaLon = toRadians(poiLocation.geometry.coordinates[0] - myLocation.geometry.coordinates[0]);
+
+  const a =
+    Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+    Math.cos(toRadians(myLocation.geometry.coordinates[1])) * Math.cos(toRadians(poiLocation.geometry.coordinates[1])) *
+    Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = earthRadius * c;
+
+  // Calculate the angle between the Y-axis and the line connecting myLocation and poiLocation
+  const angleToTarget = Math.atan2(
+    poiLocation.geometry.coordinates[0] - myLocation.geometry.coordinates[0],
+    poiLocation.geometry.coordinates[1] - myLocation.geometry.coordinates[1]
+  ) - toRadians(myHeading);
+
+  // Calculate X and Y coordinates
+  const x = distance * Math.sin(angleToTarget);
+  const y = distance * Math.cos(angleToTarget);
+
+  // Scale so that sounds are more audible, and to fit on canvas
+  const scaleFactor = 0.05;
+  return { x: x * scaleFactor, y: y * scaleFactor };
 }
