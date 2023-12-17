@@ -1,14 +1,16 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
+import { createPlayer } from './audio.js'
 import { addToCache, getAllFeatures, clearFeatureCache } from './feature_cache.js'
 import { getLocation, createBoundingBox, enumerateTilesInBoundingBox, friendlyDistance } from './geospatial.js'
 import { fetchUrlIfNotCached, clearURLCache } from './url_cache.js'
-import { speakText } from './speech.js'
 import config from './config.js'
 
 const zoomLevel = 16;
 const maxAge = 604800000; // 1 week, in ms
+
+const audioQueue = createPlayer();
 
 function vocalize(latitude, longitude) {
   // Create bounding box
@@ -40,8 +42,10 @@ function vocalize(latitude, longitude) {
   };*/
   getAllFeatures()
   .then((allFeatures) => {
+    audioQueue.addToQueue('assets/sounds/mode_enter.wav');
+
     if (allFeatures.length === 0) {
-      speakText("No places found; try again after data has loaded.");
+      audioQueue.addToQueue({ text: "No places found; try again after data has loaded." });
     } else {
       allFeatures.forEach(feature => {
         // Call out things that have names that aren't roads
@@ -51,16 +55,23 @@ function vocalize(latitude, longitude) {
             turf.centroid(feature.geometry),
             turf.point([longitude, latitude]),
           );
-          speakText(feature.properties.name + ' is ' + distance.value + ' ' + distance.units + ' away');
+
+          audioQueue.addToQueue('assets/sounds/sense_poi.wav');
+          audioQueue.addToQueue({ text: feature.properties.name + ' is ' + distance.value + ' ' + distance.units + ' away' });
         }
       })
     }
+
+    audioQueue.addToQueue('assets/sounds/mode_exit.wav');
   })
 }
 
 document.addEventListener('DOMContentLoaded', function () {
   var btnNearMe = document.getElementById('btn_near_me');
   btnNearMe.addEventListener('click', function() {
+    // play app welcome sound
+    audioQueue.addToQueue('assets/sounds/app_launch.wav');
+
     // use location from URL if specified, otherwose use location services
     var searchParams = new URLSearchParams(window.location.search);
     var lat = parseFloat(searchParams.get('lat'));

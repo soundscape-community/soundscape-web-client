@@ -44,6 +44,7 @@ export async function fetchUrlIfNotCached(url, maxAgeInMilliseconds) {
         if (currentTime - lastFetchTime < maxAgeInMilliseconds) {
           // URL is still fresh, resolve with the cached data
           console.log("HIT: ", url);
+          // Assume data has already been handled when it was first cached
           //resolve(result.cachedData);
           return;
         }
@@ -62,6 +63,8 @@ export async function fetchUrlIfNotCached(url, maxAgeInMilliseconds) {
         const putRequest = newObjectStore.put({
           url: url,
           lastFetchTime: new Date().getTime(),
+          // No need to keep the data (the individual features should be
+          // loaded into their own object store on first fetch)
           //cachedData: data,
         });
 
