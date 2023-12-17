@@ -1,7 +1,7 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-import { createPlayer } from './audio.js'
+import { createSpatialPlayer } from './audio.js'
 import { addToCache, getAllFeatures, clearFeatureCache } from './feature_cache.js'
 import { getLocation, createBoundingBox, enumerateTilesInBoundingBox, friendlyDistance } from './geospatial.js'
 import { fetchUrlIfNotCached, clearURLCache } from './url_cache.js'
@@ -10,7 +10,7 @@ import config from './config.js'
 const zoomLevel = 16;
 const maxAge = 604800000; // 1 week, in ms
 
-const audioQueue = createPlayer();
+const audioQueue = createSpatialPlayer();
 
 function vocalize(latitude, longitude) {
   // Create bounding box
@@ -43,7 +43,7 @@ function vocalize(latitude, longitude) {
   getAllFeatures()
   .then((allFeatures) => {
     if (allFeatures.length === 0) {
-      audioQueue.addToQueue({ text: "No places found; try again after data has loaded." });
+      audioQueue.addToQueue({ text: "No places found; try again after data has loaded.", x: 0, y: 0 });
     } else {
       allFeatures.forEach(feature => {
         // Call out things that have names that aren't roads
@@ -54,13 +54,13 @@ function vocalize(latitude, longitude) {
             turf.point([longitude, latitude]),
           );
 
-          audioQueue.addToQueue('app/sounds/sense_poi.wav');
-          audioQueue.addToQueue({ text: feature.properties.name + ' is ' + distance.value + ' ' + distance.units + ' away' });
+          audioQueue.addToQueue({ soundUrl: 'app/sounds/sense_poi.wav', x: 0, y: 0});
+          audioQueue.addToQueue({ text: feature.properties.name + ' is ' + distance.value + ' ' + distance.units + ' away', x: 0, y: 0 });
         }
       })
     }
 
-    audioQueue.addToQueue('app/sounds/mode_exit.wav');
+    audioQueue.addToQueue({ soundUrl: 'app/sounds/mode_exit.wav', x: 0, y: 0 });
   })
 }
 
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function () {
     //if (audioQueue.queue.length > 0) {
     if (btnNearMe.textContent == '(stop)') {
       audioQueue.stopAndClear();
-      audioQueue.addToQueue('app/sounds/mode_exit.wav');
+      audioQueue.addToQueue({ soundUrl: 'app/sounds/mode_exit.wav', x: 0, y: 0 });
       btnNearMe.textContent = 'Places Near Me';
       return;
     }

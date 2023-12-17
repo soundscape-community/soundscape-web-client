@@ -8,20 +8,6 @@ const speechRate = 2.0;
 let currentSoundSource = null;
 let currentSpeechSource = null;
 
-function logToPage(message) {
-  // Create a new paragraph element
-  var para = document.createElement("p");
-
-  // Create a text node with the log message
-  var node = document.createTextNode(message);
-
-  // Append the text node to the paragraph element
-  para.appendChild(node);
-
-  // Append the paragraph element to the log container
-  document.getElementById("log-container").appendChild(para);
-}
-
 // Function to load a sound file
 async function loadSound(url) {
   try {
@@ -33,28 +19,42 @@ async function loadSound(url) {
   }
 }
 
-// Function to play a sound
-function playSound(buffer) {
+// Function to create a spatial audio source
+function createSpatialSource(buffer, x, y) {
+  const source = audioContext.createBufferSource();
+  const panner = audioContext.createPanner();
+
+  // Set the position of the audio source in 3D space
+  panner.setPosition(x, y, 0);
+
+  // Connect the source to the panner and the panner to the audio context's destination
+  source.connect(panner);
+  panner.connect(audioContext.destination);
+
+  source.buffer = buffer;
+  return source;
+}
+
+// Function to play a sound with spatial audio
+function playSpatialSound(buffer, x, y) {
   // Cancel the current sound source if any
   if (currentSoundSource) {
     currentSoundSource.stop();
   }
 
   return new Promise((resolve) => {
-    const source = audioContext.createBufferSource();
-    source.buffer = buffer;
-
-    source.connect(audioContext.destination);
-    source.onended = () => resolve();
-    source.start();
+    const spatialSource = createSpatialSource(buffer, x, y);
+    spatialSource.onended = () => resolve();
+    spatialSource.start();
 
     // Update the current sound source
-    currentSoundSource = source;
+    currentSoundSource = spatialSource;
   });
 }
 
-// Function to play synthesized speech
-function playSpeech(text) {
+// Function to play synthesized speech with spatial audio
+//FIXME not actually spatial
+function playSpatialSpeech(text, x, y) {
   // Cancel the current speech source if any
   if (currentSpeechSource) {
     speechSynthesis.cancel();
@@ -64,7 +64,6 @@ function playSpeech(text) {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = speechRate;
     utterance.onend = () => resolve();
-    logToPage(text);
     speechSynthesis.speak(utterance);
 
     // Update the current speech source
@@ -72,31 +71,32 @@ function playSpeech(text) {
   });
 }
 
-// Function to create a player with a dynamic sequence of sounds and speech
-export function createPlayer() {
+// Function to create a player with a dynamic sequence of spatial sounds and spatial speech
+export function createSpatialPlayer() {
   const player = {
     queue: [],
     isPlaying: false,
     addToQueue(item) {
       player.queue.push(item);
+      //console.log(item);
       if (!player.isPlaying) {
         player.isPlaying = true;
         playNext();
       }
     },
     stopAndClear() {
-        // Stop audio and clear the queue
-        player.queue = [];
-        player.isPlaying = false;
+      // Stop audio and clear the queue
+      player.queue = [];
+      player.isPlaying = false;
 
-        // Cancel the current sound and speech sources
-        if (currentSoundSource) {
-          currentSoundSource.stop();
-        }
-        if (currentSpeechSource) {
-          speechSynthesis.cancel();
-        }
-      },
+      // Cancel the current sound and speech sources
+      if (currentSoundSource) {
+        currentSoundSource.stop();
+      }
+      if (currentSpeechSource) {
+        speechSynthesis.cancel();
+      }
+    },
   };
 
   async function playNext() {
@@ -107,13 +107,13 @@ export function createPlayer() {
 
     const currentItem = player.queue.shift();
 
-    if (typeof currentItem === 'string') {
-      // If it's a string, assume it's a sound file URL
-      const soundBuffer = await loadSound(currentItem);
-      await playSound(soundBuffer);
+    if (typeof currentItem === 'object' && currentItem.soundUrl) {
+      // If it's an object with a 'soundUrl' property, assume it's a spatial sound
+      const soundBuffer = await loadSound(currentItem.soundUrl);
+      await playSpatialSound(soundBuffer, currentItem.x || 0, currentItem.y || 0);
     } else if (typeof currentItem === 'object' && currentItem.text) {
-      // If it's an object with a 'text' property, assume it's speech
-      await playSpeech(currentItem.text);
+      // If it's an object with a 'text' property, assume it's spatial speech
+      await playSpatialSpeech(currentItem.text, currentItem.x || 0, currentItem.y || 0);
     }
 
     // Play the next item recursively
