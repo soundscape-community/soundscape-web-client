@@ -54,28 +54,32 @@ function vocalize(latitude, longitude) {
             turf.point([longitude, latitude]),
           );
 
-          audioQueue.addToQueue('assets/sounds/sense_poi.wav');
+          audioQueue.addToQueue('app/sounds/sense_poi.wav');
           audioQueue.addToQueue({ text: feature.properties.name + ' is ' + distance.value + ' ' + distance.units + ' away' });
         }
       })
     }
 
-    audioQueue.addToQueue('assets/sounds/mode_exit.wav');
+    audioQueue.addToQueue('app/sounds/mode_exit.wav');
   })
 }
 
 document.addEventListener('DOMContentLoaded', function () {
   var btnNearMe = document.getElementById('btn_near_me');
   btnNearMe.addEventListener('click', function() {
-    if (audioQueue.queue.length > 0) {
-      // was already playing; stop audio
+    //if (audioQueue.queue.length > 0) {
+    if (btnNearMe.textContent == '(stop)') {
       audioQueue.stopAndClear();
-      audioQueue.addToQueue('assets/sounds/mode_exit.wav');
+      audioQueue.addToQueue('app/sounds/mode_exit.wav');
+      btnNearMe.textContent = 'Places Near Me';
       return;
     }
 
+    // indicate that clicking button again will stop audio
+    btnNearMe.textContent  = '(stop)';
+
     // play mode enter sound
-    audioQueue.addToQueue('assets/sounds/mode_enter.wav');
+    audioQueue.addToQueue('app/sounds/mode_enter.wav');
 
     // use location from URL if specified, otherwise use location services
     var searchParams = new URLSearchParams(window.location.search);
