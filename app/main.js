@@ -42,8 +42,6 @@ function vocalize(latitude, longitude) {
   };*/
   getAllFeatures()
   .then((allFeatures) => {
-    audioQueue.addToQueue('assets/sounds/mode_enter.wav');
-
     if (allFeatures.length === 0) {
       audioQueue.addToQueue({ text: "No places found; try again after data has loaded." });
     } else {
@@ -69,10 +67,17 @@ function vocalize(latitude, longitude) {
 document.addEventListener('DOMContentLoaded', function () {
   var btnNearMe = document.getElementById('btn_near_me');
   btnNearMe.addEventListener('click', function() {
-    // play app welcome sound
-    audioQueue.addToQueue('assets/sounds/app_launch.wav');
+    if (audioQueue.queue.length > 0) {
+      // was already playing; stop audio
+      audioQueue.stopAndClear();
+      audioQueue.addToQueue('assets/sounds/mode_exit.wav');
+      return;
+    }
 
-    // use location from URL if specified, otherwose use location services
+    // play mode enter sound
+    audioQueue.addToQueue('assets/sounds/mode_enter.wav');
+
+    // use location from URL if specified, otherwise use location services
     var searchParams = new URLSearchParams(window.location.search);
     var lat = parseFloat(searchParams.get('lat'));
     var lon= parseFloat(searchParams.get('lon'));

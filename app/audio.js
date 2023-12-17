@@ -4,6 +4,24 @@
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 const speechRate = 2.0;
 
+// Variables to store the current sound and speech sources
+let currentSoundSource = null;
+let currentSpeechSource = null;
+
+function logToPage(message) {
+  // Create a new paragraph element
+  var para = document.createElement("p");
+
+  // Create a text node with the log message
+  var node = document.createTextNode(message);
+
+  // Append the text node to the paragraph element
+  para.appendChild(node);
+
+  // Append the paragraph element to the log container
+  document.getElementById("log-container").appendChild(para);
+}
+
 // Function to load a sound file
 async function loadSound(url) {
   try {
@@ -17,6 +35,11 @@ async function loadSound(url) {
 
 // Function to play a sound
 function playSound(buffer) {
+  // Cancel the current sound source if any
+  if (currentSoundSource) {
+    currentSoundSource.stop();
+  }
+
   return new Promise((resolve) => {
     const source = audioContext.createBufferSource();
     source.buffer = buffer;
@@ -24,16 +47,28 @@ function playSound(buffer) {
     source.connect(audioContext.destination);
     source.onended = () => resolve();
     source.start();
+
+    // Update the current sound source
+    currentSoundSource = source;
   });
 }
 
 // Function to play synthesized speech
 function playSpeech(text) {
+  // Cancel the current speech source if any
+  if (currentSpeechSource) {
+    speechSynthesis.cancel();
+  }
+
   return new Promise((resolve) => {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = speechRate;
     utterance.onend = () => resolve();
+    logToPage(text);
     speechSynthesis.speak(utterance);
+
+    // Update the current speech source
+    currentSpeechSource = utterance;
   });
 }
 
@@ -49,6 +84,19 @@ export function createPlayer() {
         playNext();
       }
     },
+    stopAndClear() {
+        // Stop audio and clear the queue
+        player.queue = [];
+        player.isPlaying = false;
+
+        // Cancel the current sound and speech sources
+        if (currentSoundSource) {
+          currentSoundSource.stop();
+        }
+        if (currentSpeechSource) {
+          speechSynthesis.cancel();
+        }
+      },
   };
 
   async function playNext() {
