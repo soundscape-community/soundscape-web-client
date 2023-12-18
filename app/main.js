@@ -71,7 +71,8 @@ function vocalize(latitude, longitude, heading) {
             y: relativePosition.y
           });
           audioQueue.addToQueue({
-            text: feature.properties.name + ' is ' + distance.value + ' ' + distance.units + ' away',
+            //text: feature.properties.name + ' is ' + distance.value + ' ' + distance.units + ' away',
+            text: feature.properties.name,
             x: relativePosition.x,
             y: relativePosition.y
           });

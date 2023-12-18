@@ -1,3 +1,6 @@
+// Copyright (c) Daniel W. Steinbrook.
+// with many thanks to ChatGPT
+
 const gridSize = 20;
 const gridScale = 1; // Adjust this value to scale the grid
 
