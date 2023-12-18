@@ -1,7 +1,12 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-import { cleanDatabase } from "./url_cache.js";
+import config from './config.js'
+import { createBoundingBox, enumerateTilesInBoundingBox } from './geospatial.js'
+import { cleanDatabase, fetchUrlIfNotCached } from './url_cache.js'
+
+const zoomLevel = 16;
+const maxAge = 604800000; // 1 week, in ms
 
 // Function to open the IndexedDB database
 function openDatabase() {
@@ -46,6 +51,26 @@ export async function addToCache(geoJSONFeature) {
       reject(`Error adding feature to cache: ${event.target.error}`);
     };
   });
+}
+
+export function loadNearbyTiles(latitude, longitude) {
+  const boundingBox = createBoundingBox(latitude, longitude);
+  const tiles = enumerateTilesInBoundingBox(boundingBox, zoomLevel, zoomLevel);
+
+  // Populate any missing map tiles (without blocking)
+  for (const tile of tiles) {
+    const urlToFetch = `${config.tileServer}/${tile.z}/${tile.x}/${tile.y}.json`;
+    fetchUrlIfNotCached(urlToFetch, maxAge)
+      .then((data) => {
+        for (const feature of data.features) {
+          addToCache(feature);
+        };
+        console.log(`Loaded ${data.features.length} new features.`)
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
 }
 
 // Function to get GeoJSON features near a given point

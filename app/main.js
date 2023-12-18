@@ -3,41 +3,17 @@
 
 import { createSpatialPlayer } from './audio.js'
 import { plotCoordinates } from './canvas.js'
-import { addToCache, getAllFeatures, clearFeatureCache } from './feature_cache.js'
-import { getLocation, createBoundingBox, enumerateTilesInBoundingBox, friendlyDistance, geoToXY } from './geospatial.js'
-import { fetchUrlIfNotCached, clearURLCache } from './url_cache.js'
-import config from './config.js'
-
-const zoomLevel = 16;
-const maxAge = 604800000; // 1 week, in ms
+import { loadNearbyTiles, getAllFeatures, clearFeatureCache } from './feature_cache.js'
+import { getLocation, friendlyDistance, geoToXY } from './geospatial.js'
+import { clearURLCache } from './url_cache.js'
 
 const audioQueue = createSpatialPlayer();
 
-function vocalize(latitude, longitude, heading) {
-  // Create bounding box
-  const boundingBox = createBoundingBox(latitude, longitude);
-  //console.log('Bounding Box:', boundingBox);
-
-  // Enumerate all tiles within that box
-  const tiles = enumerateTilesInBoundingBox(boundingBox, zoomLevel, zoomLevel);
-  //console.log('Mercator Tiles:', tiles);
-
-  // Populate any missing map tiles (without blocking)
-  for (const tile of tiles) {
-    const urlToFetch = `${config.tileServer}/${tile.z}/${tile.x}/${tile.y}.json`;
-    fetchUrlIfNotCached(urlToFetch, maxAge)
-      .then((data) => {
-        for (const feature of data.features) {
-          addToCache(feature);
-        };
-        console.log(`Loaded ${data.features.length} new features.`)
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }
-
+function placesNearMe(latitude, longitude, heading) {
   const myLocation = turf.point([longitude, latitude]);
+
+  // Populate any missing map data
+  loadNearbyTiles(latitude, longitude);
 
   getAllFeatures()
   .then((allFeatures) => {
@@ -115,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var lon= parseFloat(searchParams.get('lon'));
     var head = parseFloat(searchParams.get('heading'));
     if (!isNaN(lat) && !isNaN(lon) && !isNaN(head)) {
-      vocalize(lat, lon, head);
+      placesNearMe(lat, lon, head);
     } else {
       getLocation()
       .then(coords => {
@@ -123,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('Longitude:' + coords.longitude);
         console.log('Heading:' + coords.heading);
 
-        vocalize(coords.latitude, coords.longitude, coords.heading);
+        placesNearMe(coords.latitude, coords.longitude, coords.heading);
       })
       .catch((error) => {
         console.error(error);
