@@ -8,15 +8,23 @@ const speechRate = 2.0;
 let currentSoundSource = null;
 let currentSpeechSource = null;
 
+// Fetch and decode each sound effect only once, and store here by URL
+let audioBufferCache = {};
+
 // Function to load a sound file
 async function loadSound(url) {
-  try {
-    const response = await fetch(url);
-    const arrayBuffer = await response.arrayBuffer();
-    return await audioContext.decodeAudioData(arrayBuffer);
-  } catch (error) {
-    console.error('Error loading sound:', error);
+  if (!audioBufferCache[url]) {
+    // fetch sound URL, decode, and store buffer in cache
+    try {
+      const response = await fetch(url);
+      const arrayBuffer = await response.arrayBuffer();
+      audioBufferCache[url] = await audioContext.decodeAudioData(arrayBuffer);
+    } catch (error) {
+      console.error('Error loading sound:', error);
+      return;
+    }
   }
+  return audioBufferCache[url];
 }
 
 // Function to create a spatial audio source
@@ -114,6 +122,8 @@ export function createSpatialPlayer() {
     } else if (typeof currentItem === 'object' && currentItem.text) {
       // If it's an object with a 'text' property, assume it's spatial speech
       await playSpatialSpeech(currentItem.text, currentItem.x || 0, currentItem.y || 0);
+    } else {
+      console.error(`unrecognized object in audio queue: ${currentItem}`)
     }
 
     // Play the next item recursively

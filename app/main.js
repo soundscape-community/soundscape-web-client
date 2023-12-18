@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function () {
     //btnNearMe.textContent  = '(stop)';
 
     // play mode-enter sound
-    audioQueue.addToQueue('app/sounds/mode_enter.wav');
+    audioQueue.addToQueue({ soundUrl: 'app/sounds/mode_enter.wav', x: 0, y: 0 });
 
     // use location from URL if specified, otherwise use location services
     var searchParams = new URLSearchParams(window.location.search);
