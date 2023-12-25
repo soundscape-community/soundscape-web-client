@@ -1,7 +1,12 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
+import { zoomLevel, loadTile } from './feature_cache.js'
+import { createBoundingBox, enumerateTilesInBoundingBox } from './geospatial.js'
+
 const speedUpFactor = 4;
+
+var seenTiles = new Set();
 
 // initialize OpenStreetMap
 var map = L.map('map');
@@ -86,8 +91,23 @@ document.addEventListener('DOMContentLoaded', function () {
         file,
         function (point) {
           // Callback for each point
-          console.log("Parsed GPX point:", point);
-          // You can perform further actions with each point here
+          // Find all tiles within 0.1km radius of location
+          const boundingBox = createBoundingBox(point.lat, point.lon, 0.1);
+          const tiles = enumerateTilesInBoundingBox(boundingBox, zoomLevel, zoomLevel);
+
+          for (const tile of tiles) {
+            const tileKey = `${tile.z}/${tile.x}/${tile.y}`;
+            if (!seenTiles.has(tileKey)) {
+              // first time seeing this tile in this replay -- fetch if necessary
+              console.log(`new tile: ${tileKey}`)
+              seenTiles.add(tileKey);
+              loadTile(tile.x, tile.y, tile.z);
+            }
+
+            //for (const feature in getFeaturesInTile(tileKey)) {
+            //  //TODO
+            //}
+          }
         },
         function (error) {
           // Error callback

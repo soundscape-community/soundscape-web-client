@@ -5,7 +5,7 @@ import config from './config.js'
 import { createBoundingBox, enumerateTilesInBoundingBox } from './geospatial.js'
 import { cleanDatabase, fetchUrlIfNotCached } from './url_cache.js'
 
-const zoomLevel = 16;
+export const zoomLevel = 16;
 const maxAge = 604800000; // 1 week, in ms
 
 // Function to open the IndexedDB database
@@ -13,19 +13,19 @@ function openDatabase() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open('GeoJSONCache', 1);
 
-    request.onupgradeneeded = (event) => {
+    request.onupgradeneeded = function (event) {
       const db = event.target.result;
       const objectStore = db.createObjectStore('features', { keyPath: 'id', autoIncrement: true });
-      objectStore.createIndex('geometry', 'geometry', { unique: false });
+      objectStore.createIndex('tile', 'tile', { unique: false });
     };
 
-    request.onsuccess = (event) => {
+    request.onsuccess = function (event) {
       const db = event.target.result;
       resolve(db);
     };
 
-    request.onerror = (event) => {
-      reject(`Error opening database: ${event.target.error}`);
+    request.onerror = function (event) {
+      reject(event.target.error);
     };
   });
 }
@@ -35,93 +35,83 @@ export function clearFeatureCache() {
 }
 
 // Function to add GeoJSON feature to the cache
-export async function addToCache(geoJSONFeature) {
+async function addToCache(feature, tile) {
   const db = await openDatabase();
 
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(['features'], 'readwrite');
     const objectStore = transaction.objectStore('features');
-    const request = objectStore.add(geoJSONFeature);
 
-    request.onsuccess = () => {
-      resolve('Feature added to cache');
+    // Add the tile information to the feature before storing it
+    feature.tile = tile;
+
+    const request = objectStore.add(feature);
+
+    request.onsuccess = function () {
+      resolve();
     };
 
-    request.onerror = (event) => {
-      reject(`Error adding feature to cache: ${event.target.error}`);
+    request.onerror = function (event) {
+      reject(event.target.error);
     };
   });
 }
 
+export function loadTile(x, y, z) {
+  const urlToFetch = `${config.tileServer}/${z}/${x}/${y}.json`;
+  fetchUrlIfNotCached(urlToFetch, maxAge)
+    .then((data) => {
+      for (const feature of data.features) {
+        addToCache(feature, `${z}/${x}/${y}`);
+      };
+      console.log(`Loaded ${data.features.length} new features.`)
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+}
+
 export function loadNearbyTiles(latitude, longitude) {
-  const boundingBox = createBoundingBox(latitude, longitude);
+  // Enumerate all tiles within a half-kilometer radius
+  const boundingBox = createBoundingBox(latitude, longitude, 0.5);
   const tiles = enumerateTilesInBoundingBox(boundingBox, zoomLevel, zoomLevel);
 
   // Populate any missing map tiles (without blocking)
   for (const tile of tiles) {
-    const urlToFetch = `${config.tileServer}/${tile.z}/${tile.x}/${tile.y}.json`;
-    fetchUrlIfNotCached(urlToFetch, maxAge)
-      .then((data) => {
-        for (const feature of data.features) {
-          addToCache(feature);
-        };
-        console.log(`Loaded ${data.features.length} new features.`)
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    loadTile(tile.x, tile.y, tile.z);
   }
 }
 
-// Function to get GeoJSON features near a given point
-/*async function getFeaturesNearPoint(targetPoint, radius) {
+// Function to fetch all features within a given tile
+async function getFeaturesInTile(tile) {
   const db = await openDatabase();
 
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(['features'], 'readonly');
     const objectStore = transaction.objectStore('features');
-    const index = objectStore.index('geometry');
+    const tileIndex = objectStore.index('tile');
 
-    // Define a bounding box around the target point based on the radius
-    const boundingBox = {
-      minX: targetPoint.coordinates[0] - radius,
-      minY: targetPoint.coordinates[1] - radius,
-      maxX: targetPoint.coordinates[0] + radius,
-      maxY: targetPoint.coordinates[1] + radius,
-    };
+    const range = IDBKeyRange.only(tile);
+    const request = tileIndex.openCursor(range);
 
-    const range = IDBKeyRange.bound([boundingBox.minX, boundingBox.minY], [boundingBox.maxX, boundingBox.maxY]);
+    const features = [];
 
-    const request = index.openCursor(range);
-
-    const result = [];
-
-    request.onsuccess = (event) => {
+    request.onsuccess = function (event) {
       const cursor = event.target.result;
+
       if (cursor) {
-        // Check if the feature is within the radius of the target point
-        const distance = calculateDistance(targetPoint.coordinates, cursor.value.geometry.coordinates);
-        if (distance <= radius) {
-          result.push(cursor.value);
-        }
+        features.push(cursor.value);
         cursor.continue();
       } else {
-        resolve(result);
+        resolve(features);
       }
     };
 
-    request.onerror = (event) => {
-      reject(`Error getting features from cache: ${event.target.error}`);
+    request.onerror = function (event) {
+      reject(event.target.error);
     };
   });
 }
-
-// Helper function to calculate the distance between two points
-function calculateDistance(point1, point2) {
-  const [x1, y1] = point1;
-  const [x2, y2] = point2;
-  return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-}*/
 
 export async function getAllFeatures(targetPoint, radius) {
   const db = await openDatabase();
