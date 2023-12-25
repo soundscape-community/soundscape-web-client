@@ -2,71 +2,20 @@
 // with many thanks to ChatGPT
 
 import { createSpatialPlayer } from './audio.js'
-import { plotCoordinates } from './canvas.js'
-import { loadNearbyTiles, getAllFeatures, clearFeatureCache } from './feature_cache.js'
-import { getLocation, friendlyDistance, geoToXY } from './geospatial.js'
+import { createCalloutAnnouncer } from './callout.js'
+import { clearFeatureCache } from './feature_cache.js'
+import { getLocation } from './geospatial.js'
 import { clearURLCache } from './url_cache.js'
 
 const audioQueue = createSpatialPlayer();
 
 function placesNearMe(latitude, longitude, heading) {
-  const myLocation = turf.point([longitude, latitude]);
-
-  // Populate any missing map data
-  loadNearbyTiles(latitude, longitude);
-
-  getAllFeatures()
-  .then((allFeatures) => {
-    if (allFeatures.length === 0) {
-      audioQueue.addToQueue({ text: "No places found; try again after data has loaded.", x: 0, y: 0 });
-    } else {
-      //allFeatures.slice(0, 10).forEach(feature => {
-      allFeatures.forEach(feature => {
-        // Call out things that have names that aren't roads
-        if (feature.properties.name && feature.feature_type != 'highway') {
-          // Calculate the distance between the GeoJSON feature and the point
-          const poiCentroid = turf.centroid(feature.geometry);
-          const distance = friendlyDistance(poiCentroid, myLocation);
-
-          // Don't mention features that are far enough away to no longer be in feet
-          if (distance.units == 'miles') {
-            return;
-          }
-
-          // Calculate the Cartesian coordinates to position the audio.
-          const relativePosition = geoToXY(myLocation, heading, poiCentroid);
-          plotCoordinates([{
-            coordinates: [relativePosition.x, relativePosition.y],
-            label: feature.properties.name
-          }]);
-
-          // Play sound effect (positioned spatially) and speak name
-          audioQueue.addToQueue({
-            soundUrl: 'app/sounds/sense_poi.wav',
-            x: relativePosition.x,
-            y: relativePosition.y
-          });
-          audioQueue.addToQueue({
-            //text: feature.properties.name + ' is ' + distance.value + ' ' + distance.units + ' away',
-            text: feature.properties.name,
-            x: relativePosition.x,
-            y: relativePosition.y
-          });
-        }
-      })
-    }
-
-    audioQueue.addToQueue({ soundUrl: 'app/sounds/mode_exit.wav', x: 0, y: 0 });
-  })
+  const announcer = createCalloutAnnouncer(audioQueue, 2000);
+  announcer.locationChanged(latitude, longitude, heading)
 }
 
 // Actions to take when page is rendered in full
 document.addEventListener('DOMContentLoaded', function () {
-  // Draw origin point on canvase
-  plotCoordinates([{
-    coordinates: [0, 0], label: '(self)'
-  }])
-
   // Hook up click event handlers
   var btnNearMe = document.getElementById('btn_near_me');
   btnNearMe.addEventListener('click', function() {

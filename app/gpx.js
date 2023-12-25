@@ -90,7 +90,8 @@ document.addEventListener('DOMContentLoaded', function () {
       replayGPX(
         file,
         function (point) {
-          announcer.locationChanged(point.lat, point.lon);
+          //TODO infer heading from points
+          announcer.locationChanged(point.lat, point.lon, 0);
         },
         function (error) {
           // Error callback

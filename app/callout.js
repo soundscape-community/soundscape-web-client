@@ -2,13 +2,13 @@
 // with many thanks to ChatGPT
 
 import { zoomLevel, loadTile, getFeaturesInTile } from './feature_cache.js'
-import { createBoundingBox, enumerateTilesInBoundingBox, friendlyDistance } from './geospatial.js'
+import { createBoundingBox, enumerateTilesInBoundingBox, friendlyDistance, geoToXY } from './geospatial.js'
 
 export function createCalloutAnnouncer(audioQueue, proximityThreshold) {
   const seenTiles = new Set();
   const spokenRecently = new Set();
 
-  function announceCallout(feature, myLocation) {
+  function announceCallout(feature, myLocation, heading) {
     // Call out things that have names that aren't roads
     if (feature.properties.name && feature.feature_type != 'highway') {
       if (spokenRecently.has(feature.properties.name)) {
@@ -21,25 +21,27 @@ export function createCalloutAnnouncer(audioQueue, proximityThreshold) {
         return;
       }
 
-      //TODO spatial
+      // Calculate the Cartesian coordinates to position the audio.
+      const relativePosition = geoToXY(myLocation, heading, poiCentroid);
+
       console.log(feature.properties.name);
       spokenRecently.add(feature.properties.name);
       audioQueue.addToQueue({
         soundUrl: 'app/sounds/sense_poi.wav',
-        x: 0,
-        y: 0
+        x: relativePosition.x,
+        y: relativePosition.y
       });
       audioQueue.addToQueue({
         //text: feature.properties.name + ' is ' + distance.value + ' ' + distance.units + ' away',
         text: feature.properties.name,
-        x: 0,
-        y: 0
+        x: relativePosition.x,
+        y: relativePosition.y
       });
     }
   }
 
   const announcer = {
-    locationChanged(latitude, longitude) {
+    locationChanged(latitude, longitude, heading) {
       // Find all tiles within 0.1km radius of location
       const boundingBox = createBoundingBox(latitude, longitude, 0.1);
       const tiles = enumerateTilesInBoundingBox(boundingBox, zoomLevel, zoomLevel);
@@ -56,7 +58,7 @@ export function createCalloutAnnouncer(audioQueue, proximityThreshold) {
         getFeaturesInTile(tileKey)
         .then(features => {
           features.forEach(feature => {
-            announceCallout(feature, myLocation);
+            announceCallout(feature, myLocation, heading);
           })
         });
       }
