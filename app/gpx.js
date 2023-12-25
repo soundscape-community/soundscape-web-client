@@ -1,12 +1,16 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-import { zoomLevel, loadTile } from './feature_cache.js'
-import { createBoundingBox, enumerateTilesInBoundingBox } from './geospatial.js'
+import { createSpatialPlayer } from './audio.js'
+import { zoomLevel, loadTile, getFeaturesInTile } from './feature_cache.js'
+import { createBoundingBox, enumerateTilesInBoundingBox, friendlyDistance } from './geospatial.js'
 
-const speedUpFactor = 4;
+const speedUpFactor = 5;
+const proximityThreshold = 250; // feet
+const audioQueue = createSpatialPlayer();
 
 var seenTiles = new Set();
+var spokenRecently = new Set();
 
 // initialize OpenStreetMap
 var map = L.map('map');
@@ -26,7 +30,7 @@ function plotPointsOnMap(points) {
       color: 'red',
       fillColor: '#f03',
       fillOpacity: 0.5,
-      radius: 100 // You can adjust the radius as needed
+      radius: proximityThreshold / 3  // drawn radius is based on proximity threshold for callouts
     }).addTo(markersLayer);
   });
 }
@@ -94,6 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
           // Find all tiles within 0.1km radius of location
           const boundingBox = createBoundingBox(point.lat, point.lon, 0.1);
           const tiles = enumerateTilesInBoundingBox(boundingBox, zoomLevel, zoomLevel);
+          const myLocation = turf.point([point.lon, point.lat]);
 
           for (const tile of tiles) {
             const tileKey = `${tile.z}/${tile.x}/${tile.y}`;
@@ -104,9 +109,37 @@ document.addEventListener('DOMContentLoaded', function () {
               loadTile(tile.x, tile.y, tile.z);
             }
 
-            //for (const feature in getFeaturesInTile(tileKey)) {
-            //  //TODO
-            //}
+            getFeaturesInTile(tileKey)
+            .then((features) => {
+              features.forEach(feature => {
+                // Call out things that have names that aren't roads
+                if (feature.properties.name && feature.feature_type != 'highway') {
+                  if (spokenRecently.has(feature.properties.name)) {
+                    return;
+                  }
+                  // Calculate the distance between the GeoJSON feature and the point
+                  const poiCentroid = turf.centroid(feature.geometry);
+                  const distance = friendlyDistance(poiCentroid, myLocation);
+                  if (distance.units == 'miles' || distance.value > proximityThreshold) {
+                    return;
+                  }
+
+                  //TODO spatial
+                  spokenRecently.add(feature.properties.name);
+                  audioQueue.addToQueue({
+                    soundUrl: 'app/sounds/sense_poi.wav',
+                    x: 0,
+                    y: 0
+                  });
+                  audioQueue.addToQueue({
+                    //text: feature.properties.name + ' is ' + distance.value + ' ' + distance.units + ' away',
+                    text: feature.properties.name,
+                    x: 0,
+                    y: 0
+                  });
+                }
+              })
+            });
           }
         },
         function (error) {

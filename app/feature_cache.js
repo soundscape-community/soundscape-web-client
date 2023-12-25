@@ -83,7 +83,7 @@ export function loadNearbyTiles(latitude, longitude) {
 }
 
 // Function to fetch all features within a given tile
-async function getFeaturesInTile(tile) {
+export async function getFeaturesInTile(tile) {
   const db = await openDatabase();
 
   return new Promise((resolve, reject) => {
