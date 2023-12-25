@@ -3,8 +3,13 @@
 
 const speedUpFactor = 4;
 
-var map;
-var markersLayer;
+// initialize OpenStreetMap
+var map = L.map('map');
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+var markersLayer = new L.LayerGroup().addTo(map);
+var timeoutIds = [];
 
 function plotPointsOnMap(points) {
   // Clear existing markers
@@ -38,11 +43,11 @@ function replayGPX(file, pointCallback, errorCallback, delayBetweenPoints = 1000
 
       // Create map centered at first point in GPX
       if (index === 0) {
-        map = L.map('map').setView([lat, lon], 17);
-        markersLayer = new L.LayerGroup().addTo(map);        // Add the OpenStreetMap layer
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
+        map.setView([lat, lon], 17);
+        // Clear out any previously-scheduled point rendering
+        // (e.g. if we're loading a new GPX while one is already playing)
+        timeoutIds.forEach(clearTimeout);
+        timeoutIds = [];
       }
 
       // Extract time information if available
@@ -53,10 +58,11 @@ function replayGPX(file, pointCallback, errorCallback, delayBetweenPoints = 1000
       const delay = index === 0 ? 0 : time - new Date(trackPoints[index - 1].querySelector("time").textContent).getTime();
 
       // Invoke the callback with a delay
-      setTimeout(() => {
+      var timeoutId = setTimeout(() => {
         plotPointsOnMap([{ latitude: lat, longitude: lon }]);        
         pointCallback({ lat, lon });
       }, delay + delayBetweenPoints * index);
+      timeoutIds.push(timeoutId);
     });
   };
 
