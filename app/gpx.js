@@ -3,9 +3,11 @@
 
 import { createSpatialPlayer } from './audio.js'
 import { createCalloutAnnouncer } from './callout.js';
+import {HeadingCalculator } from './heading.js'
 
 const speedUpFactor = 5;
 const proximityThreshold = 250; // feet
+const headingWindowSize = 10;  // number of recent points to use for estimating heading
 const audioQueue = createSpatialPlayer();
 
 // initialize OpenStreetMap
@@ -13,7 +15,16 @@ var map = L.map('map');
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap contributors'
 }).addTo(map);
+
+// Create a custom divIcon with rotation
+var arrowIcon = L.divIcon({
+  className: 'arrow-icon',
+  iconSize: [0, 0], // set size to 0, as it's controlled by CSS
+  iconAnchor: [7, 25] // adjust anchor based on the arrow design
+});
+
 var markersLayer = new L.LayerGroup().addTo(map);
+
 var timeoutIds = [];
 
 function plotPointsOnMap(points) {
@@ -22,12 +33,19 @@ function plotPointsOnMap(points) {
 
   // Plot each point on the map
   points.forEach(function(point) {
+    // Render a circle reflecting the radius of POIs within speaking distance
     L.circle([point.latitude, point.longitude], {
       color: 'red',
       fillColor: '#f03',
       fillOpacity: 0.5,
       radius: proximityThreshold / 3  // drawn radius is based on proximity threshold for callouts
     }).addTo(markersLayer);
+
+    // Also render a directional arrow showing inferred compass heading
+    var arrowMarker = L.marker([point.latitude, point.longitude], {
+      icon: arrowIcon,
+    }).addTo(markersLayer);
+    arrowMarker._icon.style.transform += ' rotate(' + point.heading + 'deg)';
   });
 }
 
@@ -42,9 +60,14 @@ function replayGPX(file, pointCallback, errorCallback, delayBetweenPoints = 1000
     // Assuming that the GPX file structure follows a standard format
     const trackPoints = xmlDoc.querySelectorAll("trkpt");
 
+    const headingCalculator = new HeadingCalculator(headingWindowSize);
+
     trackPoints.forEach((point, index) => {
       const lat = parseFloat(point.getAttribute("lat"));
       const lon = parseFloat(point.getAttribute("lon"));
+
+      headingCalculator.addPoint(lat, lon);
+      const heading = headingCalculator.computeHeading();
 
       // Create map centered at first point in GPX
       if (index === 0) {
@@ -64,8 +87,8 @@ function replayGPX(file, pointCallback, errorCallback, delayBetweenPoints = 1000
 
       // Invoke the callback with a delay
       var timeoutId = setTimeout(() => {
-        plotPointsOnMap([{ latitude: lat, longitude: lon }]);        
-        pointCallback({ lat, lon });
+        plotPointsOnMap([{ latitude: lat, longitude: lon, heading: heading }]);        
+        pointCallback({ lat, lon, heading });
       }, delay + delayBetweenPoints * index);
       timeoutIds.push(timeoutId);
     });
@@ -90,8 +113,7 @@ document.addEventListener('DOMContentLoaded', function () {
       replayGPX(
         file,
         function (point) {
-          //TODO infer heading from points
-          announcer.locationChanged(point.lat, point.lon, 0);
+          announcer.locationChanged(point.lat, point.lon, point.heading);
         },
         function (error) {
           // Error callback
