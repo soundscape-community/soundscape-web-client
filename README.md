@@ -10,9 +10,15 @@ To use a location other than what's reported by your device, include the latitud
 
 ## Running locally
 
-1. Launch a Soundscape-compatible tile server, such as [Overscape](https://github.com/soundscape-community/overscape-server).
-    1. The server needs to include the proper [CORS headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) to allow API calls from other domains (Overscape does this by default).
-2. Run a web server, such as live-server, in the working directory. Make sure you specify a port that doesn't conflict with the tile server.
+1. Install the Python dependencies, and run the tile server proxy.
+    ```
+    $ cd server
+    $ python -m venv env
+    $ . env/bin/activate
+    $ pip install -r requirements.txt
+    $ python tile_server_proxy.py
+    ```
+2. Run a web server, such as live-server, in the working directory. Make sure you specify a port that doesn't conflict with the tile server proxy.
     ```
     $ npm install live-server
     $ live-server --port=8081 .
