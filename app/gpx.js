@@ -7,7 +7,7 @@ import {HeadingCalculator } from './heading.js'
 
 const speedUpFactor = 5;
 const proximityThreshold = 250; // feet
-const headingWindowSize = 10;  // number of recent points to use for estimating heading
+const headingWindowSize = 5;  // number of recent points to use for estimating heading
 const audioQueue = createSpatialPlayer();
 
 // initialize OpenStreetMap
@@ -69,8 +69,8 @@ function replayGPX(file, pointCallback, errorCallback, delayBetweenPoints = 1000
       headingCalculator.addPoint(lat, lon);
       const heading = headingCalculator.computeHeading();
 
-      // Create map centered at first point in GPX
       if (index === 0) {
+        // Initialize map to starting position
         map.setView([lat, lon], 17);
         // Clear out any previously-scheduled point rendering
         // (e.g. if we're loading a new GPX while one is already playing)
@@ -87,6 +87,8 @@ function replayGPX(file, pointCallback, errorCallback, delayBetweenPoints = 1000
 
       // Invoke the callback with a delay
       var timeoutId = setTimeout(() => {
+        // Map should follow current point
+        //map.setView([lat, lon], 17);
         plotPointsOnMap([{ latitude: lat, longitude: lon, heading: heading }]);        
         pointCallback({ lat, lon, heading });
       }, delay + delayBetweenPoints * index);

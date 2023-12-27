@@ -5,38 +5,81 @@ import { zoomLevel, loadTile, getFeaturesInTile } from './feature_cache.js'
 import { createBoundingBox, enumerateTilesInBoundingBox, friendlyDistance, geoToXY } from './geospatial.js'
 
 export function createCalloutAnnouncer(audioQueue, proximityThreshold) {
+  // Avoid a flood of network requests, by maintaining a list of tiles already requested
+  // (handles the case where the network request is already open)
   const seenTiles = new Set();
-  const spokenRecently = new Set();
+
+  // Avoid repeating myself, by maintaining a list of the most recent POIs announced
+  const spokenRecently = {
+    keys: new Set(),  // for quick lookups
+    queue: [],        // for first in, first out
+    max_size: 100,
+    // feature can have multiple osm_ids (e.g. intersections)
+    key: osm_ids => osm_ids.join("|"),
+
+    add: function(osm_ids) {
+      if (this.keys.size > this.max_size) {
+        const oldestKey = this.queue.shift();
+        this.keys.delete(oldestKey);
+      }
+      this.keys.add(this.key(osm_ids));
+      this.queue.push(this.key(osm_ids));
+    },
+
+    has: function(osm_ids) {
+      return this.keys.has(this.key(osm_ids));
+    }
+  }
+
+  function playSoundAndSpeech(sound, text, sourceLocation, listenerLocation, listenerHeading) {
+    // Calculate the Cartesian coordinates to position the audio.
+    //TODO calculate this at time of speech, not time of queueing
+    const relativePosition = geoToXY(listenerLocation, listenerHeading, sourceLocation);
+
+    console.log(text);
+    audioQueue.addToQueue({
+      soundUrl: `app/sounds/${sound}.wav`,
+      x: relativePosition.x,
+      y: relativePosition.y
+    });
+    audioQueue.addToQueue({
+      //text: text + ' is ' + distance.value + ' ' + distance.units + ' away',
+      text: text,
+      x: relativePosition.x,
+      y: relativePosition.y
+    });
+  }
 
   function announceCallout(feature, myLocation, heading) {
-    // Call out things that have names that aren't roads
-    if (feature.properties.name && feature.feature_type != 'highway') {
-      if (spokenRecently.has(feature.properties.name)) {
-        return;
-      }
-      // Calculate the distance between the GeoJSON feature and the point
-      const poiCentroid = turf.centroid(feature.geometry);
-      const distance = friendlyDistance(poiCentroid, myLocation);
-      if (distance.units == 'miles' || distance.value > proximityThreshold) {
-        return;
-      }
+    if (spokenRecently.has(feature.osm_ids)) {
+      return;
+    }
 
-      // Calculate the Cartesian coordinates to position the audio.
-      const relativePosition = geoToXY(myLocation, heading, poiCentroid);
+    // Calculate the distance between the GeoJSON feature and the point
+    const poiCentroid = turf.centroid(feature.geometry);
+    const distance = friendlyDistance(poiCentroid, myLocation);
+    if (distance.units == 'miles' || distance.value > proximityThreshold) {
+      return;
+    }
 
-      console.log(feature.properties.name);
-      spokenRecently.add(feature.properties.name);
-      audioQueue.addToQueue({
-        soundUrl: 'app/sounds/sense_poi.wav',
-        x: relativePosition.x,
-        y: relativePosition.y
-      });
-      audioQueue.addToQueue({
-        //text: feature.properties.name + ' is ' + distance.value + ' ' + distance.units + ' away',
-        text: feature.properties.name,
-        x: relativePosition.x,
-        y: relativePosition.y
-      });
+    switch (feature.feature_type) {
+      case 'highway':
+        switch (feature.feature_value) {
+          case 'gd_intersection':
+            //TODO
+            break;
+          case 'bus_stop':
+            //TODO
+            break;
+          //TODO case ...
+        }
+        break;
+      default:
+        // Speak anything else with a name
+        if (feature.properties.name) {
+          spokenRecently.add(feature.osm_ids);
+          playSoundAndSpeech('sense_poi', feature.properties.name, poiCentroid, myLocation, heading);
+        }
     }
   }
 
@@ -48,8 +91,8 @@ export function createCalloutAnnouncer(audioQueue, proximityThreshold) {
       const myLocation = turf.point([longitude, latitude]);
 
       for (const tile of tiles) {
+        //FIXME move tile logic outside of calloutAnnouncer
         const tileKey = `${tile.z}/${tile.x}/${tile.y}`;
-        // Prevent a flood of network requests by only fetching the tile the first time it is entered
         if (!seenTiles.has(tileKey)) {
           seenTiles.add(tileKey);
           loadTile(tile.x, tile.y, tile.z);
