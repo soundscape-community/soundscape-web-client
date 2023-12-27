@@ -2,7 +2,7 @@
 // with many thanks to ChatGPT
 
 import { zoomLevel, loadTile, getFeaturesInTile } from './feature_cache.js'
-import { createBoundingBox, enumerateTilesInBoundingBox, friendlyDistance, geoToXY } from './geospatial.js'
+import { createBoundingBox, enumerateTilesInBoundingBox, friendlyDistance } from './geospatial.js'
 
 export function createCalloutAnnouncer(audioQueue, proximityThreshold) {
   // Avoid a flood of network requests, by maintaining a list of tiles already requested
@@ -31,26 +31,20 @@ export function createCalloutAnnouncer(audioQueue, proximityThreshold) {
     }
   }
 
-  function playSoundAndSpeech(sound, text, sourceLocation, listenerLocation, listenerHeading) {
-    // Calculate the Cartesian coordinates to position the audio.
-    //TODO calculate this at time of speech, not time of queueing
-    const relativePosition = geoToXY(listenerLocation, listenerHeading, sourceLocation);
-
+  function playSoundAndSpeech(sound, text, sourceLocation) {
     console.log(text);
     audioQueue.addToQueue({
       soundUrl: `app/sounds/${sound}.wav`,
-      x: relativePosition.x,
-      y: relativePosition.y
+      location: sourceLocation,
     });
     audioQueue.addToQueue({
       //text: text + ' is ' + distance.value + ' ' + distance.units + ' away',
       text: text,
-      x: relativePosition.x,
-      y: relativePosition.y
+      location: sourceLocation,
     });
   }
 
-  function announceCallout(feature, myLocation, heading) {
+  function announceCallout(feature, myLocation) {
     if (spokenRecently.has(feature.osm_ids)) {
       return;
     }
@@ -78,7 +72,7 @@ export function createCalloutAnnouncer(audioQueue, proximityThreshold) {
         // Speak anything else with a name
         if (feature.properties.name) {
           spokenRecently.add(feature.osm_ids);
-          playSoundAndSpeech('sense_poi', feature.properties.name, poiCentroid, myLocation, heading);
+          playSoundAndSpeech('sense_poi', feature.properties.name, poiCentroid);
         }
     }
   }
@@ -89,6 +83,9 @@ export function createCalloutAnnouncer(audioQueue, proximityThreshold) {
       const boundingBox = createBoundingBox(latitude, longitude, 0.1);
       const tiles = enumerateTilesInBoundingBox(boundingBox, zoomLevel, zoomLevel);
       const myLocation = turf.point([longitude, latitude]);
+
+      // Send location info to audio queue, so it can calculate spatial positions
+      audioQueue.updateLocation(myLocation, heading);
 
       for (const tile of tiles) {
         //FIXME move tile logic outside of calloutAnnouncer
@@ -101,7 +98,7 @@ export function createCalloutAnnouncer(audioQueue, proximityThreshold) {
         getFeaturesInTile(tileKey)
         .then(features => {
           features.forEach(feature => {
-            announceCallout(feature, myLocation, heading);
+            announceCallout(feature, myLocation);
           })
         });
       }

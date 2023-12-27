@@ -1,6 +1,8 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
+import { geoToXY } from './geospatial.js'
+
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 const speechRate = 2.0;
 
@@ -84,6 +86,15 @@ export function createSpatialPlayer() {
   const player = {
     queue: [],
     isPlaying: false,
+
+    // Keep track of the user's location, used to calculate positional audio
+    listenerLocation: null,
+    listenerHeading: null,
+    updateLocation(newLocation, newHeading) {
+      player.listenerLocation = newLocation;
+      player.listenerHeading = newHeading;
+    },
+
     addToQueue(item) {
       player.queue.push(item);
       //console.log(item);
@@ -115,13 +126,21 @@ export function createSpatialPlayer() {
 
     const currentItem = player.queue.shift();
 
+    // Calculate the Cartesian coordinates to position the audio.
+    // (done just before the audio is spoken, since the user may have
+    // moved since the audio was queued)
+    var relativePosition = {x: 0, y: 0};
+    if (currentItem.location) {
+      relativePosition = geoToXY(player.listenerLocation, player.listenerHeading, currentItem.location);
+    }
+
     if (typeof currentItem === 'object' && currentItem.soundUrl) {
       // If it's an object with a 'soundUrl' property, assume it's a spatial sound
       const soundBuffer = await loadSound(currentItem.soundUrl);
-      await playSpatialSound(soundBuffer, currentItem.x || 0, currentItem.y || 0);
+      await playSpatialSound(soundBuffer, relativePosition.x || 0, relativePosition.y || 0);
     } else if (typeof currentItem === 'object' && currentItem.text) {
       // If it's an object with a 'text' property, assume it's spatial speech
-      await playSpatialSpeech(currentItem.text, currentItem.x || 0, currentItem.y || 0);
+      await playSpatialSpeech(currentItem.text, relativePosition.x || 0, relativePosition.y || 0);
     } else {
       console.error(`unrecognized object in audio queue: ${currentItem}`)
     }
