@@ -4,10 +4,6 @@
 import { enumerateTilesAround } from './tile.js'
 
 export function createCalloutAnnouncer(audioQueue, proximityThresholdMeters) {
-  // Avoid a flood of network requests, by maintaining a list of tiles already requested
-  // (handles the case where the network request is already open)
-  const seenTiles = new Set();
-
   // Avoid repeating myself, by maintaining a list of the most recent POIs announced
   const spokenRecently = {
     keys: new Set(),  // for quick lookups
@@ -85,12 +81,7 @@ export function createCalloutAnnouncer(audioQueue, proximityThresholdMeters) {
       audioQueue.updateLocation(myLocation, heading);
 
       for (const tile of tiles) {
-        //FIXME move tile logic outside of calloutAnnouncer
-        if (!seenTiles.has(tile.key)) {
-          seenTiles.add(tile.key);
-          tile.load();
-        }
-
+        tile.load();
         tile.getFeatures()
         .then(features => {
           features.forEach(feature => {

@@ -8,6 +8,9 @@ import { createBoundingBox, enumerateTilesInBoundingBox } from './geospatial.js'
 const maxAge = 604800000; // 1 week, in ms
 export const zoomLevel = 16;
 
+// Track tiles that don't need to be re-requested at the moment
+const tilesInProgressOrDone = new Set();
+
 function createTile(x, y, z) {
   var tile = {
     x: x,
@@ -15,7 +18,13 @@ function createTile(x, y, z) {
     z: z,
     key: `${z}/${x}/${y}`,
 
-    load: function() {
+    load: async function() {
+      if (tilesInProgressOrDone.has(tile.key)) {
+        // no need to request again
+        return;
+      }
+      tilesInProgressOrDone.add(tile.key);
+
       const urlToFetch = `${config.tileServer}/${tile.key}.json`;
       fetchUrlIfNotCached(urlToFetch, maxAge)
         .then((data) => {
@@ -26,6 +35,8 @@ function createTile(x, y, z) {
         })
         .catch((error) => {
           console.error(error);
+          // should be retried when next needed
+          tilesInProgressOrDone.delete(tile.key);
         });
     },
 
