@@ -2,7 +2,6 @@
 // with many thanks to ChatGPT
 
 import config from './config.js'
-import { createBoundingBox, enumerateTilesInBoundingBox } from './geospatial.js'
 import { cleanDatabase, fetchUrlIfNotCached } from './url_cache.js'
 
 export const zoomLevel = 16;
@@ -71,17 +70,6 @@ export function loadTile(x, y, z) {
     });
 }
 
-export function loadNearbyTiles(latitude, longitude) {
-  // Enumerate all tiles within a half-kilometer radius
-  const boundingBox = createBoundingBox(latitude, longitude, 0.5);
-  const tiles = enumerateTilesInBoundingBox(boundingBox, zoomLevel, zoomLevel);
-
-  // Populate any missing map tiles (without blocking)
-  for (const tile of tiles) {
-    loadTile(tile.x, tile.y, tile.z);
-  }
-}
-
 // Function to fetch all features within a given tile
 export async function getFeaturesInTile(tile) {
   const db = await openDatabase();
@@ -109,33 +97,6 @@ export async function getFeaturesInTile(tile) {
 
     request.onerror = function (event) {
       reject(event.target.error);
-    };
-  });
-}
-
-export async function getAllFeatures(targetPoint, radius) {
-  const db = await openDatabase();
-
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(['features'], 'readonly');
-    const objectStore = transaction.objectStore('features');
-
-    const request = objectStore.openCursor();
-
-    const result = [];
-
-    request.onsuccess = (event) => {
-      const cursor = event.target.result;
-      if (cursor) {
-        result.push(cursor.value);
-        cursor.continue();
-      } else {
-        resolve(result);
-      }
-    };
-
-    request.onerror = (event) => {
-      reject(`Error getting features from cache: ${event.target.error}`);
     };
   });
 }
