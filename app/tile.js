@@ -63,9 +63,9 @@ function createTile(x, y, z) {
   return tile;
 }
 
-export function enumerateTilesAround(latitude, longitude, radiusKM) {
+export function enumerateTilesAround(latitude, longitude, radiusMeters) {
   // Find all tiles within radiusKM radius of location
-  const boundingBox = createBoundingBox(latitude, longitude, radiusKM);
+  const boundingBox = createBoundingBox(latitude, longitude, radiusMeters);
   return enumerateTilesInBoundingBox(boundingBox, zoomLevel, zoomLevel).map(tile => {
     return createTile(tile.x, tile.y, tile.z);
   });

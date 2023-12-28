@@ -6,10 +6,11 @@ import { clearFeatureCache, clearURLCache } from './cache.js'
 import { createCalloutAnnouncer } from './callout.js'
 import { getLocation } from './geospatial.js'
 
+const proximityThresholdMeters = 500;
 const audioQueue = createSpatialPlayer();
 
 function placesNearMe(latitude, longitude, heading) {
-  const announcer = createCalloutAnnouncer(audioQueue, 2000);
+  const announcer = createCalloutAnnouncer(audioQueue, proximityThresholdMeters);
   announcer.locationChanged(latitude, longitude, heading)
 }
 

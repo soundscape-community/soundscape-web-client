@@ -1,10 +1,9 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-import { friendlyDistance } from './geospatial.js'
 import { enumerateTilesAround } from './tile.js'
 
-export function createCalloutAnnouncer(audioQueue, proximityThreshold) {
+export function createCalloutAnnouncer(audioQueue, proximityThresholdMeters) {
   // Avoid a flood of network requests, by maintaining a list of tiles already requested
   // (handles the case where the network request is already open)
   const seenTiles = new Set();
@@ -51,8 +50,8 @@ export function createCalloutAnnouncer(audioQueue, proximityThreshold) {
 
     // Calculate the distance between the GeoJSON feature and the point
     const poiCentroid = turf.centroid(feature.geometry);
-    const distance = friendlyDistance(poiCentroid, myLocation);
-    if (distance.units == 'miles' || distance.value > proximityThreshold) {
+    const distance =turf.distance(poiCentroid, myLocation, { units: 'meters' });
+    if (distance > proximityThresholdMeters) {
       return;
     }
 
@@ -79,7 +78,7 @@ export function createCalloutAnnouncer(audioQueue, proximityThreshold) {
 
   const announcer = {
     locationChanged(latitude, longitude, heading) {
-      const tiles = enumerateTilesAround(latitude, longitude, 0.1);
+      const tiles = enumerateTilesAround(latitude, longitude, proximityThresholdMeters);
       const myLocation = turf.point([longitude, latitude]);
 
       // Send location info to audio queue, so it can calculate spatial positions

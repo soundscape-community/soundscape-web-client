@@ -6,7 +6,7 @@ import { createCalloutAnnouncer } from './callout.js';
 import {HeadingCalculator } from './heading.js'
 
 const speedUpFactor = 5;
-const proximityThreshold = 250; // feet
+const proximityThresholdMeters = 80;
 const headingWindowSize = 5;  // number of recent points to use for estimating heading
 const audioQueue = createSpatialPlayer();
 
@@ -38,7 +38,7 @@ function plotPointsOnMap(points) {
       color: 'red',
       fillColor: '#f03',
       fillOpacity: 0.5,
-      radius: proximityThreshold / 3  // drawn radius is based on proximity threshold for callouts
+      radius: proximityThresholdMeters  // drawn radius is based on proximity threshold for callouts
     }).addTo(markersLayer);
 
     // Also render a directional arrow showing inferred compass heading
@@ -106,7 +106,7 @@ function replayGPX(file, pointCallback, errorCallback, delayBetweenPoints = 1000
 // Actions to take when page is rendered in full
 document.addEventListener('DOMContentLoaded', function () {
   const inputElement = document.getElementById("gpxFileInput");
-  const announcer = createCalloutAnnouncer(audioQueue, proximityThreshold);
+  const announcer = createCalloutAnnouncer(audioQueue, proximityThresholdMeters);
 
   inputElement.addEventListener("change", function (event) {
     const file = event.target.files[0];

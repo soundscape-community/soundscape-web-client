@@ -2,12 +2,12 @@
 // with many thanks to ChatGPT
 
 // Function to create a half-kilometer bounding box around a point
-export function createBoundingBox(latitude, longitude, radiusKM) {
+export function createBoundingBox(latitude, longitude, radiusMeters) {
   // Create a Turf.js point
   const point = turf.point([longitude, latitude]);
 
   // Buffer the point with the specified readius
-  const buffered = turf.buffer(point, radiusKM, { units: 'kilometers' });
+  const buffered = turf.buffer(point, radiusMeters, { units: 'meters' });
 
   // Extract the bounding box coordinates
   const bbox = turf.bbox(buffered);
@@ -68,17 +68,6 @@ export function getLocation(callback) {
       reject("Geolocation is not supported by this browser");
     }
   });
-}
-
-export function friendlyDistance(pointA, pointB) {
-  // Use feet or miles, depending on how far away the point is.
-  var units = 'feet';
-  var value = turf.distance(pointA, pointB, { units: units }).toFixed(0);
-  if (value > 1500) {
-    units = 'miles'
-    var value = turf.distance(pointA, pointB, { units: units }).toFixed(1);
-  }
-  return { value, units };
 }
 
 export function geoToXY(myLocation, myHeading, poiLocation) {
