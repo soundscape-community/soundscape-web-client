@@ -1,8 +1,8 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-import { zoomLevel, loadTile, getFeaturesInTile } from './feature_cache.js'
-import { createBoundingBox, enumerateTilesInBoundingBox, friendlyDistance } from './geospatial.js'
+import { friendlyDistance } from './geospatial.js'
+import { enumerateTilesAround } from './tile.js'
 
 export function createCalloutAnnouncer(audioQueue, proximityThreshold) {
   // Avoid a flood of network requests, by maintaining a list of tiles already requested
@@ -79,9 +79,7 @@ export function createCalloutAnnouncer(audioQueue, proximityThreshold) {
 
   const announcer = {
     locationChanged(latitude, longitude, heading) {
-      // Find all tiles within 0.1km radius of location
-      const boundingBox = createBoundingBox(latitude, longitude, 0.1);
-      const tiles = enumerateTilesInBoundingBox(boundingBox, zoomLevel, zoomLevel);
+      const tiles = enumerateTilesAround(latitude, longitude, 0.1);
       const myLocation = turf.point([longitude, latitude]);
 
       // Send location info to audio queue, so it can calculate spatial positions
@@ -89,13 +87,12 @@ export function createCalloutAnnouncer(audioQueue, proximityThreshold) {
 
       for (const tile of tiles) {
         //FIXME move tile logic outside of calloutAnnouncer
-        const tileKey = `${tile.z}/${tile.x}/${tile.y}`;
-        if (!seenTiles.has(tileKey)) {
-          seenTiles.add(tileKey);
-          loadTile(tile.x, tile.y, tile.z);
+        if (!seenTiles.has(tile.key)) {
+          seenTiles.add(tile.key);
+          tile.load();
         }
 
-        getFeaturesInTile(tileKey)
+        tile.getFeatures()
         .then(features => {
           features.forEach(feature => {
             announceCallout(feature, myLocation);

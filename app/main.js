@@ -2,10 +2,9 @@
 // with many thanks to ChatGPT
 
 import { createSpatialPlayer } from './audio.js'
+import { clearFeatureCache, clearURLCache } from './cache.js'
 import { createCalloutAnnouncer } from './callout.js'
-import { clearFeatureCache } from './feature_cache.js'
 import { getLocation } from './geospatial.js'
-import { clearURLCache } from './url_cache.js'
 
 const audioQueue = createSpatialPlayer();
 

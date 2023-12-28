@@ -87,6 +87,10 @@ export async function fetchUrlIfNotCached(url, maxAgeInMilliseconds) {
   });
 }
 
+export function clearFeatureCache() {
+  return cleanDatabase('GeoJSONCache', 'features');
+}
+
 export function clearURLCache() {
   return cleanDatabase('URLCache', 'urls');
 }
@@ -114,4 +118,49 @@ export function cleanDatabase(dbName, objectStoreName) {
     request.onerror = function (error) {
         console.error('Error opening database:', error);
     };
+}
+
+// Function to open the IndexedDB database
+export function openFeatureCache() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('GeoJSONCache', 1);
+
+    request.onupgradeneeded = function (event) {
+      const db = event.target.result;
+      const objectStore = db.createObjectStore('features', { keyPath: 'id', autoIncrement: true });
+      objectStore.createIndex('tile', 'tile', { unique: false });
+    };
+
+    request.onsuccess = function (event) {
+      const db = event.target.result;
+      resolve(db);
+    };
+
+    request.onerror = function (event) {
+      reject(event.target.error);
+    };
+  });
+}
+
+// Function to add GeoJSON feature to the cache
+export async function addToFeatureCache(feature, tile) {
+  const db = await openFeatureCache();
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['features'], 'readwrite');
+    const objectStore = transaction.objectStore('features');
+
+    // Add the tile information to the feature before storing it
+    feature.tile = tile;
+
+    const request = objectStore.add(feature);
+
+    request.onsuccess = function () {
+      resolve();
+    };
+
+    request.onerror = function (event) {
+      reject(event.target.error);
+    };
+  });
 }
