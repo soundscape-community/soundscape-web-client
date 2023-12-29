@@ -12,3 +12,7 @@ button {
     border-bottom: 40px solid red; /* You can change the color */
     transform-origin: bottom center;
 }
+
+#map {
+    height: 400px;
+  }

@@ -5,6 +5,7 @@ import { createSpatialPlayer } from './audio.js'
 import { clearFeatureCache, clearURLCache } from './cache.js'
 import { createCalloutAnnouncer } from './callout.js'
 import { getLocation, createLocationProvider } from "./geospatial.js";
+import { createMap } from './map.js';
 
 const proximityThresholdMeters = 500;
 
@@ -13,9 +14,15 @@ document.addEventListener('DOMContentLoaded', function () {
   const locationProvider = createLocationProvider();
   const audioQueue = createSpatialPlayer(locationProvider);
   const announcer = createCalloutAnnouncer(audioQueue, proximityThresholdMeters, true);
+  const map = createMap('map');
 
   // Register for updates to location
   locationProvider.subscribe(announcer.locationChanged);
+  locationProvider.subscribe((latitude, longitude, heading) => {
+    // Map should follow current point
+    map.setView([latitude, longitude], 15);
+    map.plotPoints([{ latitude: latitude, longitude: longitude, heading: heading }], proximityThresholdMeters);        
+  });
 
   // Hook up click event handlers
   var btnNearMe = document.getElementById('btn_near_me');

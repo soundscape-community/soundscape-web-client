@@ -28,7 +28,7 @@ export function createMap(id) {
       L.circle([point.latitude, point.longitude], {
         color: 'red',
         fillColor: '#f03',
-        fillOpacity: 0.5,
+        fillOpacity: 0.3,
         radius: radiusMeters  // drawn radius is based on proximity threshold for callouts
       }).addTo(markersLayer);
 

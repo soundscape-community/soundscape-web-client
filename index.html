@@ -3,8 +3,11 @@
     <head>
         <!-- Render to a usable size on mobile -->
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
         <link rel="stylesheet" href="app/styles/main.css" />
 
+        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
         <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
         <script src="app/main.js" type="module"></script>
     </head>
@@ -12,6 +15,6 @@
         <button id="btn_near_me">Places Near Me</button>
         <button id="btn_clear">Clear Cached Data</button>
 
-        <div id="log-container"></div>
+        <div id="map"></div>
     </body>
 </html>
