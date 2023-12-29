@@ -5,51 +5,15 @@ import { createSpatialPlayer } from './audio.js'
 import { createCalloutAnnouncer } from './callout.js';
 import { createLocationProvider } from './geospatial.js'
 import { HeadingCalculator } from './heading.js'
+import { createMap } from './map.js'
 
 const speedUpFactor = 5;
 const proximityThresholdMeters = 80;
 const headingWindowSize = 5;  // number of recent points to use for estimating heading
 
-// initialize OpenStreetMap
-var map = L.map('map');
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap contributors'
-}).addTo(map);
-
-// Create a custom divIcon with rotation
-var arrowIcon = L.divIcon({
-  className: 'arrow-icon',
-  iconSize: [0, 0], // set size to 0, as it's controlled by CSS
-  iconAnchor: [7, 25] // adjust anchor based on the arrow design
-});
-
-var markersLayer = new L.LayerGroup().addTo(map);
-
 var timeoutIds = [];
 
-function plotPointsOnMap(points) {
-  // Clear existing markers
-  markersLayer.clearLayers();
-
-  // Plot each point on the map
-  points.forEach(function(point) {
-    // Render a circle reflecting the radius of POIs within speaking distance
-    L.circle([point.latitude, point.longitude], {
-      color: 'red',
-      fillColor: '#f03',
-      fillOpacity: 0.5,
-      radius: proximityThresholdMeters  // drawn radius is based on proximity threshold for callouts
-    }).addTo(markersLayer);
-
-    // Also render a directional arrow showing inferred compass heading
-    var arrowMarker = L.marker([point.latitude, point.longitude], {
-      icon: arrowIcon,
-    }).addTo(markersLayer);
-    arrowMarker._icon.style.transform += ' rotate(' + point.heading + 'deg)';
-  });
-}
-
-function replayGPX(file, pointCallback, errorCallback, delayBetweenPoints = 1000) {
+function replayGPX(file, map, pointCallback, errorCallback, delayBetweenPoints = 1000) {
   const reader = new FileReader();
 
   reader.onload = function (e) {
@@ -89,7 +53,7 @@ function replayGPX(file, pointCallback, errorCallback, delayBetweenPoints = 1000
       var timeoutId = setTimeout(() => {
         // Map should follow current point
         //map.setView([lat, lon], 17);
-        plotPointsOnMap([{ latitude: lat, longitude: lon, heading: heading }]);        
+        map.plotPoints([{ latitude: lat, longitude: lon, heading: heading }], proximityThresholdMeters);        
         pointCallback({ lat, lon, heading });
       }, delay + delayBetweenPoints * index);
       timeoutIds.push(timeoutId);
@@ -109,6 +73,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const locationProvider = createLocationProvider();
   const audioQueue = createSpatialPlayer(locationProvider);
   const announcer = createCalloutAnnouncer(audioQueue, proximityThresholdMeters, false);
+  const map = createMap('map');
 
   inputElement.addEventListener("change", function (event) {
     const file = event.target.files[0];
@@ -116,6 +81,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (file) {
       replayGPX(
         file,
+        map,
         function (point) {
           locationProvider.update(point.lat, point.lon, point.heading);
         },
