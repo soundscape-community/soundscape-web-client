@@ -10,7 +10,7 @@ const proximityThresholdMeters = 500;
 const audioQueue = createSpatialPlayer();
 
 function placesNearMe(latitude, longitude, heading) {
-  const announcer = createCalloutAnnouncer(audioQueue, proximityThresholdMeters);
+  const announcer = createCalloutAnnouncer(audioQueue, proximityThresholdMeters, true);
   announcer.locationChanged(latitude, longitude, heading)
 }
 
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
     //btnNearMe.textContent  = '(stop)';
 
     // play mode-enter sound
-    audioQueue.addToQueue({ soundUrl: 'app/sounds/mode_enter.wav', x: 0, y: 0 });
+    audioQueue.addToQueue({ soundUrl: 'app/sounds/mode_enter.wav' });
 
     // use location from URL if specified, otherwise use location services
     var searchParams = new URLSearchParams(window.location.search);

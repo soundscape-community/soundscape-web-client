@@ -106,7 +106,7 @@ function replayGPX(file, pointCallback, errorCallback, delayBetweenPoints = 1000
 // Actions to take when page is rendered in full
 document.addEventListener('DOMContentLoaded', function () {
   const inputElement = document.getElementById("gpxFileInput");
-  const announcer = createCalloutAnnouncer(audioQueue, proximityThresholdMeters);
+  const announcer = createCalloutAnnouncer(audioQueue, proximityThresholdMeters, false);
 
   inputElement.addEventListener("change", function (event) {
     const file = event.target.files[0];

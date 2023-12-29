@@ -3,7 +3,7 @@
 
 import { enumerateTilesAround } from './tile.js'
 
-export function createCalloutAnnouncer(audioQueue, proximityThresholdMeters) {
+export function createCalloutAnnouncer(audioQueue, proximityThresholdMeters, includeDistance) {
   // Avoid repeating myself, by maintaining a list of the most recent POIs announced
   const spokenRecently = {
     keys: new Set(),  // for quick lookups
@@ -26,27 +26,27 @@ export function createCalloutAnnouncer(audioQueue, proximityThresholdMeters) {
     }
   }
 
-  function playSoundAndSpeech(sound, text, sourceLocation) {
+  function playSoundAndSpeech(sound, text, sourceLocation, includeDistance) {
     console.log(text);
     audioQueue.addToQueue({
       soundUrl: `app/sounds/${sound}.wav`,
       location: sourceLocation,
     });
     audioQueue.addToQueue({
-      //text: text + ' is ' + distance.value + ' ' + distance.units + ' away',
       text: text,
       location: sourceLocation,
+      includeDistance: includeDistance
     });
   }
 
-  function announceCallout(feature, myLocation) {
+  function announceCallout(feature, myLocation, includeDistance) {
     if (spokenRecently.has(feature.osm_ids)) {
       return;
     }
 
     // Calculate the distance between the GeoJSON feature and the point
     const poiCentroid = turf.centroid(feature.geometry);
-    const distance =turf.distance(poiCentroid, myLocation, { units: 'meters' });
+    const distance = turf.distance(poiCentroid, myLocation, { units: 'meters' });
     if (distance > proximityThresholdMeters) {
       return;
     }
@@ -67,7 +67,7 @@ export function createCalloutAnnouncer(audioQueue, proximityThresholdMeters) {
         // Speak anything else with a name
         if (feature.properties.name) {
           spokenRecently.add(feature.osm_ids);
-          playSoundAndSpeech('sense_poi', feature.properties.name, poiCentroid);
+          playSoundAndSpeech('sense_poi', feature.properties.name, poiCentroid, includeDistance);
         }
     }
   }
@@ -85,7 +85,7 @@ export function createCalloutAnnouncer(audioQueue, proximityThresholdMeters) {
         tile.getFeatures()
         .then(features => {
           features.forEach(feature => {
-            announceCallout(feature, myLocation);
+            announceCallout(feature, myLocation, includeDistance);
           })
         });
       }

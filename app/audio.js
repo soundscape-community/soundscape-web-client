@@ -134,6 +134,13 @@ export function createSpatialPlayer() {
       relativePosition = geoToXY(player.listenerLocation, player.listenerHeading, currentItem.location);
     }
 
+    // Compute current distance to POI (may be greater than proximityThreshold, if user has moved away since it was queued)
+    if (currentItem.includeDistance) {
+      const units = 'feet';
+      const distance = turf.distance(player.listenerLocation, currentItem.location, { units: units }).toFixed(0);
+      currentItem.text += `, ${distance} ${units}`
+    }
+
     if (typeof currentItem === 'object' && currentItem.soundUrl) {
       // If it's an object with a 'soundUrl' property, assume it's a spatial sound
       const soundBuffer = await loadSound(currentItem.soundUrl);
