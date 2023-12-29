@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const audioQueue = createSpatialPlayer(locationProvider);
   const announcer = createCalloutAnnouncer(audioQueue, proximityThresholdMeters, true);
 
+  // Register for updates to location
+  locationProvider.subscribe(announcer.locationChanged);
+
   // Hook up click event handlers
   var btnNearMe = document.getElementById('btn_near_me');
   btnNearMe.addEventListener('click', function() {

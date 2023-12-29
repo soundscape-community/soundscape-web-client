@@ -51,9 +51,6 @@ function replayGPX(file, map, pointCallback, errorCallback, delayBetweenPoints =
 
       // Invoke the callback with a delay
       var timeoutId = setTimeout(() => {
-        // Map should follow current point
-        //map.setView([lat, lon], 17);
-        map.plotPoints([{ latitude: lat, longitude: lon, heading: heading }], proximityThresholdMeters);        
         pointCallback({ lat, lon, heading });
       }, delay + delayBetweenPoints * index);
       timeoutIds.push(timeoutId);
@@ -74,6 +71,14 @@ document.addEventListener('DOMContentLoaded', function () {
   const audioQueue = createSpatialPlayer(locationProvider);
   const announcer = createCalloutAnnouncer(audioQueue, proximityThresholdMeters, false);
   const map = createMap('map');
+
+  // Register for updates to location
+  locationProvider.subscribe(announcer.locationChanged);
+  locationProvider.subscribe((latitude, longitude, heading) => {
+    // Map should follow current point
+    //map.setView([lat, lon], 17);
+    map.plotPoints([{ latitude: latitude, longitude: longitude, heading: heading }], proximityThresholdMeters);        
+  });
 
   inputElement.addEventListener("change", function (event) {
     const file = event.target.files[0];

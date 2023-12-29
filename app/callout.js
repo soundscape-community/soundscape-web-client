@@ -87,8 +87,5 @@ export function createCalloutAnnouncer(audioQueue, proximityThresholdMeters, inc
     },
   };
 
-  // Register for updates to location
-  audioQueue.locationProvider.subscribe(announcer.locationChanged);
-
   return announcer;
 }
