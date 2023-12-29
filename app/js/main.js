@@ -1,11 +1,12 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-import { createSpatialPlayer } from './audio.js'
-import { clearFeatureCache, clearURLCache } from './cache.js'
-import { createCalloutAnnouncer } from './callout.js'
-import { getLocation, createLocationProvider } from "./geospatial.js";
-import { createMap } from './map.js';
+import { createSpatialPlayer } from './audio/sound.js'
+import { createCalloutAnnouncer } from './audio/callout.js'
+import { clearFeatureCache, clearURLCache } from './data/cache.js'
+import { getLocation } from './spatial/geo.js';
+import { createLocationProvider } from './spatial/location.js'
+import { createMap } from './spatial/map.js';
 
 const proximityThresholdMeters = 500;
 

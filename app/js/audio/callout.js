@@ -1,7 +1,7 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-import { enumerateTilesAround } from './tile.js'
+import { enumerateTilesAround } from '../data/tile.js'
 
 export function createCalloutAnnouncer(audioQueue, proximityThresholdMeters, includeDistance) {
   // Avoid repeating myself, by maintaining a list of the most recent POIs announced

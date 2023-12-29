@@ -2,8 +2,8 @@
 // with many thanks to ChatGPT
 
 import { addToFeatureCache, fetchUrlIfNotCached, openFeatureCache } from './cache.js'
-import config from './config.js'
-import { createBoundingBox, enumerateTilesInBoundingBox } from './geospatial.js'
+import config from '../config.js'
+import { createBoundingBox, enumerateTilesInBoundingBox } from '../spatial/geo.js'
 
 const maxAge = 604800000; // 1 week, in ms
 export const zoomLevel = 16;
