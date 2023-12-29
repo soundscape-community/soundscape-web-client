@@ -39,14 +39,14 @@ export function createCalloutAnnouncer(audioQueue, proximityThresholdMeters, inc
     });
   }
 
-  function announceCallout(feature, myLocation, includeDistance) {
+  function announceCallout(feature, includeDistance) {
     if (spokenRecently.has(feature.osm_ids)) {
       return;
     }
 
     // Calculate the distance between the GeoJSON feature and the point
     const poiCentroid = turf.centroid(feature.geometry);
-    const distance = turf.distance(poiCentroid, myLocation, { units: 'meters' });
+    const distance = audioQueue.locationProvider.distance(poiCentroid, { units: 'meters' });
     if (distance > proximityThresholdMeters) {
       return;
     }
@@ -75,22 +75,20 @@ export function createCalloutAnnouncer(audioQueue, proximityThresholdMeters, inc
   const announcer = {
     locationChanged(latitude, longitude, heading) {
       const tiles = enumerateTilesAround(latitude, longitude, proximityThresholdMeters);
-      const myLocation = turf.point([longitude, latitude]);
-
-      // Send location info to audio queue, so it can calculate spatial positions
-      audioQueue.updateLocation(myLocation, heading);
-
       for (const tile of tiles) {
         tile.load();
         tile.getFeatures()
         .then(features => {
           features.forEach(feature => {
-            announceCallout(feature, myLocation, includeDistance);
+            announceCallout(feature, includeDistance);
           })
         });
       }
     },
   };
+
+  // Register for updates to location
+  audioQueue.locationProvider.subscribe(announcer.locationChanged);
 
   return announcer;
 }

@@ -1,8 +1,6 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-import { geoToXY } from './geospatial.js'
-
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 const speechRate = 2.0;
 
@@ -82,19 +80,11 @@ function playSpatialSpeech(text, x, y) {
 }
 
 // Function to create a player with a dynamic sequence of spatial sounds and spatial speech
-export function createSpatialPlayer() {
+export function createSpatialPlayer(locationProvider) {
   const player = {
     queue: [],
     isPlaying: false,
-
-    // Keep track of the user's location, used to calculate positional audio
-    listenerLocation: null,
-    listenerHeading: null,
-    updateLocation(newLocation, newHeading) {
-      player.listenerLocation = newLocation;
-      player.listenerHeading = newHeading;
-    },
-
+    locationProvider: locationProvider,
     addToQueue(item) {
       player.queue.push(item);
       //console.log(item);
@@ -131,13 +121,13 @@ export function createSpatialPlayer() {
     // moved since the audio was queued)
     var relativePosition = {x: 0, y: 0};
     if (currentItem.location) {
-      relativePosition = geoToXY(player.listenerLocation, player.listenerHeading, currentItem.location);
+      relativePosition = player.locationProvider.relativePosition(currentItem.location);
     }
 
     // Compute current distance to POI (may be greater than proximityThreshold, if user has moved away since it was queued)
     if (currentItem.includeDistance) {
       const units = 'feet';
-      const distance = turf.distance(player.listenerLocation, currentItem.location, { units: units }).toFixed(0);
+      const distance = player.locationProvider.distance(currentItem.location, { units: units }).toFixed(0);
       currentItem.text += `, ${distance} ${units}`
     }
 

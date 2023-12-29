@@ -3,12 +3,12 @@
 
 import { createSpatialPlayer } from './audio.js'
 import { createCalloutAnnouncer } from './callout.js';
-import {HeadingCalculator } from './heading.js'
+import { createLocationProvider } from './geospatial.js'
+import { HeadingCalculator } from './heading.js'
 
 const speedUpFactor = 5;
 const proximityThresholdMeters = 80;
 const headingWindowSize = 5;  // number of recent points to use for estimating heading
-const audioQueue = createSpatialPlayer();
 
 // initialize OpenStreetMap
 var map = L.map('map');
@@ -106,6 +106,8 @@ function replayGPX(file, pointCallback, errorCallback, delayBetweenPoints = 1000
 // Actions to take when page is rendered in full
 document.addEventListener('DOMContentLoaded', function () {
   const inputElement = document.getElementById("gpxFileInput");
+  const locationProvider = createLocationProvider();
+  const audioQueue = createSpatialPlayer(locationProvider);
   const announcer = createCalloutAnnouncer(audioQueue, proximityThresholdMeters, false);
 
   inputElement.addEventListener("change", function (event) {
@@ -115,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function () {
       replayGPX(
         file,
         function (point) {
-          announcer.locationChanged(point.lat, point.lon, point.heading);
+          locationProvider.update(point.lat, point.lon, point.heading);
         },
         function (error) {
           // Error callback

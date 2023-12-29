@@ -4,18 +4,16 @@
 import { createSpatialPlayer } from './audio.js'
 import { clearFeatureCache, clearURLCache } from './cache.js'
 import { createCalloutAnnouncer } from './callout.js'
-import { getLocation } from './geospatial.js'
+import { getLocation, createLocationProvider } from "./geospatial.js";
 
 const proximityThresholdMeters = 500;
-const audioQueue = createSpatialPlayer();
-
-function placesNearMe(latitude, longitude, heading) {
-  const announcer = createCalloutAnnouncer(audioQueue, proximityThresholdMeters, true);
-  announcer.locationChanged(latitude, longitude, heading)
-}
 
 // Actions to take when page is rendered in full
 document.addEventListener('DOMContentLoaded', function () {
+  const locationProvider = createLocationProvider();
+  const audioQueue = createSpatialPlayer(locationProvider);
+  const announcer = createCalloutAnnouncer(audioQueue, proximityThresholdMeters, true);
+
   // Hook up click event handlers
   var btnNearMe = document.getElementById('btn_near_me');
   btnNearMe.addEventListener('click', function() {
@@ -40,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var lon= parseFloat(searchParams.get('lon'));
     var head = parseFloat(searchParams.get('heading'));
     if (!isNaN(lat) && !isNaN(lon) && !isNaN(head)) {
-      placesNearMe(lat, lon, head);
+      locationProvider.update(lat, lon, heading);
     } else {
       getLocation()
       .then(coords => {
@@ -48,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('Longitude:' + coords.longitude);
         console.log('Heading:' + coords.heading);
 
-        placesNearMe(coords.latitude, coords.longitude, coords.heading);
+        locationProvider.update(coords.latitude, coords.longitude, coords.heading);
       })
       .catch((error) => {
         console.error(error);
