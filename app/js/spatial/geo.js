@@ -70,6 +70,28 @@ export function getLocation(callback) {
   });
 }
 
+export function watchLocation(callback) {
+  return navigator.geolocation.watchPosition(
+    function (position) {
+      console.log(position);
+      callback(
+        position.coords.latitude,
+        position.coords.longitude,
+        position.coords.heading || 0,  // not available on all platforms
+      );
+    },
+    function (error) {
+      // Reject the Promise with the error message
+      console.error("Error getting current position: " + error.message);
+    },
+    {
+      enableHighAccuracy: false,
+      timeout: 5000,
+      maximumAge: 0,
+    }
+  );
+}
+
 export function geoToXY(myLocation, myHeading, poiLocation) {
   // Convert degrees to radians
   const toRadians = degree => degree * (Math.PI / 180);

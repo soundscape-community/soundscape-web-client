@@ -4,11 +4,11 @@
 import { createSpatialPlayer } from './audio/sound.js'
 import { createCalloutAnnouncer } from './audio/callout.js'
 import { clearFeatureCache, clearURLCache } from './data/cache.js'
-import { getLocation } from './spatial/geo.js';
+import { getLocation, watchLocation } from './spatial/geo.js';
 import { createLocationProvider } from './spatial/location.js'
 import { createMap } from './spatial/map.js';
 
-const proximityThresholdMeters = 500;
+const proximityThresholdMeters = 100;
 
 // Actions to take when page is rendered in full
 document.addEventListener('DOMContentLoaded', function () {
@@ -26,12 +26,32 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // Hook up click event handlers
+  var btnCallouts = document.getElementById('btn_callouts');
+  var watchPositionHandler = null;
+  btnCallouts.addEventListener('click', function() {
+    if (watchPositionHandler) {
+      // Currently watching -- clear handler
+      navigator.geolocation.clearWatch(watchPositionHandler);
+      btnCallouts.textContent = 'Start';
+      audioQueue.stopAndClear();
+      audioQueue.addToQueue({ soundUrl: 'app/sounds/mode_exit.wav' });
+    } else {
+      // Not currently watching -- start handler
+      btnCallouts.textContent = 'Stop';
+
+      // play mode-enter sound
+      audioQueue.addToQueue({ soundUrl: 'app/sounds/mode_enter.wav' });
+
+      watchPositionHandler =watchLocation(locationProvider.update);
+    }
+  });
+
   var btnNearMe = document.getElementById('btn_near_me');
   btnNearMe.addEventListener('click', function() {
     if (audioQueue.queue.length > 0) {
     //if (btnNearMe.textContent == '(stop)') {
       audioQueue.stopAndClear();
-      audioQueue.addToQueue({ soundUrl: 'app/sounds/mode_exit.wav', x: 0, y: 0 });
+      audioQueue.addToQueue({ soundUrl: 'app/sounds/mode_exit.wav' });
       //btnNearMe.textContent = 'Places Near Me';
       return;
     }

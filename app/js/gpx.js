@@ -66,7 +66,6 @@ function replayGPX(file, map, pointCallback, errorCallback, delayBetweenPoints =
 
 // Actions to take when page is rendered in full
 document.addEventListener('DOMContentLoaded', function () {
-  const inputElement = document.getElementById("gpxFileInput");
   const locationProvider = createLocationProvider();
   const audioQueue = createSpatialPlayer(locationProvider);
   const announcer = createCalloutAnnouncer(audioQueue, proximityThresholdMeters, false);
@@ -80,6 +79,7 @@ document.addEventListener('DOMContentLoaded', function () {
     map.plotPoints([{ latitude: latitude, longitude: longitude, heading: heading }], proximityThresholdMeters);        
   });
 
+  const inputElement = document.getElementById("gpxFileInput");
   inputElement.addEventListener("change", function (event) {
     const file = event.target.files[0];
   
