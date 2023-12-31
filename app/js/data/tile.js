@@ -1,11 +1,10 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-import { addToFeatureCache, fetchUrlIfNotCached, openFeatureCache } from './cache.js'
+import cache from './cache.js'
 import config from '../config.js'
 import { createBoundingBox, enumerateTilesInBoundingBox } from '../spatial/geo.js'
 
-const maxAge = 604800000; // 1 week, in ms
 export const zoomLevel = 16;
 
 // Track tiles that don't need to be re-requested at the moment
@@ -26,10 +25,10 @@ function createTile(x, y, z) {
       tilesInProgressOrDone.add(tile.key);
 
       const urlToFetch = `${config.tileServer}/${tile.key}.json`;
-      fetchUrlIfNotCached(urlToFetch, maxAge)
+      cache.fetch(urlToFetch)
         .then((data) => {
           for (const feature of data.features) {
-            addToFeatureCache(feature, tile.key);
+            cache.addFeature(feature, tile.key);
           };
           console.log(`Loaded ${data.features.length} new features.`)
         })
@@ -41,33 +40,7 @@ function createTile(x, y, z) {
     },
 
     getFeatures: async function() {
-      const db = await openFeatureCache();
-
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction(['features'], 'readonly');
-        const objectStore = transaction.objectStore('features');
-        const tileIndex = objectStore.index('tile');
-    
-        const range = IDBKeyRange.only(tile.key);
-        const request = tileIndex.openCursor(range);
-    
-        const features = [];
-    
-        request.onsuccess = function (event) {
-          const cursor = event.target.result;
-    
-          if (cursor) {
-            features.push(cursor.value);
-            cursor.continue();
-          } else {
-            resolve(features);
-          }
-        };
-    
-        request.onerror = function (event) {
-          reject(event.target.error);
-        };
-      });
+      return cache.getFeatures(tile);
     },
   }
 

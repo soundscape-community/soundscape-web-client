@@ -3,7 +3,7 @@
 
 import { createSpatialPlayer } from './audio/sound.js'
 import { createCalloutAnnouncer } from './audio/callout.js'
-import { clearFeatureCache, clearURLCache } from './data/cache.js'
+import cache from './data/cache.js'
 import { getLocation, watchLocation } from './spatial/geo.js';
 import { createLocationProvider } from './spatial/location.js'
 import { createMap } from './spatial/map.js';
@@ -87,7 +87,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var btnClear = document.getElementById('btn_clear');
   btnClear.addEventListener('click', function() {
-    clearURLCache();
-    clearFeatureCache();
+    cache.clear();
   });
 });
