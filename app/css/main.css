@@ -1,5 +1,5 @@
 /* touch-friendly button */
-button {
+button, select, label, input {
     padding: 10px 20px;
     font-size: 16px;
 }

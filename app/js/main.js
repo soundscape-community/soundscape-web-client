@@ -25,6 +25,41 @@ document.addEventListener('DOMContentLoaded', function () {
     map.plotPoints([{ latitude: latitude, longitude: longitude, heading: heading }], proximityThresholdMeters);        
   });
 
+  // Fetch available voices
+  const voiceSelect = document.getElementById('voice');
+  const rateInput = document.getElementById('rate');
+
+  // Populate voice selector
+  function populateVoices() {
+    audioQueue.voices = window.speechSynthesis.getVoices();
+    audioQueue.voices.forEach(function(voice, index) {
+      const option = document.createElement('option');
+      option.value = index;
+      option.textContent = voice.name;
+      voiceSelect.appendChild(option);
+    });
+  }
+  populateVoices();
+
+  // Update voices when they change
+  window.speechSynthesis.onvoiceschanged = function() {
+    voiceSelect.innerHTML = ''; // Clear existing options
+    populateVoices();
+  };
+
+  // Update voice and range when user changes them
+  rateInput.addEventListener('input', function(e) {
+    audioQueue.setRate(parseFloat(rateInput.value));
+  });
+
+  voiceSelect.addEventListener('change', function() {
+    audioQueue.setVoice(voiceSelect.value);
+  });
+
+  // Set voice and rate to match initial values
+  audioQueue.setRate(parseFloat(rateInput.value));
+  audioQueue.setVoice(voiceSelect.value);
+
   // Hook up click event handlers
   var btnCallouts = document.getElementById('btn_callouts');
   var watchPositionHandler = null;

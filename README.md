@@ -16,6 +16,12 @@ https://soundscape-community.github.io/soundscape-web-client/
 
 To use a location other than what's reported by your device, include the latitude, longitude, and compass heading (degrees from north) in the URL, e.g. https://soundscape-community.github.io/soundscape-web-client/?lon=-77.006156&lat=38.897600&heading=0.0 will place you near Union Station in Washington, D.C.
 
+#### Gotchas on iOS Safari
+
+If things aren't behaving properly in Safari on iOS:
+1. Make sure location services are enabled for Safari, under Settings > Privacy & Security > Location Services > Safari.
+2. If you're not using headphones, make sure your device is not set to silent.
+
 ## Running locally
 
 1. Install the Python dependencies, and run the tile server proxy.

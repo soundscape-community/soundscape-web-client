@@ -2,7 +2,6 @@
 // with many thanks to ChatGPT
 
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-const speechRate = 2.0;
 
 // Variables to store the current sound and speech sources
 let currentSoundSource = null;
@@ -10,35 +9,6 @@ let currentSpeechSource = null;
 
 // Fetch and decode each sound effect only once, and store here by URL
 let audioBufferCache = {};
-
-// iOS Safari: need to load voices before speech synthesis will work
-// https://stackoverflow.com/a/61963317
-let _speechSynth
-let _voices
-const _cache = {}
-function loadVoicesWhenAvailable (onComplete = () => {}) {
-  _speechSynth = window.speechSynthesis
-  const voices = _speechSynth.getVoices()
-
-  if (voices.length !== 0) {
-    _voices = voices
-    onComplete()
-  } else {
-    return setTimeout(function () { loadVoicesWhenAvailable(onComplete) }, 100)
-  }
-}
-function getVoices (locale) {
-  if (!_speechSynth) {
-    throw new Error('Browser does not support speech synthesis')
-  }
-  if (_cache[locale]) return _cache[locale]
-
-  _cache[locale] = _voices.filter(voice => voice.lang === locale)
-  return _cache[locale]
-}
-loadVoicesWhenAvailable(function () {
-  console.log(`Loaded ${_voices.length} TTS voices.`);
-});
 
 // Function to load a sound file
 async function loadSound(url) {
@@ -91,17 +61,20 @@ function playSpatialSound(buffer, x, y) {
 
 // Function to play synthesized speech with spatial audio
 //FIXME not actually spatial
-function playSpatialSpeech(text, x, y) {
+function playSpatialSpeech(text, voice, rate, x, y) {
   // Cancel the current speech source if any
   if (currentSpeechSource) {
     speechSynthesis.cancel();
   }
 
   return new Promise((resolve) => {
-    const voices = getVoices('en-US');
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = speechRate;
-    utterance.voice = voices[0];
+    if (rate) {
+      utterance.rate = rate;
+    }
+    if (voice) {
+      utterance.voice = voice;
+    }
     utterance.onend = () => resolve();
     speechSynthesis.speak(utterance);
 
@@ -116,6 +89,20 @@ export function createSpatialPlayer(locationProvider) {
     queue: [],
     isPlaying: false,
     locationProvider: locationProvider,
+
+    // Speech synthesis customization
+    voices: null,
+    voice: null,
+    rate: null,
+    setVoice(voiceIndex) {
+      player.voice = player.voices[voiceIndex];
+      console.log('Voice set to: ', player.voice);
+    },
+    setRate(rate) {
+      player.rate = rate;
+      console.log('Rate set to: ', player.rate);
+    },
+
     addToQueue(item) {
       player.queue.push(item);
       //console.log(item);
@@ -168,7 +155,7 @@ export function createSpatialPlayer(locationProvider) {
       await playSpatialSound(soundBuffer, relativePosition.x || 0, relativePosition.y || 0);
     } else if (typeof currentItem === 'object' && currentItem.text) {
       // If it's an object with a 'text' property, assume it's spatial speech
-      await playSpatialSpeech(currentItem.text, relativePosition.x || 0, relativePosition.y || 0);
+      await playSpatialSpeech(currentItem.text, player.voice, player.rate, relativePosition.x || 0, relativePosition.y || 0);
     } else {
       console.error(`unrecognized object in audio queue: ${currentItem}`)
     }
