@@ -11,6 +11,35 @@ let currentSpeechSource = null;
 // Fetch and decode each sound effect only once, and store here by URL
 let audioBufferCache = {};
 
+// iOS Safari: need to load voices before speech synthesis will work
+// https://stackoverflow.com/a/61963317
+let _speechSynth
+let _voices
+const _cache = {}
+function loadVoicesWhenAvailable (onComplete = () => {}) {
+  _speechSynth = window.speechSynthesis
+  const voices = _speechSynth.getVoices()
+
+  if (voices.length !== 0) {
+    _voices = voices
+    onComplete()
+  } else {
+    return setTimeout(function () { loadVoicesWhenAvailable(onComplete) }, 100)
+  }
+}
+function getVoices (locale) {
+  if (!_speechSynth) {
+    throw new Error('Browser does not support speech synthesis')
+  }
+  if (_cache[locale]) return _cache[locale]
+
+  _cache[locale] = _voices.filter(voice => voice.lang === locale)
+  return _cache[locale]
+}
+loadVoicesWhenAvailable(function () {
+  console.log(`Loaded ${_voices.length} TTS voices.`);
+});
+
 // Function to load a sound file
 async function loadSound(url) {
   if (!audioBufferCache[url]) {
@@ -69,8 +98,10 @@ function playSpatialSpeech(text, x, y) {
   }
 
   return new Promise((resolve) => {
+    const voices = getVoices('en-US');
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = speechRate;
+    utterance.voice = voices[0];
     utterance.onend = () => resolve();
     speechSynthesis.speak(utterance);
 
