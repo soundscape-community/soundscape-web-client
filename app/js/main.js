@@ -31,7 +31,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Populate voice selector
   function populateVoices() {
-    audioQueue.voices = window.speechSynthesis.getVoices();
+    // Populate voice list with all English voices
+    audioQueue.voices = window.speechSynthesis.getVoices()
+      .filter(voice => voice.lang.startsWith('en'));;
     audioQueue.voices.forEach(function(voice, index) {
       const option = document.createElement('option');
       option.value = index;
@@ -77,6 +79,9 @@ document.addEventListener('DOMContentLoaded', function () {
       audioQueue.stopAndClear();
       audioQueue.addToQueue({ soundUrl: 'app/sounds/mode_exit.wav' });
     } else {
+      // required for iOS Safari: first speech must be directly triggered by user action
+      playSpatialSpeech(' ');
+
       // Not currently watching -- start handler
       btnCallouts.textContent = 'Stop';
 
@@ -89,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var btnNearMe = document.getElementById('btn_near_me');
   btnNearMe.addEventListener('click', function() {
-    // possibly required for iOS Safari: first speech must be directly triggered by user action
+    // required for iOS Safari: first speech must be directly triggered by user action
     playSpatialSpeech(' ');
 
     if (audioQueue.queue.length > 0) {
