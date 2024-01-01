@@ -41,6 +41,12 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   populateVoices();
 
+  // Select the system default voice by default
+  const systemDefaultVoice = audioQueue.voices.find(voice => voice.default);
+  if (systemDefaultVoice) {
+    voiceSelect.value = audioQueue.voices.indexOf(systemDefaultVoice);
+  }
+
   // Update voices when they change
   window.speechSynthesis.onvoiceschanged = function() {
     voiceSelect.innerHTML = ''; // Clear existing options

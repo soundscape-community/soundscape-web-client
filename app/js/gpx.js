@@ -71,6 +71,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const announcer = createCalloutAnnouncer(audioQueue, proximityThresholdMeters, false);
   const map = createMap('map');
 
+  // Speed up speech proportionally
+  audioQueue.setRate(speedUpFactor);
+
   // Register for updates to location
   locationProvider.subscribe(announcer.locationChanged);
   locationProvider.subscribe((latitude, longitude, heading) => {
