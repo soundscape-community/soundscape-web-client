@@ -61,7 +61,7 @@ function playSpatialSound(buffer, x, y) {
 
 // Function to play synthesized speech with spatial audio
 //FIXME not actually spatial
-function playSpatialSpeech(text, voice, rate, x, y) {
+export function playSpatialSpeech(text, voice, rate, x, y) {
   // Cancel the current speech source if any
   if (currentSpeechSource) {
     speechSynthesis.cancel();

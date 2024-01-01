@@ -1,7 +1,7 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-import { createSpatialPlayer } from './audio/sound.js'
+import { createSpatialPlayer, playSpatialSpeech } from './audio/sound.js'
 import { createCalloutAnnouncer } from './audio/callout.js'
 import cache from './data/cache.js'
 import { getLocation, watchLocation } from './spatial/geo.js';
@@ -89,6 +89,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var btnNearMe = document.getElementById('btn_near_me');
   btnNearMe.addEventListener('click', function() {
+    // possibly required for iOS Safari: first speech must be directly triggered by user action
+    playSpatialSpeech(' ');
+
     if (audioQueue.queue.length > 0) {
     //if (btnNearMe.textContent == '(stop)') {
       audioQueue.stopAndClear();
