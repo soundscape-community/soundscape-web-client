@@ -13,16 +13,25 @@
         <script src="app/js/main.js" type="module"></script>
     </head>
     <body>
-        <button id="btn_callouts">Start</button>
-        <button id="btn_near_me">Places Near Me</button>
-        <button id="btn_clear">Clear Cached Data</button>
+        <p>
+            <button id="btn_callouts">Begin Tracking with Callouts</button>
+            <button id="btn_near_me">Announce Places Near Me</button>
+        </p>
 
-        <label for="voice">Voice:</label>
-        <select id="voice" name="voice" required></select>
+        <p>
+            <label for="voice">Voice:</label>
+            <select id="voice" name="voice" required></select>
+        </p>
 
-        <label for="rate">Rate:</label>
-        <input type="range" id="rate" name="rate" min="0.5" max="5" step="0.1" value="1">
+        <p>
+            <label for="rate">Rate:</label>
+            <input type="range" id="rate" name="rate" min="0.5" max="5" step="0.1" value="1">
+        </p>
 
         <div id="map"></div>
+
+        <p>
+            <button id="btn_clear">Clear Cached Data</button>
+        </p>
     </body>
 </html>

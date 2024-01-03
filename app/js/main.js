@@ -73,6 +73,31 @@ document.addEventListener('DOMContentLoaded', function () {
   audioQueue.setRate(parseFloat(rateInput.value));
   audioQueue.setVoice(voiceSelect.value);
 
+  // Use location from URL if specified, otherwise use device location services
+  async function getRelevantLocation() {
+    return new Promise((resolve, reject) => {
+      var searchParams = new URLSearchParams(window.location.search);
+      var lat = parseFloat(searchParams.get('lat'));
+      var lon= parseFloat(searchParams.get('lon'));
+      var head = parseFloat(searchParams.get('heading'));
+      if (!isNaN(lat) && !isNaN(lon) && !isNaN(head)) {
+        resolve({ latitude: lat, longitude: lon, heading: head } );
+      } else {
+        getLocation()
+        .then(coords => {
+          resolve({
+            latitude: coords.latitude,
+            longitude: coords.longitude,
+            heading: coords.heading
+          });
+        })
+        .catch((error) => {
+          reject(error);
+        });
+      }
+    });
+  }
+
   var btnCallouts = document.getElementById('btn_callouts');
   var btnNearMe = document.getElementById('btn_near_me');
   var watchPositionHandler = null;
@@ -85,8 +110,8 @@ document.addEventListener('DOMContentLoaded', function () {
     playSpatialSpeech(' ');
 
     // Reset button labels
-    btnCallouts.textContent = 'Start';
-    btnNearMe.textContent = 'Places Near Me';
+    btnCallouts.textContent = 'Begin Tracking with Callouts';
+    btnNearMe.textContent = 'Announce Places Near Me';
 
     // Clear queued audio
     if (activeMode) {
@@ -115,31 +140,18 @@ document.addEventListener('DOMContentLoaded', function () {
     switch (newMode) {
       case 'callouts':
         watchPositionHandler = watchLocation(locationProvider.update);
-        btnCallouts.textContent = 'Stop';
+        btnCallouts.textContent = 'End Tracking with Callouts';
         break;
 
       case 'near_me':
-        btnNearMe.textContent = 'Stop';
-        // use location from URL if specified, otherwise use location services
-        var searchParams = new URLSearchParams(window.location.search);
-        var lat = parseFloat(searchParams.get('lat'));
-        var lon= parseFloat(searchParams.get('lon'));
-        var head = parseFloat(searchParams.get('heading'));
-        if (!isNaN(lat) && !isNaN(lon) && !isNaN(head)) {
-          locationProvider.update(lat, lon, heading);
-        } else {
-          getLocation()
-          .then(coords => {
-            console.log('Latitude:' + coords.latitude);
-            console.log('Longitude:' + coords.longitude);
-            console.log('Heading:' + coords.heading);
-
-            locationProvider.update(coords.latitude, coords.longitude, coords.heading);
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-        }
+        btnNearMe.textContent = 'End Announce Places Near Me';
+        getRelevantLocation().then(coords => {
+          console.log(coords);
+          locationProvider.update(coords.latitude, coords.longitude, coords.heading);
+        })
+        .catch(error => {
+          console.error(error);
+        });
         break;
     }
   }
