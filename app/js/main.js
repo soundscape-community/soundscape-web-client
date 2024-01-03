@@ -37,8 +37,8 @@ document.addEventListener('DOMContentLoaded', function () {
   // Populate voice selector
   function populateVoices() {
     // Populate voice list with all English voices
-    audioQueue.voices = window.speechSynthesis.getVoices();
-    //  .filter(voice => voice.lang.startsWith('en'));;
+    audioQueue.voices = window.speechSynthesis.getVoices()
+      .filter(voice => voice.lang.startsWith('en'));;
     audioQueue.voices.forEach(function(voice, index) {
       const option = document.createElement('option');
       option.value = index;
