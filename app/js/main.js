@@ -1,7 +1,7 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-import { createSpatialPlayer, playSpatialSpeech } from './audio/sound.js'
+import { audioContext, createSpatialPlayer, playSpatialSpeech } from './audio/sound.js'
 import { createCalloutAnnouncer } from './audio/callout.js'
 import cache from './data/cache.js'
 import { getLocation, watchLocation } from './spatial/geo.js';
@@ -16,6 +16,11 @@ document.addEventListener('DOMContentLoaded', function () {
   const audioQueue = createSpatialPlayer(locationProvider);
   const announcer = createCalloutAnnouncer(audioQueue, proximityThresholdMeters, true);
   const map = createMap('map');
+
+  // iOS Safari workaround to allow audio while mute switch is on
+  let allowBackgroundPlayback = true;
+  let forceIOSBehavior = false;
+  unmute(audioContext, allowBackgroundPlayback, forceIOSBehavior);
 
   // Register for updates to location
   locationProvider.subscribe(announcer.locationChanged);

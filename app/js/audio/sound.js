@@ -1,7 +1,7 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+export const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
 // Variables to store the current sound and speech sources
 let currentSoundSource = null;

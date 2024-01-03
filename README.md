@@ -37,3 +37,8 @@ If things aren't behaving properly in Safari on iOS:
     $ npm install live-server
     $ live-server --port=8081 .
     ```
+
+## Third-party libraries used
+1. [Turf.js](https://turfjs.org/) (for GeoJSON processingand geospatial calculations)
+2. [Leaflet](https://leafletjs.com/) (provides OpenStreetMap widget)
+3. [unmute](https://github.com/swevans/unmute) (improved web audio behavior on iOS)
