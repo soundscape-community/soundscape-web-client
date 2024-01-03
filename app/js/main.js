@@ -73,70 +73,84 @@ document.addEventListener('DOMContentLoaded', function () {
   audioQueue.setRate(parseFloat(rateInput.value));
   audioQueue.setVoice(voiceSelect.value);
 
-  // Hook up click event handlers
   var btnCallouts = document.getElementById('btn_callouts');
-  var watchPositionHandler = null;
-  btnCallouts.addEventListener('click', function() {
-    if (watchPositionHandler) {
-      // Currently watching -- clear handler
-      navigator.geolocation.clearWatch(watchPositionHandler);
-      btnCallouts.textContent = 'Start';
-      audioQueue.stopAndClear();
-      audioQueue.addToQueue({ soundUrl: 'app/sounds/mode_exit.wav' });
-    } else {
-      // required for iOS Safari: first speech must be directly triggered by user action
-      playSpatialSpeech(' ');
-
-      // Not currently watching -- start handler
-      btnCallouts.textContent = 'Stop';
-
-      // play mode-enter sound
-      audioQueue.addToQueue({ soundUrl: 'app/sounds/mode_enter.wav' });
-
-      watchPositionHandler =watchLocation(locationProvider.update);
-    }
-  });
-
   var btnNearMe = document.getElementById('btn_near_me');
-  btnNearMe.addEventListener('click', function() {
+  var watchPositionHandler = null;
+  var activeMode = null;
+  // When mode button is clicked:
+  //   If a mode is currently active, end that mode
+  //   If mode button was different from current mode, start new mode
+  function toggleMode(newMode) {
     // required for iOS Safari: first speech must be directly triggered by user action
     playSpatialSpeech(' ');
 
-    if (audioQueue.queue.length > 0) {
-    //if (btnNearMe.textContent == '(stop)') {
+    // Reset button labels
+    btnCallouts.textContent = 'Start';
+    btnNearMe.textContent = 'Places Near Me';
+
+    // Clear queued audio
+    if (activeMode) {
       audioQueue.stopAndClear();
       audioQueue.addToQueue({ soundUrl: 'app/sounds/mode_exit.wav' });
-      //btnNearMe.textContent = 'Places Near Me';
+    }
+
+    // Exit watch mode
+    if (watchPositionHandler) {
+      navigator.geolocation.clearWatch(watchPositionHandler);
+      watchPositionHandler = null;
+    }
+
+    // Stop here if the intent was to end the current mode
+    if (activeMode == newMode) {
+      activeMode = null;
       return;
     }
 
-    // indicate that clicking button again will stop audio
-    //FIXME automatically change back once finished speaking
-    //btnNearMe.textContent  = '(stop)';
+    // Button clicked was different from current mode -- start new mode
+    activeMode = newMode;
 
     // play mode-enter sound
     audioQueue.addToQueue({ soundUrl: 'app/sounds/mode_enter.wav' });
 
-    // use location from URL if specified, otherwise use location services
-    var searchParams = new URLSearchParams(window.location.search);
-    var lat = parseFloat(searchParams.get('lat'));
-    var lon= parseFloat(searchParams.get('lon'));
-    var head = parseFloat(searchParams.get('heading'));
-    if (!isNaN(lat) && !isNaN(lon) && !isNaN(head)) {
-      locationProvider.update(lat, lon, heading);
-    } else {
-      getLocation()
-      .then(coords => {
-        console.log('Latitude:' + coords.latitude);
-        console.log('Longitude:' + coords.longitude);
-        console.log('Heading:' + coords.heading);
+    switch (newMode) {
+      case 'callouts':
+        watchPositionHandler = watchLocation(locationProvider.update);
+        btnCallouts.textContent = 'Stop';
+        break;
 
-        locationProvider.update(coords.latitude, coords.longitude, coords.heading);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+      case 'near_me':
+        btnNearMe.textContent = 'Stop';
+        // use location from URL if specified, otherwise use location services
+        var searchParams = new URLSearchParams(window.location.search);
+        var lat = parseFloat(searchParams.get('lat'));
+        var lon= parseFloat(searchParams.get('lon'));
+        var head = parseFloat(searchParams.get('heading'));
+        if (!isNaN(lat) && !isNaN(lon) && !isNaN(head)) {
+          locationProvider.update(lat, lon, heading);
+        } else {
+          getLocation()
+          .then(coords => {
+            console.log('Latitude:' + coords.latitude);
+            console.log('Longitude:' + coords.longitude);
+            console.log('Heading:' + coords.heading);
+
+            locationProvider.update(coords.latitude, coords.longitude, coords.heading);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+        }
+        break;
     }
+  }
+
+  // Hook up click event handlers
+  btnCallouts.addEventListener('click', function() {
+    toggleMode('callouts');
+  });
+
+  btnNearMe.addEventListener('click', function() {
+    toggleMode('near_me');
   });
 
   var btnClear = document.getElementById('btn_clear');
