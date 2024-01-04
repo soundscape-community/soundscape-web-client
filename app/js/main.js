@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // When mode button is clicked:
   //   If a mode is currently active, end that mode
   //   If mode button was different from current mode, start new mode
-  function toggleMode(newMode) {
+  async function toggleMode(newMode) {
     // required for iOS Safari: first speech must be directly triggered by user action
     playSpatialSpeech(' ');
 
