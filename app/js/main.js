@@ -114,14 +114,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // required for iOS Safari: first speech must be directly triggered by user action
     playSpatialSpeech(' ');
 
-    // Explicitly request permission to get device orientation info
-    // (also per iOS Safari, needs to be triggered by a user action)
-    try {
-      await DeviceOrientationEvent.requestPermission();
-    } catch(e) {
-      console.warn('DeviceOrientation not available');
-    }
-
     // Reset button labels
     btnCallouts.textContent = 'Begin Tracking with Callouts';
     btnNearMe.textContent = 'Announce Places Near Me';
@@ -153,8 +145,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     switch (newMode) {
       case 'callouts':
-        watchPositionHandler = watchLocation(locationProvider.location.update);
+        // Explicitly request permission to get device orientation info
+        // (also per iOS Safari, needs to be triggered by a user action)
+        try {
+          await DeviceOrientationEvent.requestPermission();
+        } catch(e) {
+          console.warn('DeviceOrientation not available');
+        }
         window.addEventListener('deviceorientation', locationProvider.orientation.update);
+
+        watchPositionHandler = watchLocation(locationProvider.location.update);
         btnCallouts.textContent = 'End Tracking with Callouts';
         break;
 

@@ -25,6 +25,7 @@ export function createLocationProvider() {
 
   // Device orientation (not compass heading from Geolocation API)
   var orientation = {
+    heading: 0,  // default to north if e.g. not available on this device
     callbacks: [],
 
     watch: function(callback) {

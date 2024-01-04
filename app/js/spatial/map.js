@@ -41,14 +41,16 @@ export function createMap(id) {
   };
 
   map.plotMyLocation = function(locationProvider, radiusMeters) {
-    map.plotPoints(
-      [{
-        latitude: locationProvider.location.latitude,
-        longitude: locationProvider.location.longitude,
-        heading: locationProvider.orientation.heading
-      }],
-      radiusMeters
-    );
+    const lat = locationProvider.location.latitude;
+    const lon = locationProvider.location.longitude;
+    const head = locationProvider.orientation.heading;
+    // Don't try to plot points before both location and orientation are available
+    if (!isNaN(lat) && !isNaN(lon) && !isNaN(head)) {
+      map.plotPoints(
+        [{ latitude: lat, longitude: lon, heading: head }],
+        radiusMeters
+      );
+    }
   };
 
   return map;
