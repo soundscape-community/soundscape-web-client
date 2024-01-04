@@ -1,6 +1,48 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
+// Cross-platform compass heading
+// https://stackoverflow.com/a/75792197
+export function startCompassListener(callback) {
+  if (!window["DeviceOrientationEvent"]) {
+    console.warn("DeviceOrientation API not available");
+    return;
+  }
+  let absoluteListener = (e) => {
+    if (!e.absolute || e.alpha == null || e.beta == null || e.gamma == null)
+      return;
+    let compass = -(e.alpha + e.beta * e.gamma / 90);
+    compass -= Math.floor(compass / 360) * 360; // Wrap into range [0,360].
+    window.removeEventListener("deviceorientation", webkitListener);
+    callback(compass);
+  };
+  let webkitListener = (e) => {
+    let compass = e.webkitCompassHeading;
+    if (compass!=null && !isNaN(compass)) {
+      callback(compass);
+      window.removeEventListener("deviceorientationabsolute", absoluteListener);
+    }
+  }
+
+  function addListeners() {
+    // Add both listeners, and if either succeeds then remove the other one.
+    window.addEventListener("deviceorientationabsolute", absoluteListener);
+    window.addEventListener("deviceorientation", webkitListener);
+  }
+
+  if (typeof (DeviceOrientationEvent["requestPermission"]) === "function") {
+    DeviceOrientationEvent["requestPermission"]()
+    .then(response => {
+      if (response == "granted") {
+        addListeners();
+      } else
+        console.warn("Permission for DeviceMotionEvent not granted");
+    });
+  } else
+    addListeners();
+}
+
+// For estimating heading using stream of points
 export class HeadingCalculator {
   constructor(windowSize) {
     this.windowSize = windowSize;

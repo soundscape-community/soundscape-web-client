@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
         map,
         function (point) {
           locationProvider.location.update(point.lat, point.lon);
-          locationProvider.orientation.update({ alpha: point.heading });
+          locationProvider.orientation.update(point.heading);
         },
         function (error) {
           // Error callback

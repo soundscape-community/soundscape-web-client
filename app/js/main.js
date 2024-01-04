@@ -5,6 +5,7 @@ import { audioContext, createSpatialPlayer, playSpatialSpeech } from './audio/so
 import { createCalloutAnnouncer } from './audio/callout.js'
 import cache from './data/cache.js'
 import { getLocation, watchLocation } from './spatial/geo.js';
+import { startCompassListener } from './spatial/heading.js';
 import { createLocationProvider } from './spatial/location.js'
 import { createMap } from './spatial/map.js';
 
@@ -145,14 +146,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     switch (newMode) {
       case 'callouts':
-        // Explicitly request permission to get device orientation info
-        // (also per iOS Safari, needs to be triggered by a user action)
-        try {
-          await DeviceOrientationEvent.requestPermission();
-        } catch(e) {
-          console.warn('DeviceOrientation not available');
-        }
-        window.addEventListener('deviceorientation', locationProvider.orientation.update);
+        startCompassListener(locationProvider.orientation.update);
 
         watchPositionHandler = watchLocation(locationProvider.location.update);
         btnCallouts.textContent = 'End Tracking with Callouts';

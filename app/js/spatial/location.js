@@ -32,9 +32,8 @@ export function createLocationProvider() {
       orientation.callbacks.push(callback);
     },
 
-    update: function(event) {
-      // event object as triggered by Device Orientation API
-      orientation.heading = event.alpha;
+    update: function(heading) {
+      orientation.heading = heading;
 
       // Trigger all subscribed functions
       orientation.callbacks.forEach(callback => {
