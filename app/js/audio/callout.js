@@ -3,7 +3,7 @@
 
 import { enumerateTilesAround } from '../data/tile.js'
 
-export function createCalloutAnnouncer(audioQueue, proximityThresholdMeters, includeDistance) {
+export function createCalloutAnnouncer(audioQueue, radiusMeters, includeDistance) {
   // Avoid repeating myself, by maintaining a list of the most recent POIs announced
   const spokenRecently = {
     keys: new Set(),  // for quick lookups
@@ -47,7 +47,7 @@ export function createCalloutAnnouncer(audioQueue, proximityThresholdMeters, inc
     // Calculate the distance between the GeoJSON feature and the point
     const poiCentroid = turf.centroid(feature.geometry);
     const distance = audioQueue.locationProvider.distance(poiCentroid, { units: 'meters' });
-    if (distance > proximityThresholdMeters) {
+    if (distance > radiusMeters) {
       return;
     }
 
@@ -73,8 +73,8 @@ export function createCalloutAnnouncer(audioQueue, proximityThresholdMeters, inc
   }
 
   const announcer = {
-    locationChanged(latitude, longitude, heading) {
-      const tiles = enumerateTilesAround(latitude, longitude, proximityThresholdMeters);
+    locationChanged(latitude, longitude) {
+      const tiles = enumerateTilesAround(latitude, longitude, radiusMeters);
       for (const tile of tiles) {
         tile.load();
         tile.getFeatures()

@@ -40,5 +40,16 @@ export function createMap(id) {
     });
   };
 
+  map.plotMyLocation = function(locationProvider, radiusMeters) {
+    map.plotPoints(
+      [{
+        latitude: locationProvider.location.latitude,
+        longitude: locationProvider.location.longitude,
+        heading: locationProvider.orientation.heading
+      }],
+      radiusMeters
+    );
+  };
+
   return map;
 }

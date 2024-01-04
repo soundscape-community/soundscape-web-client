@@ -8,13 +8,13 @@ import { getLocation, watchLocation } from './spatial/geo.js';
 import { createLocationProvider } from './spatial/location.js'
 import { createMap } from './spatial/map.js';
 
-const proximityThresholdMeters = 100;
+const radiusMeters = 100;
 
 // Actions to take when page is rendered in full
 document.addEventListener('DOMContentLoaded', function () {
   const locationProvider = createLocationProvider();
   const audioQueue = createSpatialPlayer(locationProvider);
-  const announcer = createCalloutAnnouncer(audioQueue, proximityThresholdMeters, true);
+  const announcer = createCalloutAnnouncer(audioQueue, radiusMeters, true);
   const map = createMap('map');
 
   // iOS Safari workaround to allow audio while mute switch is on
@@ -23,11 +23,16 @@ document.addEventListener('DOMContentLoaded', function () {
   unmute(audioContext, allowBackgroundPlayback, forceIOSBehavior);
 
   // Register for updates to location
-  locationProvider.subscribe(announcer.locationChanged);
-  locationProvider.subscribe((latitude, longitude, heading) => {
+  locationProvider.location.watch((latitude, longitude) => {
+    announcer.locationChanged(latitude, longitude);
+
     // Map should follow current point
     map.setView([latitude, longitude], 15);
-    map.plotPoints([{ latitude: latitude, longitude: longitude, heading: heading }], proximityThresholdMeters);        
+    map.plotMyLocation(locationProvider, radiusMeters);
+  });
+  // Redraw location marker when compass heading changes
+  locationProvider.orientation.watch((heading) => {
+    map.plotMyLocation(locationProvider, radiusMeters);
   });
 
   // Fetch available voices
@@ -69,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function () {
     audioQueue.setVoice(voiceSelect.value);
   });
 
-  // Set voice and rate to match initial values
+  // Set voice and rate to match initial form values
   audioQueue.setRate(parseFloat(rateInput.value));
   audioQueue.setVoice(voiceSelect.value);
 
@@ -88,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
           resolve({
             latitude: coords.latitude,
             longitude: coords.longitude,
-            heading: coords.heading
+            heading: 0  // only available from change event handler?
           });
         })
         .catch((error) => {
@@ -119,9 +124,10 @@ document.addEventListener('DOMContentLoaded', function () {
       audioQueue.addToQueue({ soundUrl: 'app/sounds/mode_exit.wav' });
     }
 
-    // Exit watch mode
+    // Remove any location and orientation change event handlers
     if (watchPositionHandler) {
       navigator.geolocation.clearWatch(watchPositionHandler);
+      window.removeEventListener('deviceorientation', locationProvider.orientation.update);
       watchPositionHandler = null;
     }
 
@@ -139,7 +145,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     switch (newMode) {
       case 'callouts':
-        watchPositionHandler = watchLocation(locationProvider.update);
+        watchPositionHandler = watchLocation(locationProvider.location.update);
+        window.addEventListener('deviceorientation', locationProvider.orientation.update);
         btnCallouts.textContent = 'End Tracking with Callouts';
         break;
 
@@ -147,7 +154,8 @@ document.addEventListener('DOMContentLoaded', function () {
         btnNearMe.textContent = 'End Announce Places Near Me';
         getRelevantLocation().then(coords => {
           console.log(coords);
-          locationProvider.update(coords.latitude, coords.longitude, coords.heading);
+          locationProvider.location.update(coords.latitude, coords.longitude);
+          locationProvider.orientation.update({ alpha: coords.heading });
         })
         .catch(error => {
           console.error(error);

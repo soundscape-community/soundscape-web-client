@@ -8,7 +8,7 @@ import { HeadingCalculator } from './spatial/heading.js'
 import { createMap } from './spatial/map.js'
 
 const speedUpFactor = 5;
-const proximityThresholdMeters = 80;
+const radiusMeters = 80;
 const headingWindowSize = 5;  // number of recent points to use for estimating heading
 
 var timeoutIds = [];
@@ -68,18 +68,19 @@ function replayGPX(file, map, pointCallback, errorCallback, delayBetweenPoints =
 document.addEventListener('DOMContentLoaded', function () {
   const locationProvider = createLocationProvider();
   const audioQueue = createSpatialPlayer(locationProvider);
-  const announcer = createCalloutAnnouncer(audioQueue, proximityThresholdMeters, false);
+  const announcer = createCalloutAnnouncer(audioQueue, radiusMeters, false);
   const map = createMap('map');
 
   // Speed up speech proportionally
   audioQueue.setRate(speedUpFactor);
 
   // Register for updates to location
-  locationProvider.subscribe(announcer.locationChanged);
-  locationProvider.subscribe((latitude, longitude, heading) => {
+  // (no need to separately watch heading changes in GPX simulation)
+  locationProvider.location.watch((latitude, longitude) => {
+    announcer.locationChanged(latitude, longitude);
     // Map should follow current point
     //map.setView([lat, lon], 17);
-    map.plotPoints([{ latitude: latitude, longitude: longitude, heading: heading }], proximityThresholdMeters);        
+    map.plotMyLocation(locationProvider, radiusMeters);
   });
 
   const inputElement = document.getElementById("gpxFileInput");
@@ -91,7 +92,8 @@ document.addEventListener('DOMContentLoaded', function () {
         file,
         map,
         function (point) {
-          locationProvider.update(point.lat, point.lon, point.heading);
+          locationProvider.location.update(point.lat, point.lon);
+          locationProvider.orientation.update({ alpha: point.heading });
         },
         function (error) {
           // Error callback

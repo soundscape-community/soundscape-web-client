@@ -96,11 +96,9 @@ export function createSpatialPlayer(locationProvider) {
     rate: null,
     setVoice(voiceIndex) {
       player.voice = player.voices[voiceIndex];
-      console.log('Voice set to: ', player.voice);
     },
     setRate(rate) {
       player.rate = rate;
-      console.log('Rate set to: ', player.rate);
     },
 
     addToQueue(item) {
