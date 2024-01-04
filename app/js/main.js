@@ -80,6 +80,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Use location from URL if specified, otherwise use device location services
   async function getRelevantLocation() {
+    // Explicitly request permission to get device orientation info
+    // (per iOS Safari, needs to be triggered by a user action)
+    try {
+      await DeviceOrientationEvent.requestPermission();
+    } catch(e) {
+      console.warn('DeviceOrientation not available');
+    }
+
     return new Promise((resolve, reject) => {
       var searchParams = new URLSearchParams(window.location.search);
       var lat = parseFloat(searchParams.get('lat'));
