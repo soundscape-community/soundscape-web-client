@@ -77,12 +77,15 @@ export function watchLocation(callback) {
       callback(
         position.coords.latitude,
         position.coords.longitude,
-        position.coords.heading || 0,  // not available on all platforms
+        position.coords.heading,
       );
     },
     function (error) {
-      // Reject the Promise with the error message
-      console.error("Error getting current position: " + error.message);
+      if (error.code == error.PERMISSION_DENIED) {
+        alert("Could not get your location. If you did not see a permission request, make sure your browser is not configured to always block location services.")
+      } else {
+        console.error("Error getting current position: " + error.message);
+      }
     },
     {
       enableHighAccuracy: false,

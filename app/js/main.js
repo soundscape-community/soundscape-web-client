@@ -160,7 +160,11 @@ document.addEventListener('DOMContentLoaded', function () {
           locationProvider.orientation.update({ alpha: coords.heading });
         })
         .catch(error => {
-          console.error(error);
+          if (error.code == error.PERMISSION_DENIED) {
+            alert("Could not get your location. If you did not see a permission request, make sure your browser is not configured to always block location services.")
+          } else {
+            console.error("Error getting current position: " + error.message);
+          }
         });
         break;
     }
