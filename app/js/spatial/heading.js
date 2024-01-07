@@ -56,6 +56,10 @@ export class HeadingCalculator {
     }
   }
 
+  resetPoints() {
+    this.points = [];
+  }
+
   computeHeading() {
     if (this.points.length < 2) {
       //console.error('Insufficient points to compute heading');

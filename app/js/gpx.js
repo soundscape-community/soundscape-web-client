@@ -10,7 +10,7 @@ import { createMap } from './spatial/map.js'
 const radiusMeters = 80;
 const headingWindowSize = 5;  // number of recent points to use for estimating heading
 
-function replayGPX(file, map, loadedCallback, pointCallback, errorCallback) {
+function replayGPX(file, map, loadedCallback, finishedCallback, pointCallback, errorCallback) {
   let intervalId;
   let currentIndex = 0;
   let sliderValue = 0;
@@ -27,6 +27,18 @@ function replayGPX(file, map, loadedCallback, pointCallback, errorCallback) {
       const lon = parseFloat(point.getAttribute("lon"));
       return { lat, lon };
     },
+
+    getHeadingAtIndex: function(index) {
+      // When seeking, compute heading by looking back, rather than using the running window.
+      headingCalculator.resetPoints()
+      let minIdx = Math.max(0, index - headingWindowSize);
+      let maxIdx = Math.min(index, this.trackPoints.length - 1);
+      for (let idx = minIdx; idx <= maxIdx; idx++) {
+        let point = this.getPointAtIndex(idx);
+        headingCalculator.addPoint(point.lat, point.lon);
+      }
+      return headingCalculator.computeHeading();
+    }
   };
 
   const reader = new FileReader();
@@ -65,6 +77,7 @@ function replayGPX(file, map, loadedCallback, pointCallback, errorCallback) {
         currentIndex++;
       } else {
         this.pause(); // Stop playing when all points are processed
+        finishedCallback();
       }
     }, 1000 / this.speedUpFactor // Delay between points in milliseconds
     );
@@ -81,7 +94,10 @@ function replayGPX(file, map, loadedCallback, pointCallback, errorCallback) {
     } else if (currentIndex >= this.trackPoints.length) {
       currentIndex = this,trackPoints.length - 1;
     }
-    pointCallback(this.getPointAtIndex(currentIndex));
+
+    let jumpPoint = this.getPointAtIndex(currentIndex);
+    jumpPoint.heading = this.getHeadingAtIndex(currentIndex);
+    pointCallback(jumpPoint);
   };
 
   gpxPlayer.updateSlider = function() {
@@ -130,12 +146,13 @@ document.addEventListener('DOMContentLoaded', function () {
       gpxPlayer = replayGPX(
         file,
         map,
-        function(firstPoint) {
-          locationProvider.location.update(firstPoint.lat, firstPoint.lon);
-        },
+        // When GPX has been loadedm trigger map to be drawn at first point
+        (firstPoint) => locationProvider.location.update(firstPoint.lat, firstPoint.lon),
+        // When GPX finishes playing, toggle to paused state
+        () => playButton.click(),
         function (point) {
-          locationProvider.location.update(point.lat, point.lon);
           locationProvider.orientation.update(point.heading);
+          locationProvider.location.update(point.lat, point.lon);
 
           // Update the slider when a new point is parsed
           gpxPlayer.updateSlider();

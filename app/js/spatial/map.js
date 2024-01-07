@@ -32,7 +32,7 @@ export function createMap(id) {
         radius: radiusMeters  // drawn radius is based on proximity threshold for callouts
       }).addTo(markersLayer);
 
-      if (!isNaN(point.heading)) {
+      if (point.heading !== null && !isNaN(point.heading)) {
         // Also render a directional arrow showing inferred compass heading
         var arrowMarker = L.marker([point.latitude, point.longitude], {
           icon: arrowIcon,
