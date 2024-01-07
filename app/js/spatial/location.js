@@ -12,6 +12,10 @@ export function createLocationProvider() {
       location.callbacks.push(callback);
     },
 
+    unwatch: function(callback) {
+      location.callbacks = location.callbacks.filter(item => item !== callback);
+    },
+
     update: function(latitude, longitude) {
       location.latitude = latitude;
       location.longitude = longitude;
@@ -25,7 +29,7 @@ export function createLocationProvider() {
 
   // Device orientation (not compass heading from Geolocation API)
   var orientation = {
-    heading: 0,  // default to north if e.g. not available on this device
+    heading: null,
     callbacks: [],
 
     watch: function(callback) {

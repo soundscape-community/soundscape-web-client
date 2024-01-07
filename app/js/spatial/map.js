@@ -32,11 +32,13 @@ export function createMap(id) {
         radius: radiusMeters  // drawn radius is based on proximity threshold for callouts
       }).addTo(markersLayer);
 
-      // Also render a directional arrow showing inferred compass heading
-      var arrowMarker = L.marker([point.latitude, point.longitude], {
-        icon: arrowIcon,
-      }).addTo(markersLayer);
-      arrowMarker._icon.style.transform += ' rotate(' + point.heading + 'deg)';
+      if (!isNaN(point.heading)) {
+        // Also render a directional arrow showing inferred compass heading
+        var arrowMarker = L.marker([point.latitude, point.longitude], {
+          icon: arrowIcon,
+        }).addTo(markersLayer);
+        arrowMarker._icon.style.transform += ' rotate(' + point.heading + 'deg)';
+      }
     });
   };
 
@@ -44,8 +46,8 @@ export function createMap(id) {
     const lat = locationProvider.location.latitude;
     const lon = locationProvider.location.longitude;
     const head = locationProvider.orientation.heading;
-    // Don't try to plot points before both location and orientation are available
-    if (!isNaN(lat) && !isNaN(lon) && !isNaN(head)) {
+    // Don't try to plot points before location is available
+    if (!isNaN(lat) && !isNaN(lon)) {
       map.plotPoints(
         [{ latitude: lat, longitude: lon, heading: head }],
         radiusMeters

@@ -12,7 +12,19 @@
         <script src="app/js/gpx.js" type="module"></script>
     </head>
     <body>
-        <input type="file" id="gpxFileInput" />
+        <p>
+            <label for="gpxFileInput">GPX file:</label>
+            <input type="file" name="gpxFileInput" id="gpxFileInput" />
+        </p>
+        <p>
+            <button id="playButton">Play</button>
+            <label for="speed">Speedup factor:</label>
+            <input type="number" id="speed" name="speed" value="5" min="1" max="10" step="1">
+        </p>
+        <p>
+            <label for="pointSlider">Seek:</label>
+            <input type="range" name="pointSlider" id="pointSlider" min="0" max="100" value="0" />
+        </p>
         <div id="map"></div>
     </body>
 </html>
