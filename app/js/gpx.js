@@ -17,6 +17,7 @@ function replayGPX(file, map, callbacks) {
     pointCallback = () => {},
     errorCallback = () => {}
   } = callbacks;
+
   let intervalId;
   let currentIndex = 0;
   let sliderValue = 0;
@@ -44,7 +45,53 @@ function replayGPX(file, map, callbacks) {
         headingCalculator.addPoint(point.lat, point.lon);
       }
       return headingCalculator.computeHeading();
-    }
+    },
+
+    play: function() {
+      intervalId = setInterval(() => {
+        if (currentIndex < gpxPlayer.trackPoints.length) {
+          const point = gpxPlayer.trackPoints[currentIndex];
+          const lat = parseFloat(point.getAttribute("lat"));
+          const lon = parseFloat(point.getAttribute("lon"));
+
+          headingCalculator.addPoint(lat, lon);
+          const heading = headingCalculator.computeHeading();
+
+          map.setView([lat, lon], 16);
+
+          pointCallback({ lat, lon, heading });
+          currentIndex++;
+        } else {
+          this.pause(); // Stop playing when all points are processed
+          finishedCallback();
+        }
+      }, 1000 / this.speedUpFactor // Delay between points in milliseconds
+      );
+    },
+
+    pause: function() {
+      clearInterval(intervalId);
+    },
+
+    seekTo: function(index) {
+      currentIndex = index;
+      if (currentIndex < 0) {
+        currentIndex = 0;
+      } else if (currentIndex >= this.trackPoints.length) {
+        currentIndex = this,trackPoints.length - 1;
+      }
+
+      let jumpPoint = this.getPointAtIndex(currentIndex);
+      jumpPoint.heading = this.getHeadingAtIndex(currentIndex);
+      pointCallback(jumpPoint);
+    },
+
+    updateSlider: function() {
+      // Update the slider's value based on the current index
+      const totalPoints = this.trackPoints.length - 1;
+      sliderValue = (currentIndex / totalPoints) * 100;
+      document.getElementById("pointSlider").value = sliderValue;
+    },
   };
 
   const reader = new FileReader();
@@ -66,52 +113,6 @@ function replayGPX(file, map, callbacks) {
   };
 
   reader.readAsText(file);
-
-  gpxPlayer.play = function() {
-    intervalId = setInterval(() => {
-      if (currentIndex < gpxPlayer.trackPoints.length) {
-        const point = gpxPlayer.trackPoints[currentIndex];
-        const lat = parseFloat(point.getAttribute("lat"));
-        const lon = parseFloat(point.getAttribute("lon"));
-
-        headingCalculator.addPoint(lat, lon);
-        const heading = headingCalculator.computeHeading();
-
-        map.setView([lat, lon], 16);
-
-        pointCallback({ lat, lon, heading });
-        currentIndex++;
-      } else {
-        this.pause(); // Stop playing when all points are processed
-        finishedCallback();
-      }
-    }, 1000 / this.speedUpFactor // Delay between points in milliseconds
-    );
-  };
-
-  gpxPlayer.pause = function() {
-    clearInterval(intervalId);
-  };
-
-  gpxPlayer.seekTo = function(index) {
-    currentIndex = index;
-    if (currentIndex < 0) {
-      currentIndex = 0;
-    } else if (currentIndex >= this.trackPoints.length) {
-      currentIndex = this,trackPoints.length - 1;
-    }
-
-    let jumpPoint = this.getPointAtIndex(currentIndex);
-    jumpPoint.heading = this.getHeadingAtIndex(currentIndex);
-    pointCallback(jumpPoint);
-  };
-
-  gpxPlayer.updateSlider = function() {
-    // Update the slider's value based on the current index
-    const totalPoints = this.trackPoints.length - 1;
-    sliderValue = (currentIndex / totalPoints) * 100;
-    document.getElementById("pointSlider").value = sliderValue;
-  };
 
   return gpxPlayer;
 }
