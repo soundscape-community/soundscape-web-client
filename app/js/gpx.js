@@ -10,7 +10,13 @@ import { createMap } from './spatial/map.js'
 const radiusMeters = 80;
 const headingWindowSize = 5;  // number of recent points to use for estimating heading
 
-function replayGPX(file, map, loadedCallback, finishedCallback, pointCallback, errorCallback) {
+function replayGPX(file, map, callbacks) {
+  const {
+    loadedCallback = () => {},
+    finishedCallback = () => {},
+    pointCallback = () => {},
+    errorCallback = () => {}
+  } = callbacks;
   let intervalId;
   let currentIndex = 0;
   let sliderValue = 0;
@@ -127,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   const inputElement = document.getElementById("gpxFileInput");
-  const playButton = document.getElementById("playButton");
+  const playPauseButton = document.getElementById("playPauseButton");
   const pointSlider = document.getElementById("pointSlider");
   let playing = false;
 
@@ -137,35 +143,30 @@ document.addEventListener('DOMContentLoaded', function () {
     if (file) {
       if (gpxPlayer && playing) {
         // Clear current playing file before loading new one
-        playButton.click();
+        playPauseButton.click();
       }
 
       // Reset seek bar
       pointSlider.value = 0;
 
-      gpxPlayer = replayGPX(
-        file,
-        map,
-        // When GPX has been loadedm trigger map to be drawn at first point
-        (firstPoint) => locationProvider.location.update(firstPoint.lat, firstPoint.lon),
+      gpxPlayer = replayGPX(file, map, {
+        // When GPX file has been loadedm trigger draw map at first point
+        loadedCallback: (firstPoint) => locationProvider.location.update(firstPoint.lat, firstPoint.lon),
         // When GPX finishes playing, toggle to paused state
-        () => playButton.click(),
-        function (point) {
+        finishedCallback: () => playPauseButton.click(),
+        pointCallback: (point) => {
           locationProvider.orientation.update(point.heading);
           locationProvider.location.update(point.lat, point.lon);
 
           // Update the slider when a new point is parsed
           gpxPlayer.updateSlider();
         },
-        function (error) {
-          // Error callback
-          console.error("Error parsing GPX file:", error);
-        },
-      );
+        errorCallback: (error) => console.error("Error parsing GPX file:", error),
+      });
     }
   });
 
-  playButton.addEventListener("click", function () {
+  playPauseButton.addEventListener("click", function () {
     if (gpxPlayer) {
       // Read speed setting, and speed up speech proportionally
       gpxPlayer.speedUpFactor = document.getElementById("speed").value;
@@ -173,13 +174,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // Toggle play/pause
       if (!playing) {
-        playButton.textContent = "Pause";
+        playPauseButton.textContent = "Pause";
         // Start triggering audio callouts
         locationProvider.location.watch(announcer.locationChanged)
         gpxPlayer.play();
         playing = true;
       } else {
-        playButton.textContent = "Play";
+        playPauseButton.textContent = "Play";
         // Strop triggering audio callouts
         locationProvider.location.unwatch(announcer.locationChanged);
         audioQueue.stopAndClear();
