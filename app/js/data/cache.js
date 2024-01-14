@@ -189,6 +189,40 @@ const cache = {
         reject(event.target.error);
       };
     });
+  },
+
+  getFeatureByOsmId: async function(osm_id) {
+    // Returns at most one feature, matching a single OSM ID (i.e. a road, not
+    // intersectionss involving that road).
+    return new Promise(async (resolve, reject) => {
+      if (!cache.db) {
+        cache.db = await openDatabase();
+      }
+      const transaction = cache.db.transaction(['features'], 'readonly');
+      const objectStore = transaction.objectStore('features');
+      const osmIdsIndex = objectStore.index('osm_ids');
+
+      const range = IDBKeyRange.only(osm_id);
+      const request = osmIdsIndex.openCursor(range);
+
+      request.onsuccess = function (event) {
+        const cursor = event.target.result;
+
+        if (cursor) {
+          if (cursor.value.osm_ids.length == 1) {
+            resolve(cursor.value);
+          } else {
+            cursor.continue();
+          }
+        } else {
+          resolve(null);
+        }
+      };
+
+      request.onerror = function (event) {
+        reject(event.target.error);
+      };
+    });
   }
 }
 

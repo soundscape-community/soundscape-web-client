@@ -1,6 +1,7 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
+import cache from '../data/cache.js'
 import { enumerateTilesAround } from '../data/tile.js'
 
 export function createCalloutAnnouncer(audioQueue, radiusMeters, includeDistance) {
@@ -55,7 +56,28 @@ export function createCalloutAnnouncer(audioQueue, radiusMeters, includeDistance
       case 'highway':
         switch (feature.feature_value) {
           case 'gd_intersection':
-            //TODO
+            // Look up names of each intersecting road
+            Promise.all(
+              feature.osm_ids.map(id => cache.getFeatureByOsmId(id))
+            ).then(roads => {
+              // Announce intersection if it involves 2 or more named roads
+              const roadNames = new Set(
+                roads
+                .filter(r => r.properties.name !== undefined)
+                .map(r => r.properties.name)
+              );
+              if (roadNames.size > 1) {
+                // Memorialize callout by name in addition to IDs (the same
+                // intersection can be represented by multiple road segments
+                // with different OSM IDs)
+                if (spokenRecently.has([...roadNames])) {
+                  return;
+                }
+                spokenRecently.add([...roadNames]);
+                spokenRecently.add(feature.osm_ids);
+                playSoundAndSpeech('sense_poi', 'intersection: ' + [...roadNames].join(', '), poiCentroid, includeDistance);
+              }
+            });
             break;
           case 'bus_stop':
             //TODO
