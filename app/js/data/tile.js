@@ -25,7 +25,7 @@ function createTile(x, y, z) {
       tilesInProgressOrDone.add(tile.key);
 
       const urlToFetch = `${config.tileServer}/${tile.key}.json`;
-      cache.fetch(urlToFetch)
+      cache.fetch(urlToFetch, tile.key)
         .then((data) => {
           for (const feature of data.features) {
             cache.addFeature(feature, tile.key);

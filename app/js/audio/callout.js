@@ -63,7 +63,7 @@ export function createCalloutAnnouncer(audioQueue, radiusMeters, includeDistance
               // Announce intersection if it involves 2 or more named roads
               const roadNames = new Set(
                 roads
-                .filter(r => r.properties.name !== undefined)
+                .filter(r => r && r.properties.name !== undefined)
                 .map(r => r.properties.name)
               );
               if (roadNames.size > 1) {

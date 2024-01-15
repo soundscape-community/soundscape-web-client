@@ -4,7 +4,7 @@
 // Bump this when changing schema (e.g. adding an index)
 const dbVersion = 1;
 const dbName = 'TielCache';
-const maxAgeMilliseconds = 604800000; // 1 week
+const maxAgeMilliseconds = 1000 * 60 * 60 * 24 * 7; // 1 week
 
 // Function to open the IndexedDB database
 async function openDatabase() {
@@ -71,7 +71,7 @@ const cache = {
   },
 
   // Function to fetch a URL only if it hasn't been fetched for a certain duration
-  fetch: function(url) {
+  fetch: function(url, tileKey) {
     return new Promise(async (resolve, reject) => {
       if (!cache.db) {
         cache.db = await openDatabase();
@@ -96,11 +96,17 @@ const cache = {
             // Assume data has already been handled when it was first cached
             //resolve(result.cachedData);
             return;
+          } else {
+            // Delete features from stale tile before proceeding to fetch new data.
+            console.log("STALE: ", url);
+            cache.deleteFeatures(tileKey);
           }
+        } else {
+          // URL was not previously fetched
+          console.log("MISS: ", url);
         }
 
         // Fetch the URL since it's not in the cache or has expired
-        console.log("MISS: ", url);
         try {
           const response = await fetch(url);
           const data = await response.json();
@@ -118,8 +124,8 @@ const cache = {
           });
 
           putRequest.onsuccess = () => {
-              console.log("Fetched: ", url)
-              resolve(data);
+            console.log("Fetched: ", url)
+            resolve(data);
           };
 
           putRequest.onerror = (event) => {
@@ -189,6 +195,33 @@ const cache = {
         reject(event.target.error);
       };
     });
+  },
+
+  deleteFeatures: async function(tileKey) {
+    if (!cache.db) {
+      cache.db = await openDatabase();
+    }
+    const transaction = cache.db.transaction(['features'], 'readwrite');
+    const objectStore = transaction.objectStore('features');
+    const tileIndex = objectStore.index('tile');
+
+    const range = IDBKeyRange.only(tileKey);
+    const request = tileIndex.openCursor(range);
+    var deletedCount = 0;
+
+    request.onsuccess = function (event) {
+      const cursor = event.target.result;
+
+      if (cursor) {
+        objectStore.delete(cursor.primaryKey);
+        deletedCount++;
+        cursor.continue();
+      }
+    };
+
+    transaction.oncomplete = (event) => {
+      console.log(`Purged ${deletedCount} stale features from cache.`);
+    };
   },
 
   getFeatureByOsmId: async function(osm_id) {
