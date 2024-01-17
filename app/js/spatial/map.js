@@ -43,9 +43,9 @@ export function createMap(id) {
   };
 
   map.plotMyLocation = function(locationProvider, radiusMeters) {
-    const lat = locationProvider.location.latitude;
-    const lon = locationProvider.location.longitude;
-    const head = locationProvider.orientation.heading;
+    const lat = locationProvider.latitude;
+    const lon = locationProvider.longitude;
+    const head = locationProvider.heading;
     // Don't try to plot points before location is available
     if (!isNaN(lat) && !isNaN(lon)) {
       map.plotPoints(

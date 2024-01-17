@@ -19,9 +19,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Register for updates to location
   // (no need to separately watch heading changes in GPX simulation)
-  locationProvider.location.watch((latitude, longitude) => {
+  locationProvider.events.addEventListener('updateLocation', e => {
     // Map should follow current point
-    map.setView([latitude, longitude], 16);
+    map.setView([e.detail.latitude, e.detail.longitude], 16);
     map.plotMyLocation(locationProvider, radiusMeters);
   });
 
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       gpxPlayer = replayGPX(file, map, {
         // When GPX file has been loadedm trigger draw map at first point
-        loadedCallback: (firstPoint) => locationProvider.location.update(firstPoint.lat, firstPoint.lon),
+        loadedCallback: (firstPoint) => locationProvider.updateLocation(firstPoint.lat, firstPoint.lon),
         // When GPX finishes playing, toggle to paused state and reset slider
         finishedCallback: () => {
           playPauseButton.click();
@@ -52,8 +52,8 @@ document.addEventListener('DOMContentLoaded', function () {
           gpxPlayer.updateSlider();
         },
         pointCallback: (point) => {
-          locationProvider.orientation.update(point.heading);
-          locationProvider.location.update(point.lat, point.lon);
+          locationProvider.updateOrientation(point.heading);
+          locationProvider.updateLocation(point.lat, point.lon);
 
           // Update the slider when a new point is parsed
           gpxPlayer.updateSlider();
@@ -73,13 +73,13 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!playing) {
         playPauseButton.textContent = "Pause";
         // Start triggering audio callouts
-        locationProvider.location.watch(announcer.locationChanged)
+        locationProvider.events.addEventListener('updateLocation', announcer.locationChanged)
         gpxPlayer.play();
         playing = true;
       } else {
         playPauseButton.textContent = "Play";
         // Strop triggering audio callouts
-        locationProvider.location.unwatch(announcer.locationChanged);
+        locationProvider.events.removeEventListener('updateLocation', announcer.locationChanged);
         audioQueue.stopAndClear();
         gpxPlayer.pause();
         playing = false;

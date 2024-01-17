@@ -95,8 +95,8 @@ export function createCalloutAnnouncer(audioQueue, radiusMeters, includeDistance
   }
 
   const announcer = {
-    locationChanged(latitude, longitude) {
-      const tiles = enumerateTilesAround(latitude, longitude, radiusMeters);
+    locationChanged(event) {
+      const tiles = enumerateTilesAround(event.detail.latitude, event.detail.longitude, radiusMeters);
       for (const tile of tiles) {
         tile.load();
         tile.getFeatures()

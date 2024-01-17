@@ -24,15 +24,15 @@ document.addEventListener('DOMContentLoaded', function () {
   unmute(audioContext, allowBackgroundPlayback, forceIOSBehavior);
 
   // Register for updates to location
-  locationProvider.location.watch((latitude, longitude) => {
-    announcer.locationChanged(latitude, longitude);
+  locationProvider.events.addEventListener('updateLocation', e => {
+    announcer.locationChanged(e);
 
     // Map should follow current point
-    map.setView([latitude, longitude], 15);
+    map.setView([e.detail.latitude, e.detail.longitude], 15);
     map.plotMyLocation(locationProvider, radiusMeters);
   });
   // Redraw location marker when compass heading changes
-  locationProvider.orientation.watch((heading) => {
+  locationProvider.events.addEventListener('updateOrientation', e => {
     map.plotMyLocation(locationProvider, radiusMeters);
   });
 
@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Remove any location and orientation change event handlers
     if (watchPositionHandler) {
       navigator.geolocation.clearWatch(watchPositionHandler);
-      window.removeEventListener('deviceorientation', locationProvider.orientation.update);
+      window.removeEventListener('deviceorientation', locationProvider.updateOrientation);
       watchPositionHandler = null;
     }
 
@@ -146,9 +146,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     switch (newMode) {
       case 'callouts':
-        startCompassListener(locationProvider.orientation.update);
+        startCompassListener(locationProvider.updateOrientation);
 
-        watchPositionHandler = watchLocation(locationProvider.location.update);
+        watchPositionHandler = watchLocation(locationProvider.updateLocation);
         btnCallouts.textContent = 'End Tracking with Callouts';
         break;
 
@@ -156,8 +156,8 @@ document.addEventListener('DOMContentLoaded', function () {
         btnNearMe.textContent = 'End Announce Places Near Me';
         getRelevantLocation().then(coords => {
           console.log(coords);
-          locationProvider.location.update(coords.latitude, coords.longitude);
-          locationProvider.orientation.update({ alpha: coords.heading });
+          locationProvider.updateLocation(coords.latitude, coords.longitude);
+          locationProvider.updateOrientation({ alpha: coords.heading });
         })
         .catch(error => {
           if (error.code == error.PERMISSION_DENIED) {

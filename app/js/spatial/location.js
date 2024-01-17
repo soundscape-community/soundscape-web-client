@@ -4,58 +4,40 @@
 import { geoToXY } from './geo.js'
 
 export function createLocationProvider() {
-  // Latidue/longitude
-  var location = {
-    callbacks: [],
-
-    watch: function(callback) {
-      location.callbacks.push(callback);
-    },
-
-    unwatch: function(callback) {
-      location.callbacks = location.callbacks.filter(item => item !== callback);
-    },
-
-    update: function(latitude, longitude) {
-      location.latitude = latitude;
-      location.longitude = longitude;
-
-      // Trigger all subscribed functions
-      location.callbacks.forEach(callback => {
-        callback(location.latitude, location.longitude);
-      });
-    },
-  };
-
-  // Device orientation (not compass heading from Geolocation API)
-  var orientation = {
-    heading: null,
-    callbacks: [],
-
-    watch: function(callback) {
-      orientation.callbacks.push(callback);
-    },
-
-    update: function(heading) {
-      orientation.heading = heading;
-
-      // Trigger all subscribed functions
-      orientation.callbacks.forEach(callback => {
-        callback(orientation.heading);
-      });
-    },
-  };
-
   var locationProvider = {
-    location: location,
-    orientation: orientation,
+    heading: null,
+    events: new EventTarget(),
+
+    updateLocation: function(latitude, longitude) {
+      locationProvider.latitude = latitude;
+      locationProvider.longitude = longitude;
+
+      // Trigger all event listeners
+      const updateEvent = new CustomEvent('updateLocation', {
+        detail: {
+          latitude: locationProvider.latitude,
+          longitude: locationProvider.longitude,
+        }
+      });
+      locationProvider.events.dispatchEvent(updateEvent);
+    },
+
+    updateOrientation: function(heading) {
+      locationProvider.heading = heading;
+
+      // Trigger all event listeners
+      const updateEvent = new CustomEvent('updateOrientation', {
+        detail: { heading: locationProvider.heading, }
+      });
+      locationProvider.events.dispatchEvent(updateEvent);
+    },
 
     turfPoint: function() {
-      return turf.point([locationProvider.location.longitude, locationProvider.location.latitude]);
+      return turf.point([locationProvider.longitude, locationProvider.latitude]);
     },
 
     relativePosition: function(someLocation) {
-      return geoToXY(locationProvider.turfPoint(), locationProvider.orientation.heading, someLocation);
+      return geoToXY(locationProvider.turfPoint(), locationProvider.heading, someLocation);
     },
 
     distance: function(someLocation, options) {

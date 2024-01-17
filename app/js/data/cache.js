@@ -3,7 +3,7 @@
 
 // Bump this when changing schema (e.g. adding an index)
 const dbVersion = 1;
-const dbName = 'TielCache';
+const dbName = 'TileCache';
 const maxAgeMilliseconds = 1000 * 60 * 60 * 24 * 7; // 1 week
 
 // Function to open the IndexedDB database
