@@ -89,6 +89,7 @@ export function createSpatialPlayer(locationProvider) {
     queue: [],
     isPlaying: false,
     locationProvider: locationProvider,
+    events: new EventTarget(),
 
     // Speech synthesis customization
     voices: null,
@@ -153,6 +154,7 @@ export function createSpatialPlayer(locationProvider) {
       await playSpatialSound(soundBuffer, relativePosition.x || 0, relativePosition.y || 0);
     } else if (typeof currentItem === 'object' && currentItem.text) {
       // If it's an object with a 'text' property, assume it's spatial speech
+      player.events.dispatchEvent(new CustomEvent('speechPlayed', { detail: currentItem }));
       await playSpatialSpeech(currentItem.text, player.voice, player.rate, relativePosition.x || 0, relativePosition.y || 0);
     } else {
       console.error(`unrecognized object in audio queue: ${currentItem}`)

@@ -28,7 +28,6 @@ export function createCalloutAnnouncer(audioQueue, radiusMeters, includeDistance
   }
 
   function playSoundAndSpeech(sound, text, sourceLocation, includeDistance) {
-    console.log(text);
     audioQueue.addToQueue({
       soundUrl: `app/sounds/${sound}.wav`,
       location: sourceLocation,

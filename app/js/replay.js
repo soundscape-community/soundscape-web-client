@@ -25,6 +25,23 @@ document.addEventListener('DOMContentLoaded', function () {
     map.plotMyLocation(locationProvider, radiusMeters);
   });
 
+  // Add callouts to visual list as they are announced
+  audioQueue.events.addEventListener('speechPlayed', e => {
+    // Construct new list item
+    const newCallout = document.createElement('li');
+    newCallout.textContent = e.detail.text;
+    newCallout.setAttribute('data-latitude', e.detail.location.geometry.coordinates[0]);
+    newCallout.setAttribute('data-longitude', e.detail.location.geometry.coordinates[1]);
+
+    // Insert at top of list
+    const recentCalloutsList = document.getElementById("recentCalloutsList");
+    recentCalloutsList.insertBefore(newCallout, recentCalloutsList.firstChild);
+    // Keep the list to no more than X recent callouts
+    if (recentCalloutsList.children.length > 20) {
+      recentCalloutsList.removeChild(recentCalloutsList.lastChild);
+    }
+  });
+
   const inputElement = document.getElementById("gpxFileInput");
   const playPauseButton = document.getElementById("playPauseButton");
   const pointSlider = document.getElementById("pointSlider");
@@ -41,6 +58,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // Reset seek bar
       pointSlider.value = 0;
+
+      // Clear recent callout list
+      document.getElementById("recentCalloutsList").innerHTML = '';
 
       gpxPlayer = replayGPX(file, map, {
         // When GPX file has been loadedm trigger draw map at first point
