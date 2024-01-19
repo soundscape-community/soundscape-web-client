@@ -24,15 +24,13 @@ document.addEventListener('DOMContentLoaded', function () {
   unmute(audioContext, allowBackgroundPlayback, forceIOSBehavior);
 
   // Register for updates to location
-  locationProvider.events.addEventListener('updateLocation', e => {
-    announcer.locationChanged(e);
-
+  locationProvider.events.addEventListener('locationUpdated', e => {
     // Map should follow current point
     map.setView([e.detail.latitude, e.detail.longitude], 15);
     map.plotMyLocation(locationProvider, radiusMeters);
   });
   // Redraw location marker when compass heading changes
-  locationProvider.events.addEventListener('updateOrientation', e => {
+  locationProvider.events.addEventListener('orientationUpdated', e => {
     map.plotMyLocation(locationProvider, radiusMeters);
   });
 
@@ -143,6 +141,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Remove any location and orientation change event handlers
+    locationProvider.events.removeEventListener('locationUpdated', announcer.locationChanged);
     if (watchPositionHandler) {
       navigator.geolocation.clearWatch(watchPositionHandler);
       window.removeEventListener('deviceorientation', locationProvider.updateOrientation);
@@ -163,6 +162,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     switch (newMode) {
       case 'callouts':
+        locationProvider.events.addEventListener('locationUpdated', announcer.locationChanged);
         startCompassListener(locationProvider.updateOrientation);
 
         watchPositionHandler = watchLocation(locationProvider.updateLocation);
@@ -175,6 +175,9 @@ document.addEventListener('DOMContentLoaded', function () {
           console.log(coords);
           locationProvider.updateLocation(coords.latitude, coords.longitude);
           locationProvider.updateOrientation({ alpha: coords.heading });
+
+          // Call out nearby features once
+          announcer.calloutFeatures(coords.latitude, coords.longitude);
         })
         .catch(error => {
           if (error.code == error.PERMISSION_DENIED) {

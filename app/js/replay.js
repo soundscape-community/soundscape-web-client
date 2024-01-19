@@ -19,13 +19,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Register for updates to location
   // (no need to separately watch heading changes in GPX simulation)
-  locationProvider.events.addEventListener('updateLocation', e => {
+  locationProvider.events.addEventListener('locationUpdated', e => {
     // Map should follow current point
     map.setView([e.detail.latitude, e.detail.longitude], 16);
     map.plotMyLocation(locationProvider, radiusMeters);
   });
 
   // Add callouts to visual list as they are announced
+  const recentCalloutsList = document.getElementById("recentCalloutsList");
   audioQueue.events.addEventListener('speechPlayed', e => {
     // Construct new list item
     const newCallout = document.createElement('li');
@@ -34,7 +35,6 @@ document.addEventListener('DOMContentLoaded', function () {
     newCallout.setAttribute('data-longitude', e.detail.location.geometry.coordinates[1]);
 
     // Insert at top of list
-    const recentCalloutsList = document.getElementById("recentCalloutsList");
     recentCalloutsList.insertBefore(newCallout, recentCalloutsList.firstChild);
     // Keep the list to no more than X recent callouts
     if (recentCalloutsList.children.length > 20) {
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
       pointSlider.value = 0;
 
       // Clear recent callout list
-      document.getElementById("recentCalloutsList").innerHTML = '';
+      recentCalloutsList.innerHTML = '';
 
       gpxPlayer = replayGPX(file, map, {
         // When GPX file has been loadedm trigger draw map at first point
@@ -93,13 +93,13 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!playing) {
         playPauseButton.textContent = "Pause";
         // Start triggering audio callouts
-        locationProvider.events.addEventListener('updateLocation', announcer.locationChanged)
+        locationProvider.events.addEventListener('locationUpdated', announcer.locationChanged)
         gpxPlayer.play();
         playing = true;
       } else {
         playPauseButton.textContent = "Play";
         // Strop triggering audio callouts
-        locationProvider.events.removeEventListener('updateLocation', announcer.locationChanged);
+        locationProvider.events.removeEventListener('locationUpdated', announcer.locationChanged);
         audioQueue.stopAndClear();
         gpxPlayer.pause();
         playing = false;

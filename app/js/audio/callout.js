@@ -40,17 +40,6 @@ export function createCalloutAnnouncer(audioQueue, radiusMeters, includeDistance
   }
 
   function announceCallout(feature, includeDistance) {
-    if (spokenRecently.has(feature.osm_ids)) {
-      return;
-    }
-
-    // Calculate the distance between the GeoJSON feature and the point
-    const poiCentroid = turf.centroid(feature.geometry);
-    const distance = audioQueue.locationProvider.distance(poiCentroid, { units: 'meters' });
-    if (distance > radiusMeters) {
-      return;
-    }
-
     switch (feature.feature_type) {
       case 'highway':
         switch (feature.feature_value) {
@@ -74,7 +63,7 @@ export function createCalloutAnnouncer(audioQueue, radiusMeters, includeDistance
                 }
                 spokenRecently.add([...roadNames]);
                 spokenRecently.add(feature.osm_ids);
-                playSoundAndSpeech('sense_poi', 'intersection: ' + [...roadNames].join(', '), poiCentroid, includeDistance);
+                playSoundAndSpeech('sense_poi', 'intersection: ' + [...roadNames].join(', '), feature.centroid, includeDistance);
               }
             });
             break;
@@ -88,23 +77,47 @@ export function createCalloutAnnouncer(audioQueue, radiusMeters, includeDistance
         // Speak anything else with a name
         if (feature.properties.name) {
           spokenRecently.add(feature.osm_ids);
-          playSoundAndSpeech('sense_poi', feature.properties.name, poiCentroid, includeDistance);
+          playSoundAndSpeech('sense_poi', feature.properties.name, feature.centroid, includeDistance);
         }
     }
   }
 
   const announcer = {
-    locationChanged(event) {
-      const tiles = enumerateTilesAround(event.detail.latitude, event.detail.longitude, radiusMeters);
-      for (const tile of tiles) {
-        tile.load();
-        tile.getFeatures()
-        .then(features => {
-          features.forEach(feature => {
-            announceCallout(feature, includeDistance);
-          })
-        });
-      }
+    calloutFeatures: function(latitude, longitude) {
+      return Promise.all(
+        // Get all features from nearby tiles
+        enumerateTilesAround(latitude, longitude, radiusMeters)
+        .map(t => {
+          t.load();
+          return t.getFeatures();
+        })
+      )
+      .then(tileFeatures => {
+        // Flatten list of features across all nearby tiles
+        tileFeatures
+        .reduce((acc, cur) => acc.concat(cur), [])
+        // Omit features already announced
+        .filter(feature => !spokenRecently.has(feature.osm_ids))
+        // Annotate each feature with its centroid and distance to our location
+        .map(feature => {
+          feature.centroid = turf.centroid(feature.geometry);
+          feature.distance = audioQueue.locationProvider.distance(
+            feature.centroid, { units: 'meters' }
+          );
+          return feature;
+        })
+        // Limit to features within the specified radius
+        .filter(feature => feature.distance < radiusMeters)
+        // Call out closest features first
+        .sort((a, b) => a.distance - b.distance)
+        .forEach(feature => {
+          announceCallout(feature, includeDistance);
+        })
+      });
+    },
+
+    locationChanged: function(event) {
+      return announcer.calloutFeatures(event.detail.latitude, event.detail.longitude);
     },
   };
 

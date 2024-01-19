@@ -13,7 +13,7 @@ export function createLocationProvider() {
       locationProvider.longitude = longitude;
 
       // Trigger all event listeners
-      const updateEvent = new CustomEvent('updateLocation', {
+      const updateEvent = new CustomEvent('locationUpdated', {
         detail: {
           latitude: locationProvider.latitude,
           longitude: locationProvider.longitude,
@@ -26,7 +26,7 @@ export function createLocationProvider() {
       locationProvider.heading = heading;
 
       // Trigger all event listeners
-      const updateEvent = new CustomEvent('updateOrientation', {
+      const updateEvent = new CustomEvent('orientationUpdated', {
         detail: { heading: locationProvider.heading, }
       });
       locationProvider.events.dispatchEvent(updateEvent);
