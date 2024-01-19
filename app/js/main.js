@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function () {
           locationProvider.updateOrientation({ alpha: coords.heading });
 
           // Call out nearby features once
-          announcer.calloutFeatures(coords.latitude, coords.longitude);
+          announcer.calloutAllFeatures(coords.latitude, coords.longitude);
         })
         .catch(error => {
           if (error.code == error.PERMISSION_DENIED) {

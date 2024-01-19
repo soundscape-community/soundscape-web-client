@@ -39,51 +39,68 @@ export function createCalloutAnnouncer(audioQueue, radiusMeters, includeDistance
     });
   }
 
-  function announceCallout(feature, includeDistance) {
-    switch (feature.feature_type) {
-      case 'highway':
-        switch (feature.feature_value) {
-          case 'gd_intersection':
-            // Look up names of each intersecting road
-            Promise.all(
-              feature.osm_ids.map(id => cache.getFeatureByOsmId(id))
-            ).then(roads => {
-              // Announce intersection if it involves 2 or more named roads
-              const roadNames = new Set(
-                roads
-                .filter(r => r && r.properties.name !== undefined)
-                .map(r => r.properties.name)
-              );
-              if (roadNames.size > 1) {
-                // Memorialize callout by name in addition to IDs (the same
-                // intersection can be represented by multiple road segments
-                // with different OSM IDs)
-                if (spokenRecently.has([...roadNames])) {
-                  return;
+  // Get names of intersecting roads by looking up each road individually
+  function getRoadNames(intersectionFeature) {
+    return Promise.all(
+      intersectionFeature.osm_ids.map(id => cache.getFeatureByOsmId(id))
+    ).then(roads => new Set(
+      roads
+      .filter(r => r && r.properties.name !== undefined)
+      .map(r => r.properties.name)
+    ));
+  }
+
+  // Annotate GeoJSON feature with attributes and methods used for spatial audio callouts
+  function announceable(feature) {
+    feature.centroid = turf.centroid(feature.geometry);
+    feature.distance = audioQueue.locationProvider.distance(
+      feature.centroid, { units: 'meters' }
+    );
+
+    //TODO for now, all callouts are POIs
+    feature.soundEffect = 'sense_poi';
+
+    feature.getAudioLabel = async function() {
+      // Determine audio label from feature type
+      switch (feature.feature_type) {
+        case 'highway':
+          switch (feature.feature_value) {
+            case 'gd_intersection':
+              // Speak intersections involving 2 or more named roads
+              return getRoadNames(feature)
+              .then(roadNames => {
+                if (roadNames.size > 1) {
+                  return 'Intersection: ' + [...roadNames].join(', ');
                 }
-                spokenRecently.add([...roadNames]);
-                spokenRecently.add(feature.osm_ids);
-                playSoundAndSpeech('sense_poi', 'intersection: ' + [...roadNames].join(', '), feature.centroid, includeDistance);
-              }
-            });
-            break;
-          case 'bus_stop':
-            //TODO
-            break;
-          //TODO case ...
-        }
-        break;
-      default:
-        // Speak anything else with a name
-        if (feature.properties.name) {
+              });
+              break;
+            case 'bus_stop':
+              //TODO
+              break;
+            //TODO case ...
+          }
+          break;
+        default:
+          // Speak anything else with a name
+          return feature.properties.name;
+      }
+    };
+
+    // Speak all features that have a non-empty audio label
+    feature.announce = (includeDistance) => {
+      feature.getAudioLabel().then(label => {
+        if (label) {
           spokenRecently.add(feature.osm_ids);
-          playSoundAndSpeech('sense_poi', feature.properties.name, feature.centroid, includeDistance);
+          playSoundAndSpeech(feature.soundEffect, label, feature.centroid, includeDistance);
         }
-    }
+      });
+    };
+
+    return feature;
   }
 
   const announcer = {
-    calloutFeatures: function(latitude, longitude) {
+    nearbyFeatures: (latitude, longitude) => {
       return Promise.all(
         // Get all features from nearby tiles
         enumerateTilesAround(latitude, longitude, radiusMeters)
@@ -94,30 +111,35 @@ export function createCalloutAnnouncer(audioQueue, radiusMeters, includeDistance
       )
       .then(tileFeatures => {
         // Flatten list of features across all nearby tiles
-        tileFeatures
+        return tileFeatures
         .reduce((acc, cur) => acc.concat(cur), [])
-        // Omit features already announced
-        .filter(feature => !spokenRecently.has(feature.osm_ids))
         // Annotate each feature with its centroid and distance to our location
-        .map(feature => {
-          feature.centroid = turf.centroid(feature.geometry);
-          feature.distance = audioQueue.locationProvider.distance(
-            feature.centroid, { units: 'meters' }
-          );
-          return feature;
-        })
+        .map(announceable)
         // Limit to features within the specified radius
-        .filter(feature => feature.distance < radiusMeters)
-        // Call out closest features first
+        .filter(f => f.distance < radiusMeters)
+        // Sort by closest features first
         .sort((a, b) => a.distance - b.distance)
-        .forEach(feature => {
-          announceCallout(feature, includeDistance);
-        })
       });
     },
 
-    locationChanged: function(event) {
-      return announcer.calloutFeatures(event.detail.latitude, event.detail.longitude);
+    /// Announce all speakable nearby features
+    calloutAllFeatures: (latitude, longitude) => {
+      announcer.nearbyFeatures(latitude, longitude)
+      .then(fs => fs.forEach(f => f.announce(includeDistance)));
+    },
+
+    // Announce only features not already called out (useful for continuous tracking)
+    calloutNewFeatures: (latitude, longitude) => {
+      announcer.nearbyFeatures(latitude, longitude)
+      .then(fs => {
+        // Omit features already announced
+        fs.filter(f => !spokenRecently.has(f.osm_ids))
+        .forEach(f => f.announce(includeDistance))
+      });
+    },
+
+    locationChanged: (event) => {
+      return announcer.calloutNewFeatures(event.detail.latitude, event.detail.longitude);
     },
   };
 
