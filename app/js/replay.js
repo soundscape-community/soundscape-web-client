@@ -5,7 +5,8 @@ import { createSpatialPlayer } from './audio/sound.js'
 import { createCalloutAnnouncer } from './audio/callout.js';
 import { createLocationProvider } from './spatial/location.js'
 import { replayGPX } from './spatial/gpx.js';
-import { createMap } from './spatial/map.js'
+import { createMap } from './visual/map.js'
+import recentCalloutsList from './visual/recentlist.js';
 
 const radiusMeters = 80;
 
@@ -26,23 +27,13 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // Add callouts to visual list as they are announced
-  const recentCalloutsList = document.getElementById("recentCalloutsList");
   audioQueue.events.addEventListener('speechPlayed', e => {
-    if (!e.detail.location) {
-      return;  // speech was an information message, not a callout
-    }
-
-    // Construct new list item
-    const newCallout = document.createElement('li');
-    newCallout.textContent = e.detail.text;
-    newCallout.setAttribute('data-latitude', e.detail.location.geometry.coordinates[0]);
-    newCallout.setAttribute('data-longitude', e.detail.location.geometry.coordinates[1]);
-
-    // Insert at top of list
-    recentCalloutsList.insertBefore(newCallout, recentCalloutsList.firstChild);
-    // Keep the list to no more than X recent callouts
-    if (recentCalloutsList.children.length > 20) {
-      recentCalloutsList.removeChild(recentCalloutsList.lastChild);
+    if (e.detail.location) {
+      recentCalloutsList.add(
+        e.detail.text,
+        e.detail.location.geometry.coordinates[0],
+        e.detail.location.geometry.coordinates[1]
+      );
     }
   });
 
@@ -64,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function () {
       pointSlider.value = 0;
 
       // Clear recent callout list
-      recentCalloutsList.innerHTML = '';
+      recentCalloutsList.clear();
 
       gpxPlayer = replayGPX(file, map, {
         // When GPX file has been loadedm trigger draw map at first point
