@@ -36,6 +36,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Add callouts to visual list as they are announced
   audioQueue.events.addEventListener('speechPlayed', e => {
+    if (!e.detail.location) {
+      return;  // speech was an information message, not a callout
+    }
+
     // Construct new list item
     const newCallout = document.createElement('li');
     newCallout.textContent = e.detail.text;
@@ -177,7 +181,12 @@ document.addEventListener('DOMContentLoaded', function () {
           locationProvider.updateOrientation({ alpha: coords.heading });
 
           // Call out nearby features once
-          announcer.calloutAllFeatures(coords.latitude, coords.longitude);
+          announcer.calloutAllFeatures(coords.latitude, coords.longitude)
+          .then(anythingToSay => {
+            if (!anythingToSay) {
+              audioQueue.addToQueue({ text: "Nothing to call out right now" });
+            }
+          });
         })
         .catch(error => {
           if (error.code == error.PERMISSION_DENIED) {

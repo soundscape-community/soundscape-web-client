@@ -28,6 +28,10 @@ document.addEventListener('DOMContentLoaded', function () {
   // Add callouts to visual list as they are announced
   const recentCalloutsList = document.getElementById("recentCalloutsList");
   audioQueue.events.addEventListener('speechPlayed', e => {
+    if (!e.detail.location) {
+      return;  // speech was an information message, not a callout
+    }
+
     // Construct new list item
     const newCallout = document.createElement('li');
     newCallout.textContent = e.detail.text;

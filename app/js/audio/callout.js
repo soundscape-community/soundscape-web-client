@@ -86,12 +86,15 @@ export function createCalloutAnnouncer(audioQueue, radiusMeters, includeDistance
       }
     };
 
-    // Speak all features that have a non-empty audio label
+    // Speaks a feature if it has a non-empty audio label (returns true if so)
     feature.announce = (includeDistance) => {
-      feature.getAudioLabel().then(label => {
+      return feature.getAudioLabel().then(label => {
         if (label) {
           spokenRecently.add(feature.osm_ids);
           playSoundAndSpeech(feature.soundEffect, label, feature.centroid, includeDistance);
+          return true;
+        } else {
+          return false;
         }
       });
     };
@@ -122,10 +125,14 @@ export function createCalloutAnnouncer(audioQueue, radiusMeters, includeDistance
       });
     },
 
-    /// Announce all speakable nearby features
+    // Announce all speakable nearby features
+    // Returns true if anything was queued for speaking
     calloutAllFeatures: (latitude, longitude) => {
-      announcer.nearbyFeatures(latitude, longitude)
-      .then(fs => fs.forEach(f => f.announce(includeDistance)));
+      return announcer.nearbyFeatures(latitude, longitude)
+      .then(fs => {
+        return Promise.all(fs.map(f => f.announce(includeDistance)))
+        .then(willAnnounce => willAnnounce.some(x => x));
+      });
     },
 
     // Announce only features not already called out (useful for continuous tracking)
