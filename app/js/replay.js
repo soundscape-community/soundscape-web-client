@@ -6,7 +6,7 @@ import { createCalloutAnnouncer } from './audio/callout.js';
 import { createLocationProvider } from './spatial/location.js'
 import { replayGPX } from './spatial/gpx.js';
 import { createMap } from './visual/map.js'
-import recentCalloutsList from './visual/recentlist.js';
+import createRecentCalloutList from './visual/recentlist.js';
 
 const radiusMeters = 80;
 
@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const audioQueue = createSpatialPlayer(locationProvider);
   const announcer = createCalloutAnnouncer(audioQueue, radiusMeters, false);
   const map = createMap('map');
+  const recentCalloutsList = createRecentCalloutList(locationProvider, audioQueue);
   let gpxPlayer = null;  // to be initialized on file selection
 
   // Register for updates to location
@@ -31,8 +32,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (e.detail.location) {
       recentCalloutsList.add(
         e.detail.text,
-        e.detail.location.geometry.coordinates[0],
-        e.detail.location.geometry.coordinates[1]
+        e.detail.location.geometry.coordinates[1],
+        e.detail.location.geometry.coordinates[0]
       );
     }
   });

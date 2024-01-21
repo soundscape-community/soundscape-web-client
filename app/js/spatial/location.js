@@ -40,6 +40,14 @@ export function createLocationProvider() {
       return geoToXY(locationProvider.turfPoint(), locationProvider.heading, someLocation);
     },
 
+    // Relative position normalized to the unit circle
+    // Useful for audio sources that are based on angle, not distance (like beacons)
+    normalizedRelativePosition: function(someLocation) {
+      let {x, y} = locationProvider.relativePosition(someLocation);
+      let angle = Math.atan2(x, y);
+      return { x: Math.sin(angle), y: Math.cos(angle) };
+    },
+
     distance: function(someLocation, options) {
       return turf.distance(locationProvider.turfPoint(), someLocation, options);
     },

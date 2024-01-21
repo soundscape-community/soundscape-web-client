@@ -30,11 +30,11 @@ button, select, label, input {
 /* display map + recent callouts side-by-side on sufficiently wide screens */
 @media (min-width: 800px) {
     #map {
-        width: 70%;
+        width: 60%;
         display: inline-block;
     }
     #recentCalloutsArea {
-        width: 28%;
+        width: 38%;
         display: inline-block;
     }
 }
@@ -52,4 +52,18 @@ button, select, label, input {
     white-space: nowrap;
     padding: 5px;
     border-bottom: 1px solid #eee;
+}
+
+#recentCalloutsArea button {
+    padding: 0;
+}
+
+#recentCalloutsArea p {
+    height: 20px;
+    margin: 0;
+    padding: 5px;
+    border-bottom: 1px solid #000;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
