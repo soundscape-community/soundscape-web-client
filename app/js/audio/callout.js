@@ -4,7 +4,7 @@
 import cache from '../data/cache.js'
 import { enumerateTilesAround } from '../data/tile.js'
 
-export function createCalloutAnnouncer(audioQueue, radiusMeters, includeDistance) {
+export function createCalloutAnnouncer(audioQueue) {
   // Avoid repeating myself, by maintaining a list of the most recent POIs announced
   const spokenRecently = {
     keys: new Set(),  // for quick lookups
@@ -87,11 +87,11 @@ export function createCalloutAnnouncer(audioQueue, radiusMeters, includeDistance
     };
 
     // Speaks a feature if it has a non-empty audio label (returns true if so)
-    feature.announce = (includeDistance) => {
+    feature.announce = (options) => {
       return feature.getAudioLabel().then(label => {
         if (label) {
           spokenRecently.add(feature.osm_ids);
-          playSoundAndSpeech(feature.soundEffect, label, feature.centroid, includeDistance);
+          playSoundAndSpeech(feature.soundEffect, label, feature.centroid, options.includeDistance);
           return true;
         } else {
           return false;
@@ -103,7 +103,7 @@ export function createCalloutAnnouncer(audioQueue, radiusMeters, includeDistance
   }
 
   const announcer = {
-    nearbyFeatures: (latitude, longitude) => {
+    nearbyFeatures: (latitude, longitude, radiusMeters) => {
       return Promise.all(
         // Get all features from nearby tiles
         enumerateTilesAround(latitude, longitude, radiusMeters)
@@ -128,20 +128,23 @@ export function createCalloutAnnouncer(audioQueue, radiusMeters, includeDistance
     // Announce all speakable nearby features
     // Returns true if anything was queued for speaking
     calloutAllFeatures: (latitude, longitude) => {
-      return announcer.nearbyFeatures(latitude, longitude)
+      // Use 2x wider radius than standard location updates
+      const radiusMeters = 2 * audioQueue.locationProvider.radiusMeters;
+      return announcer.nearbyFeatures(latitude, longitude, radiusMeters)
       .then(fs => {
-        return Promise.all(fs.map(f => f.announce(includeDistance)))
+        return Promise.all(fs.map(f => f.announce({ includeDistance: true })))
         .then(willAnnounce => willAnnounce.some(x => x));
       });
     },
 
     // Announce only features not already called out (useful for continuous tracking)
     calloutNewFeatures: (latitude, longitude) => {
-      announcer.nearbyFeatures(latitude, longitude)
+      const radiusMeters = audioQueue.locationProvider.radiusMeters;
+      announcer.nearbyFeatures(latitude, longitude, radiusMeters)
       .then(fs => {
         // Omit features already announced
         fs.filter(f => !spokenRecently.has(f.osm_ids))
-        .forEach(f => f.announce(includeDistance))
+        .forEach(f => f.announce({ includeDistance: false }))
       });
     },
 

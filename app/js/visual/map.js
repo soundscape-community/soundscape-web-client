@@ -42,10 +42,11 @@ export function createMap(id) {
     });
   };
 
-  map.plotMyLocation = function(locationProvider, radiusMeters) {
+  map.plotMyLocation = function(locationProvider) {
     const lat = locationProvider.latitude;
     const lon = locationProvider.longitude;
     const head = locationProvider.heading;
+    const radiusMeters = locationProvider.radiusMeters;
     // Don't try to plot points before location is available
     if (!isNaN(lat) && !isNaN(lon)) {
       map.plotPoints(

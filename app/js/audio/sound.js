@@ -138,7 +138,7 @@ export function createSpatialPlayer(locationProvider) {
     // moved since the audio was queued)
     var relativePosition = {x: 0, y: 0};
     if (currentItem.location) {
-      relativePosition = player.locationProvider.relativePosition(currentItem.location);
+      relativePosition = player.locationProvider.normalizedRelativePosition(currentItem.location);
     }
 
     // Compute current distance to POI (may be greater than proximityThreshold, if user has moved away since it was queued)

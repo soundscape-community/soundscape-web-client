@@ -8,13 +8,11 @@ import { replayGPX } from './spatial/gpx.js';
 import { createMap } from './visual/map.js'
 import createRecentCalloutList from './visual/recentlist.js';
 
-const radiusMeters = 80;
-
 // Actions to take when page is rendered in full
 document.addEventListener('DOMContentLoaded', function () {
   const locationProvider = createLocationProvider();
   const audioQueue = createSpatialPlayer(locationProvider);
-  const announcer = createCalloutAnnouncer(audioQueue, radiusMeters, false);
+  const announcer = createCalloutAnnouncer(audioQueue);
   const map = createMap('map');
   const recentCalloutsList = createRecentCalloutList(locationProvider, audioQueue);
   let gpxPlayer = null;  // to be initialized on file selection
@@ -24,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
   locationProvider.events.addEventListener('locationUpdated', e => {
     // Map should follow current point
     map.setView([e.detail.latitude, e.detail.longitude], 16);
-    map.plotMyLocation(locationProvider, radiusMeters);
+    map.plotMyLocation(locationProvider);
   });
 
   // Add callouts to visual list as they are announced

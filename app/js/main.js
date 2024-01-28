@@ -10,13 +10,11 @@ import { createLocationProvider } from './spatial/location.js'
 import { createMap } from './visual/map.js';
 import createRecentCalloutList from './visual/recentlist.js';
 
-const radiusMeters = 100;
-
 // Actions to take when page is rendered in full
 document.addEventListener('DOMContentLoaded', function () {
   const locationProvider = createLocationProvider();
   const audioQueue = createSpatialPlayer(locationProvider);
-  const announcer = createCalloutAnnouncer(audioQueue, radiusMeters, true);
+  const announcer = createCalloutAnnouncer(audioQueue);
   const map = createMap('map');
   const recentCalloutsList = createRecentCalloutList(locationProvider, audioQueue);
 
@@ -28,12 +26,12 @@ document.addEventListener('DOMContentLoaded', function () {
   // Register for updates to location
   locationProvider.events.addEventListener('locationUpdated', e => {
     // Map should follow current point
-    map.setView([e.detail.latitude, e.detail.longitude], 15);
-    map.plotMyLocation(locationProvider, radiusMeters);
+    map.setView([e.detail.latitude, e.detail.longitude], 16);
+    map.plotMyLocation(locationProvider);
   });
   // Redraw location marker when compass heading changes
   locationProvider.events.addEventListener('orientationUpdated', e => {
-    map.plotMyLocation(locationProvider, radiusMeters);
+    map.plotMyLocation(locationProvider);
   });
 
   // Add callouts to visual list as they are announced
