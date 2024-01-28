@@ -2,10 +2,10 @@
 // with many thanks to ChatGPT
 
 import { createSpatialPlayer } from './audio/sound.js'
-import { createCalloutAnnouncer } from './audio/callout.js';
-import { createLocationProvider } from './spatial/location.js'
-import { replayGPX } from './spatial/gpx.js';
-import { createMap } from './visual/map.js'
+import createCalloutAnnouncer from './audio/callout.js';
+import createLocationProvider from './spatial/location.js'
+import replayGPX from './spatial/gpx.js';
+import createMap from './visual/map.js'
 import createRecentCalloutList from './visual/recentlist.js';
 
 // Actions to take when page is rendered in full

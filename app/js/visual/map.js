@@ -1,7 +1,7 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-export function createMap(id) {
+function createMap(id) {
   var map = L.map(id);
 
   // initialize OpenStreetMap
@@ -58,3 +58,5 @@ export function createMap(id) {
 
   return map;
 }
+
+export default createMap;

@@ -4,7 +4,7 @@
 import cache from '../data/cache.js'
 import { enumerateTilesAround } from '../data/tile.js'
 
-export function createCalloutAnnouncer(audioQueue) {
+function createCalloutAnnouncer(audioQueue) {
   // Avoid repeating myself, by maintaining a list of the most recent POIs announced
   const spokenRecently = {
     keys: new Set(),  // for quick lookups
@@ -155,3 +155,5 @@ export function createCalloutAnnouncer(audioQueue) {
 
   return announcer;
 }
+
+export default createCalloutAnnouncer;

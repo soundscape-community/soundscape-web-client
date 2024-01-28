@@ -3,7 +3,7 @@
 
 import { geoToXY } from './geo.js'
 
-export function createLocationProvider() {
+function createLocationProvider() {
   var locationProvider = {
     radiusMeters: 40,  //TODO make this dynamic based on speed
     heading: null,
@@ -56,3 +56,5 @@ export function createLocationProvider() {
 
   return locationProvider;
 }
+
+export default createLocationProvider;

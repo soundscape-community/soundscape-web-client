@@ -2,13 +2,14 @@
 // with many thanks to ChatGPT
 
 import { audioContext, createSpatialPlayer, playSpatialSpeech } from './audio/sound.js'
-import { createCalloutAnnouncer } from './audio/callout.js'
+import createCalloutAnnouncer from './audio/callout.js'
 import cache from './data/cache.js'
 import { getLocation, watchLocation } from './spatial/geo.js';
 import { startCompassListener } from './spatial/heading.js';
-import { createLocationProvider } from './spatial/location.js'
-import { createMap } from './visual/map.js';
+import createLocationProvider from './spatial/location.js'
+import createMap from './visual/map.js';
 import createRecentCalloutList from './visual/recentlist.js';
+import createVoiceControls from './visual/voicecontrols.js';
 
 // Actions to take when page is rendered in full
 document.addEventListener('DOMContentLoaded', function () {
@@ -45,48 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // Fetch available voices
-  const voiceSelect = document.getElementById('voice');
-  const rateInput = document.getElementById('rate');
-
-  // Populate voice selector
-  function populateVoices() {
-    // Populate voice list with all English voices
-    audioQueue.voices = window.speechSynthesis.getVoices()
-      .filter(voice => voice.lang.startsWith('en'));;
-    audioQueue.voices.forEach(function(voice, index) {
-      const option = document.createElement('option');
-      option.value = index;
-      option.textContent = voice.name;
-      voiceSelect.appendChild(option);
-    });
-  }
-  populateVoices();
-
-  // Select the system default voice by default
-  const systemDefaultVoice = audioQueue.voices.find(voice => voice.default);
-  if (systemDefaultVoice) {
-    voiceSelect.value = audioQueue.voices.indexOf(systemDefaultVoice);
-  }
-
-  // Update voices when they change
-  window.speechSynthesis.onvoiceschanged = function() {
-    voiceSelect.innerHTML = ''; // Clear existing options
-    populateVoices();
-  };
-
-  // Update voice and range when user changes them
-  rateInput.addEventListener('input', function(e) {
-    audioQueue.setRate(parseFloat(rateInput.value));
-  });
-
-  voiceSelect.addEventListener('change', function() {
-    audioQueue.setVoice(voiceSelect.value);
-  });
-
-  // Set voice and rate to match initial form values
-  audioQueue.setRate(parseFloat(rateInput.value));
-  audioQueue.setVoice(voiceSelect.value);
+  createVoiceControls(audioQueue);
 
   // Use location from URL if specified, otherwise use device location services
   async function getRelevantLocation() {
