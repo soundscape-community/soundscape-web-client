@@ -2,9 +2,9 @@
 
 All your favorite features of the Soundscape app for iOS, running in the browser of your choice.
 
-![Screenshot of Soundscape web client](screenshots/main_view.png)
-
 Try it for yourself! https://soundscape-community.github.io/soundscape-web-client/
+
+![Screenshot of Soundscape web client](screenshots/main_view.png)
 
 ## Tools for development and debugging
 
