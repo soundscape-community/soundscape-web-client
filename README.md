@@ -1,23 +1,25 @@
 # Soundscape Web Client
 
-Experimenting with porting Soundscape functionality to JavaScript, to run in a Web browser.
+All your favorite features of the Soundscape app for iOS, running in the browser of your choice.
 
-## Live Demo
+![Screenshot of Soundscape web client](screenshots/main_view.png)
 
-### Places Near Me
-Announce points of interest around your actual location.
+Try it for yourself! https://soundscape-community.github.io/soundscape-web-client/
 
-https://soundscape-community.github.io/soundscape-web-client/
-
-To use a location other than what's reported by your device, include the latitude, longitude, and compass heading (degrees from north) in the URL, e.g. https://soundscape-community.github.io/soundscape-web-client/?lon=-77.006156&lat=38.897600&heading=0.0 will place you near Union Station in Washington, D.C.
+## Tools for development and debugging
 
 ### Activity simulator
+
+![Screenshot of GPX file replay view](screenshots/gpx_replay_view.png)
+
 Select a local GPX file from your computer, and it will be replayed on a visual map with audio callouts.
 
 https://soundscape-community.github.io/soundscape-web-client/replay_gpx.html
 
-## Running locally
+### Location override
+To use a location other than what's reported by your device, include the latitude, longitude, and compass heading (degrees from north) in the URL, e.g. https://soundscape-community.github.io/soundscape-web-client/?lon=-77.006156&lat=38.897600&heading=0.0 will place you near Union Station in Washington, D.C.
 
+## Running locally
 1. Install the Python dependencies, and run the tile server proxy.
     ```
     $ cd server

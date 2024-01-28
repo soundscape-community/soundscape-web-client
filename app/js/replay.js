@@ -3,6 +3,7 @@
 
 import { createSpatialPlayer } from './audio/sound.js'
 import createCalloutAnnouncer from './audio/callout.js';
+import cache from './data/cache.js'
 import createLocationProvider from './spatial/location.js'
 import replayGPX from './spatial/gpx.js';
 import createMap from './visual/map.js'
@@ -85,13 +86,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // Toggle play/pause
       if (!playing) {
-        playPauseButton.textContent = "Pause";
+        playPauseButton.textContent = "⏸";
         // Start triggering audio callouts
         locationProvider.events.addEventListener('locationUpdated', announcer.locationChanged)
         gpxPlayer.play();
         playing = true;
       } else {
-        playPauseButton.textContent = "Play";
+        playPauseButton.textContent = "▶";
         // Strop triggering audio callouts
         locationProvider.events.removeEventListener('locationUpdated', announcer.locationChanged);
         audioQueue.stopAndClear();
@@ -108,5 +109,10 @@ document.addEventListener('DOMContentLoaded', function () {
       const newIndex = Math.round((pointSlider.value / 100) * totalPoints);
       gpxPlayer.seekTo(newIndex);
     }
+  });
+
+  var btnClear = document.getElementById('btn_clear');
+  btnClear.addEventListener('click', function() {
+    cache.clear();
   });
 });

@@ -3,7 +3,6 @@
 
 import { audioContext, createSpatialPlayer, playSpatialSpeech } from './audio/sound.js'
 import createCalloutAnnouncer from './audio/callout.js'
-import cache from './data/cache.js'
 import { getLocation, watchLocation } from './spatial/geo.js';
 import { startCompassListener } from './spatial/heading.js';
 import createLocationProvider from './spatial/location.js'
@@ -77,6 +76,8 @@ document.addEventListener('DOMContentLoaded', function () {
   var btnNearMe = document.getElementById('btn_near_me');
   var watchPositionHandler = null;
   var activeMode = null;
+  const selectedColor = '#18b3c3';
+  const unselectedColor = '#e74c3c';
   // When mode button is clicked:
   //   If a mode is currently active, end that mode
   //   If mode button was different from current mode, start new mode
@@ -84,9 +85,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // required for iOS Safari: first speech must be directly triggered by user action
     playSpatialSpeech(' ');
 
-    // Reset button labels
-    btnCallouts.textContent = 'Begin Tracking with Callouts';
-    btnNearMe.textContent = 'Announce Places Near Me';
+    // Reset button colors
+    btnCallouts.style.backgroundColor = unselectedColor;
+    btnNearMe.style.backgroundColor = unselectedColor;
 
     // Clear queued audio
     if (activeMode) {
@@ -120,11 +121,11 @@ document.addEventListener('DOMContentLoaded', function () {
         startCompassListener(locationProvider.updateOrientation);
 
         watchPositionHandler = watchLocation(locationProvider.updateLocation);
-        btnCallouts.textContent = 'End Tracking with Callouts';
+        btnCallouts.style.backgroundColor = selectedColor;
         break;
 
       case 'near_me':
-        btnNearMe.textContent = 'End Announce Places Near Me';
+        btnNearMe.style.backgroundColor = selectedColor;
         getRelevantLocation().then(coords => {
           console.log(coords);
           locationProvider.updateLocation(coords.latitude, coords.longitude);
@@ -156,10 +157,5 @@ document.addEventListener('DOMContentLoaded', function () {
 
   btnNearMe.addEventListener('click', function() {
     toggleMode('near_me');
-  });
-
-  var btnClear = document.getElementById('btn_clear');
-  btnClear.addEventListener('click', function() {
-    cache.clear();
   });
 });

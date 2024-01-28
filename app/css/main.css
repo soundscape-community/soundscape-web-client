@@ -1,13 +1,114 @@
-html {
-    font-family: Arial, Helvetica, sans-serif;
+/*
+Copyright (c) Daniel W. Steinbrook.
+with many thanks to ChatGPT
+*/
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    font-size: 1.2em; /* Increase default font size for better readability */
 }
 
-/* touch-friendly button */
-button, select, label, input {
-    padding: 10px 20px;
-    font-size: 16px;
+/* Top button bar */
+nav {
+    display: flex;
+    justify-content: space-around;
+    background-color: #2c3e50;
+    padding: 15px;
 }
 
+nav button, nav input, nav select, button {
+    background-color: #e74c3c;
+    color: #fff;
+    border: none;
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2em; /* Larger font size for buttons, inputs, and select */
+    margin-right: 10px; /* Add some spacing between controls */
+    max-width: 20%;
+}
+
+/* Speaking and playback rate selectors don't need to be as large */
+nav input[type="number"] {
+    max-width: 10%;
+}
+
+/* Voice selector should be wider (names can be long) */
+nav select {
+    max-width: 40%;
+}
+
+/* GPX file selector and seek position should be wider -- probably not running on a phone */
+nav input[type="file"], nav input[type="range"] {
+    max-width: none;
+}
+
+main {
+    padding: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+#map {
+    width: 100%;
+    height: 300px; /* Adjusted height for better visibility */
+    border: 2px solid #000; /* Higher contrast for the map border */
+    margin-bottom: 15px;
+}
+
+#recentCalloutsArea {
+    height: calc(100vh - 435px);  /* all vertical space after map + button row */
+    overflow-y: auto;
+    flex-basis: 100%;
+}
+
+#recentCalloutsList {
+    padding: 0;
+    margin: 0;
+}
+
+#recentCalloutsList li, #recentCalloutsArea p {
+    list-style: none;
+    border-bottom: 2px solid #000; /* Higher contrast for list item borders */
+    padding: 15px;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Active beacon controls */
+#recentCalloutsArea p {
+    background-color: #e74c3c;
+    color: #fff;
+    font-weight: bold;
+}
+
+#recentCalloutsArea p button {
+    background-color: #2c3e50;
+}
+
+#recentCalloutsArea button {
+    width: 60px;
+}
+
+/* display map + recent callouts side-by-side on sufficiently wide screens */
+@media screen and (min-width: 600px) {
+    #map {
+        height: calc(100vh - 140px);  /* all vertical space after button row */
+        width: 48%;
+    }
+
+    #recentCalloutsArea {
+        height: calc(100vh - 140px);  /* all vertical space after button row */
+        flex-basis: 48%;
+    }
+}
+
+/* Current position marker on map */
 .arrow-icon {
     width: 0;
     height: 0;
@@ -15,55 +116,4 @@ button, select, label, input {
     border-right: 10px solid transparent;
     border-bottom: 40px solid red; /* You can change the color */
     transform-origin: bottom center;
-}
-
-#map {
-    height: 400px;
-}
-
-#recentCalloutsArea {
-    height: 400px;
-    overflow-y: auto;
-    border: 1px solid #ccc;
-}
-
-/* display map + recent callouts side-by-side on sufficiently wide screens */
-@media (min-width: 800px) {
-    #map {
-        width: 60%;
-        display: inline-block;
-    }
-    #recentCalloutsArea {
-        width: 38%;
-        display: inline-block;
-    }
-}
-
-#recentCalloutsList {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-#recentCalloutsList li {
-    height: 20px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    padding: 5px;
-    border-bottom: 1px solid #eee;
-}
-
-#recentCalloutsArea button {
-    padding: 0;
-}
-
-#recentCalloutsArea p {
-    height: 20px;
-    margin: 0;
-    padding: 5px;
-    border-bottom: 1px solid #000;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
 }

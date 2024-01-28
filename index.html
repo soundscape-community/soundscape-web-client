@@ -14,28 +14,18 @@
         <script src="app/js/main.js" type="module"></script>
     </head>
     <body>
-        <p>
-            <button id="btn_callouts">Begin Tracking with Callouts</button>
-            <button id="btn_near_me">Announce Places Near Me</button>
-        </p>
+        <nav>
+            <button id="btn_callouts" title="Start tracking callouts">⌖</button>
+            <button id="btn_near_me" title="Announce places near me">ⓘ</button>
+            <select id="voice" name="voice" title="Voice" required></select>
+            <input type="number" id="rate" title="Speaking rate" value="2" name="rate" min="0.5" max="5" step="0.5">
+        </nav>
 
-        <p>
-            <label for="voice">Voice:</label>
-            <select id="voice" name="voice" required></select>
-        </p>
-
-        <p>
-            <label for="rate">Rate:</label>
-            <input type="number" id="rate" value="2" name="rate" min="0.5" max="5" step="0.5">
-        </p>
-
-        <div id="recentCalloutsArea">
-            <ul id="recentCalloutsList"></ul>
-        </div>
-        <div id="map"></div>
-
-        <p>
-            <button id="btn_clear">Clear Cached Data</button>
-        </p>
+        <main>
+            <div id="map"></div>
+            <section id="recentCalloutsArea">
+                <ul id="recentCalloutsList"></ul>
+            </section>
+        </main>
     </body>
 </html>

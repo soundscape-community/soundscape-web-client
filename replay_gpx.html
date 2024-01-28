@@ -13,20 +13,18 @@
         <script src="app/js/replay.js" type="module"></script>
     </head>
     <body>
-        <p>
-            <label for="gpxFileInput">GPX file:</label>
-            <input type="file" name="gpxFileInput" id="gpxFileInput" />
-        </p>
-        <p>
-            <button id="playPauseButton">Play</button>
-            <label for="speed">Speedup factor:</label>
-            <input type="number" id="speed" name="speed" value="5" min="1" max="10" step="1">
-            <label for="pointSlider">Seek:</label>
-            <input type="range" name="pointSlider" id="pointSlider" min="0" max="100" value="0" />
-        </p>
-        <div id="recentCalloutsArea">
-            <ul id="recentCalloutsList"></ul>
-        </div>
-        <div id="map"></div>
+        <nav>
+            <input type="file" name="gpxFileInput" id="gpxFileInput" title="GPX file" />
+            <button id="playPauseButton" title="Play/pause">▶</button>
+            <input type="range" name="pointSlider" title="Seek position" id="pointSlider" min="0" max="100" value="0" />
+            <input type="number" id="speed" name="speed" title="Speed-up factor" value="5" min="1" max="10" step="1">
+            <button id="btn_clear" title="Clear cached data">&#128465;</button>
+        </nav>
+        <main>
+            <div id="map"></div>
+            <section id="recentCalloutsArea">
+                <ul id="recentCalloutsList"></ul>
+            </section>
+        </main>
     </body>
 </html>

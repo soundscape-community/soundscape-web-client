@@ -14,7 +14,7 @@ function createVoiceControls(audioQueue) {
     audioQueue.voices.forEach(function(voice, index) {
       const option = document.createElement('option');
       option.value = index;
-      option.textContent = voice.name;
+      option.textContent = '🗣 ' + voice.name;
       voiceSelect.appendChild(option);
     });
   }
