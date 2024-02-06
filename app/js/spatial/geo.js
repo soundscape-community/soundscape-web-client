@@ -95,6 +95,11 @@ export function watchLocation(callback) {
   );
 }
 
+export function getCurrentRoad(){
+  location = getLocation();
+  
+}
+
 export function geoToXY(myLocation, myHeading, poiLocation) {
   // Convert degrees to radians
   const toRadians = degree => degree * (Math.PI / 180);

@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return new Promise((resolve, reject) => {
       var searchParams = new URLSearchParams(window.location.search);
       var lat = parseFloat(searchParams.get('lat'));
-      var lon= parseFloat(searchParams.get('lon'));
+      var lon = parseFloat(searchParams.get('lon'));
       var head = parseFloat(searchParams.get('heading'));
       if (!isNaN(lat) && !isNaN(lon) && !isNaN(head)) {
         resolve({ latitude: lat, longitude: lon, heading: head } );
