@@ -97,6 +97,21 @@ export function watchLocation(callback) {
 
 export function getCurrentRoad(){
   location = getLocation();
+  /* Potential Solution using Overpass API to get closest features
+  # Define the Overpass API query to find the closest road
+    overpass_url = "http://overpass-api.de/api/interpreter"
+    overpass_query = f"""
+        [out:json];
+        way(around:100, {latitude}, {longitude})["highway"];
+        out geom;
+    """
+
+    # Send the Overpass API request
+    response = requests.get(overpass_url, params={'data': overpass_query})
+
+    # Parse the JSON response
+    data = response.json()
+  */
   
 }
 
