@@ -1,6 +1,12 @@
 {
   "dependencies": {
     "@turf/turf": "^6.5.0",
-    "leaflet": "^1.9.4"
+    "leaflet": "^1.9.4",
+    "live-server": "^1.2.2"
+  },
+  "devDependencies": {
+    "webpack": "^5.90.1",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
   }
 }
