@@ -95,24 +95,20 @@ export function watchLocation(callback) {
   );
 }
 
-export function getCurrentRoad(){
-  location = getLocation();
-  /* Potential Solution using Overpass API to get closest features
-  # Define the Overpass API query to find the closest road
-    overpass_url = "http://overpass-api.de/api/interpreter"
-    overpass_query = f"""
-        [out:json];
-        way(around:100, {latitude}, {longitude})["highway"];
-        out geom;
-    """
-
-    # Send the Overpass API request
-    response = requests.get(overpass_url, params={'data': overpass_query})
-
-    # Parse the JSON response
-    data = response.json()
-  */
-  
+// Gets the street from nearest address and returns its name and city
+export async function getCurrentRoad(coords){
+  /* Nominatim contains a reverse-geocoding function that allows us to find addresses from coordinates, 
+    however it lacks precise accuracy in dense locations,
+    and can't detect paths that aren't addresses 
+  */ 
+  const url = `https://nominatim.openstreetmap.org/reverse?lat=${coords.latitude}&lon=${coords.longitude}&format=jsonv2`;
+  const req = await fetch(url);
+  const data = await req.json();
+  return {
+      name: data.address.road,
+      city: data.address.city,
+      state: data.address.state
+  };  
 }
 
 export function geoToXY(myLocation, myHeading, poiLocation) {
