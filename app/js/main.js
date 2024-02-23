@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function () {
           console.log("Yass");
           
           (async () => {
-            var road = await getCurrentRoad(coords);
+            var road = await getCurrentRoad(locationProvider);
             console.log(road)
           })();
           // Call out nearby features once

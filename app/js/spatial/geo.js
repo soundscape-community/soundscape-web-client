@@ -1,5 +1,7 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
+import cache from '../data/cache.js'
+import { enumerateTilesAround } from '../data/tile.js'
 
 // Function to create a half-kilometer bounding box around a point
 export function createBoundingBox(latitude, longitude, radiusMeters) {
@@ -96,19 +98,41 @@ export function watchLocation(callback) {
 }
 
 // Gets the street from nearest address and returns its name and city
-export async function getCurrentRoad(coords){
-  /* Nominatim contains a reverse-geocoding function that allows us to find addresses from coordinates, 
-    however it lacks precise accuracy in dense locations,
-    and can't detect paths that aren't addresses 
-  */ 
-  const url = `https://nominatim.openstreetmap.org/reverse?lat=${coords.latitude}&lon=${coords.longitude}&format=jsonv2`;
-  const req = await fetch(url);
-  const data = await req.json();
-  return {
-      name: data.address.road,
-      city: data.address.city,
-      state: data.address.state
-  };  
+export async function getCurrentRoad(locationProvider){
+  function dist(feature) {
+    feature.centroid = turf.centroid(feature.geometry);
+    feature.distance = locationProvider.distance(
+      feature.centroid, { units: 'meters' }
+    );
+    return feature;
+  }
+
+  const features = await Promise.all(
+    enumerateTilesAround(locationProvider.latitude, locationProvider.longitude, locationProvider.radiusMeters*2)
+    .map(t => {
+      t.load();
+      return t.getFeatures();
+    })
+  )
+  .then(tileFeatures => {
+    console.log("RARAJRAJRAJRJA");
+    const reduced = tileFeatures
+      // Flatten list of features across all nearby tiles
+      .reduce((acc, cur) => acc.concat(cur), [])
+      // Limit to roads
+      .filter(
+        f => f.feature_type == "highway" && 
+        f.geometry.type == "LineString" && 
+        f.feature_value == "primary"
+      );
+    return reduced;
+  });
+  console.log("Yuh?");
+  console.log(turf.featureCollection(features));
+  features.forEach(feature => {
+
+  });
+  //return features;
 }
 
 export function geoToXY(myLocation, myHeading, poiLocation) {
