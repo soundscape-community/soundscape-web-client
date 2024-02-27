@@ -97,6 +97,12 @@ export function watchLocation(callback) {
   );
 }
 
+/*
+  I think we should probably have this bit of mapping enumerateTilesAround() be executed only once 
+  and passed to different functions, because as it is now, this first part is done twice for both this function
+  and the announcer function to get all the tiles features.
+  - Kris
+*/
 // Gets the street from nearest address and returns its name and city
 export async function getCurrentRoad(locationProvider){
   const features = await Promise.all(
@@ -116,27 +122,24 @@ export async function getCurrentRoad(locationProvider){
         f.geometry.type == "LineString" &&
         f.feature_value == "primary" ||
         f.feature_value == "residential" ||
-        f.feature_value == "tertiary"
-
-      )
+        f.feature_value == "tertiary" 
+      );
     return reduced;
   });
-  
-  const point = turf.point([locationProvider.latitude, locationProvider.longitude]);
-  const featureCollection = turf.featureCollection(features);
+
+  //This pissed me off but to define a turf point you have to put longitude first T^T
+  const point = turf.point([locationProvider.longitude, locationProvider.latitude]);
   features.forEach(road => {
     const snap = turf.nearestPointOnLine(road, point, {units: "meters"});
     road.distance = locationProvider.distance(
       snap, { units: 'meters' }
     );
   });
-  features
+  const sorted = features
     .sort( (a,b) => {
         return a.distance >= b.distance;
     });
-  console.log(features);
-
-  //return features;
+  return sorted[0];
 }
 
 export function geoToXY(myLocation, myHeading, poiLocation) {
