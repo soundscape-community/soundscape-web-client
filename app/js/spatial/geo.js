@@ -99,39 +99,43 @@ export function watchLocation(callback) {
 
 // Gets the street from nearest address and returns its name and city
 export async function getCurrentRoad(locationProvider){
-  function dist(feature) {
-    feature.centroid = turf.centroid(feature.geometry);
-    feature.distance = locationProvider.distance(
-      feature.centroid, { units: 'meters' }
-    );
-    return feature;
-  }
-
   const features = await Promise.all(
-    enumerateTilesAround(locationProvider.latitude, locationProvider.longitude, locationProvider.radiusMeters*2)
+    enumerateTilesAround(locationProvider.latitude, locationProvider.longitude, locationProvider.radiusMeters)
     .map(t => {
       t.load();
       return t.getFeatures();
     })
   )
   .then(tileFeatures => {
-    console.log("RARAJRAJRAJRJA");
     const reduced = tileFeatures
       // Flatten list of features across all nearby tiles
       .reduce((acc, cur) => acc.concat(cur), [])
       // Limit to roads
       .filter(
         f => f.feature_type == "highway" && 
-        f.geometry.type == "LineString" && 
-        f.feature_value == "primary"
-      );
+        f.geometry.type == "LineString" &&
+        f.feature_value == "primary" ||
+        f.feature_value == "residential" ||
+        f.feature_value == "tertiary"
+
+      )
     return reduced;
   });
-  console.log("Yuh?");
-  console.log(turf.featureCollection(features));
-  features.forEach(feature => {
-
+  
+  const point = turf.point([locationProvider.latitude, locationProvider.longitude]);
+  const featureCollection = turf.featureCollection(features);
+  features.forEach(road => {
+    const snap = turf.nearestPointOnLine(road, point, {units: "meters"});
+    road.distance = locationProvider.distance(
+      snap, { units: 'meters' }
+    );
   });
+  features
+    .sort( (a,b) => {
+        return a.distance >= b.distance;
+    });
+  console.log(features);
+
   //return features;
 }
 
