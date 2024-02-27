@@ -139,7 +139,12 @@ export async function getCurrentRoad(locationProvider){
     .sort( (a,b) => {
         return a.distance >= b.distance;
     });
-  return sorted[0];
+  var nextIdx = 1;
+  while(sorted[nextIdx].properties.name == sorted[0].properties.name){
+    nextIdx++;
+  }
+  const nearest = Math.abs(sorted[0].distance - sorted[nextIdx].distance) < 5 ? [sorted[0],sorted[nextIdx]] : [sorted[0]];
+  return nearest;
 }
 
 export function geoToXY(myLocation, myHeading, poiLocation) {
