@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
           console.log(coords);
           locationProvider.updateLocation(coords.latitude, coords.longitude);
           locationProvider.updateOrientation({ alpha: coords.heading });
-          console.log("Yass");
+          
           
           (async () => {
             var road = await getCurrentRoad(locationProvider);
