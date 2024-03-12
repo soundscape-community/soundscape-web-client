@@ -197,3 +197,10 @@ main {
     /* You can change the color */
     transform-origin: bottom center;
 }
+
+img {
+    width: 25%; /* Adjust the width of the image within the button */
+    height: auto; /* Maintain aspect ratio */
+}
+
+
