@@ -7,7 +7,8 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    font-size: 1.2em; /* Increase default font size for better readability */
+    font-size: 1.2em;
+    /* Increase default font size for better readability */
 }
 
 /* Top button bar */
@@ -18,16 +19,68 @@ nav {
     padding: 15px;
 }
 
-nav button, nav input, nav select, button {
-    background-color: #e74c3c;
+/* beacon-button is the class name for the buttons that appear from the callouts beacon */
+
+.nav-button,
+.beacon-button,
+nav input,
+nav select {
+    background-color: #e74c3d;
     color: #fff;
     border: none;
     padding: 15px;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 1.2em; /* Larger font size for buttons, inputs, and select */
-    margin-right: 10px; /* Add some spacing between controls */
+    font-size: 1.2em;
+    /* Larger font size for buttons, inputs, and select */
+    margin-right: 10px;
+    /* Add some spacing between controls */
     max-width: 20%;
+}
+
+
+#rateController {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    /* border: dashed red; */
+    background-color: #e74c3d;
+    cursor: pointer;
+    font-size: 1.2em;
+    margin-right: 10px;
+    padding: 0px;
+    border-radius: 8px;
+    max-width: 20%;
+}
+
+#rateController div{
+    height: 3vh;
+    padding: 15px;
+    font-size: 1.2em;
+    color: white;
+    /* text-align: center; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#rateController button {
+    /* margin: 0px 6px; */
+    /* Green */
+    background-color: transparent;
+    border: none;
+    color: white;
+    /* text-align: center; */
+    padding: 15px;
+    font-size: 1.2em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#rateController button:hover {
+    cursor: pointer;
 }
 
 /* Speaking and playback rate selectors don't need to be as large */
@@ -41,7 +94,8 @@ nav select {
 }
 
 /* GPX file selector and seek position should be wider -- probably not running on a phone */
-nav input[type="file"], nav input[type="range"] {
+nav input[type="file"],
+nav input[type="range"] {
     max-width: none;
 }
 
@@ -54,13 +108,16 @@ main {
 
 #map {
     width: 100%;
-    height: 300px; /* Adjusted height for better visibility */
-    border: 2px solid #000; /* Higher contrast for the map border */
+    height: 300px;
+    /* Adjusted height for better visibility */
+    border: 2px solid #000;
+    /* Higher contrast for the map border */
     margin-bottom: 15px;
 }
 
 #recentCalloutsArea {
-    height: calc(100vh - 435px);  /* all vertical space after map + button row */
+    height: calc(100vh - 435px);
+    /* all vertical space after map + button row */
     overflow-y: auto;
     flex-basis: 100%;
 }
@@ -70,9 +127,11 @@ main {
     margin: 0;
 }
 
-#recentCalloutsList li, #recentCalloutsArea p {
+#recentCalloutsList li,
+#recentCalloutsArea p {
     list-style: none;
-    border-bottom: 2px solid #000; /* Higher contrast for list item borders */
+    border-bottom: 2px solid #000;
+    /* Higher contrast for list item borders */
     padding: 15px;
     margin: 0;
     overflow: hidden;
@@ -98,12 +157,14 @@ main {
 /* display map + recent callouts side-by-side on sufficiently wide screens */
 @media screen and (min-width: 600px) {
     #map {
-        height: calc(100vh - 140px);  /* all vertical space after button row */
+        height: calc(100vh - 140px);
+        /* all vertical space after button row */
         width: 48%;
     }
 
     #recentCalloutsArea {
-        height: calc(100vh - 140px);  /* all vertical space after button row */
+        height: calc(100vh - 140px);
+        /* all vertical space after button row */
         flex-basis: 48%;
     }
 }
@@ -114,6 +175,7 @@ main {
     height: 0;
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
-    border-bottom: 40px solid red; /* You can change the color */
+    border-bottom: 40px solid red;
+    /* You can change the color */
     transform-origin: bottom center;
 }
