@@ -4,7 +4,10 @@
 function createVoiceControls(audioQueue) {
   // Fetch available voices
   const voiceSelect = document.getElementById('voice');
-  const rateInput = document.getElementById('rate');
+  // const rateInput = document.getElementById('rate');
+
+  const decreaseRate = document.getElementById('decreaseRate');
+  const increaseRate = document.getElementById('increaseRate');
 
   // Populate voice selector
   function populateVoices() {
@@ -33,8 +36,19 @@ function createVoiceControls(audioQueue) {
   };
 
   // Update voice and rate when user changes them
-  rateInput.addEventListener('input', function(e) {
-    audioQueue.setRate(parseFloat(rateInput.value));
+  // rateInput.addEventListener('input', function(e) {
+    
+  //   audioQueue.setRate(parseFloat(rateInput.value));
+  // });
+
+  decreaseRate.addEventListener('click', function(e) {
+    console.log("decreasing rate");
+    audioQueue.setRate(-1);
+  });
+
+  increaseRate.addEventListener('click', function(e) {
+    console.log("increasing rate");
+    audioQueue.setRate(1);
   });
 
   voiceSelect.addEventListener('change', function() {
@@ -42,7 +56,7 @@ function createVoiceControls(audioQueue) {
   });
 
   // Set voice and rate to match initial form values
-  audioQueue.setRate(parseFloat(rateInput.value));
+  audioQueue.setRate(2);
   audioQueue.setVoice(voiceSelect.value);
 }
 
