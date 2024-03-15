@@ -39,7 +39,7 @@ nav select {
 }
 
 
-#rateController {
+#rate {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -54,7 +54,7 @@ nav select {
     max-width: 20%;
 }
 
-#rateController div{
+#rate div{
     height: 3vh;
     padding: 15px;
     font-size: 1.2em;
@@ -65,7 +65,7 @@ nav select {
     align-items: center;
 }
 
-#rateController button {
+#rate button {
     /* margin: 0px 6px; */
     /* Green */
     background-color: transparent;
@@ -79,7 +79,7 @@ nav select {
     align-items: center;
 }
 
-#rateController button:hover {
+#rate button:hover {
     cursor: pointer;
 }
 
