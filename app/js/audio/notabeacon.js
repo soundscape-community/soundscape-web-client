@@ -20,7 +20,7 @@ export function createBeacon(latitude, longitude, locationProvider, audioQueue) 
   const onCourse = new Audio( 'app/sounds/beacons/Classic/Classic_OnAxis.wav');
   const offCourse = new Audio('app/sounds/beacons/Classic/Classic_OffAxis.wav');
   onCourse.loop = true;
-  onCourse.muted = true;
+  onCourse.volume = 0;
   offCourse.loop = true;
 
   const onCourseSource = audioContext.createMediaElementSource(onCourse);
@@ -55,11 +55,11 @@ export function createBeacon(latitude, longitude, locationProvider, audioQueue) 
       // Transition between "on" and "off" beacons
       const angle = Math.atan2(relativePosition.x, relativePosition.y) * 180 / Math.PI;
       if (Math.abs(angle) < onCourseAngle) {
-        onCourse.muted = false;
-        offCourse.muted = true;
+        onCourse.volume = 1.0;
+        offCourse.volume = 0;
       } else {
-        onCourse.muted = true;
-        offCourse.muted = false;
+        onCourse.volume = 0;
+        offCourse.volume = 1.0;
       }
     },
 
