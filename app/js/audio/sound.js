@@ -109,8 +109,6 @@ export function createSpatialPlayer(locationProvider) {
         player.rate += rateChange;
       }
 
-      console.log(player.rate);
-
       document.getElementById('rateValue').textContent = player.rate;
     },
 

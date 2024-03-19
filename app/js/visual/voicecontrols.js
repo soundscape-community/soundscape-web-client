@@ -42,12 +42,10 @@ function createVoiceControls(audioQueue) {
   // });
 
   decreaseRate.addEventListener('click', function(e) {
-    console.log("decreasing rate");
     audioQueue.setRate(-1);
   });
 
   increaseRate.addEventListener('click', function(e) {
-    console.log("increasing rate");
     audioQueue.setRate(1);
   });
 
