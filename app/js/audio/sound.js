@@ -94,7 +94,7 @@ export function createSpatialPlayer(locationProvider) {
     // Speech synthesis customization
     voices: null,
     voice: null,
-    rate: null,
+    rate: 2,
     setVoice(voiceIndex) {
       player.voice = player.voices[voiceIndex];
     },
@@ -109,7 +109,9 @@ export function createSpatialPlayer(locationProvider) {
         player.rate += rateChange;
       }
 
-      console.log(player.rate)
+      console.log(player.rate);
+
+      document.getElementById('rateValue').textContent = player.rate;
     },
 
     addToQueue(item) {
