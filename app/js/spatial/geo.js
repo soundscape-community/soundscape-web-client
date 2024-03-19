@@ -1,5 +1,7 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
+import cache from '../data/cache.js'
+import { enumerateTilesAround } from '../data/tile.js'
 
 // Function to create a half-kilometer bounding box around a point
 export function createBoundingBox(latitude, longitude, radiusMeters) {
@@ -93,6 +95,56 @@ export function watchLocation(callback) {
       maximumAge: 0,
     }
   );
+}
+
+/*
+  I think we should probably have this bit of mapping enumerateTilesAround() be executed only once 
+  and passed to different functions, because as it is now, this first part is done twice for both this function
+  and the announcer function to get all the tiles features.
+  - Kris
+*/
+// Gets the street from nearest address and returns its name and city
+export async function getCurrentRoad(locationProvider){
+  const features = await Promise.all(
+    enumerateTilesAround(locationProvider.latitude, locationProvider.longitude, locationProvider.radiusMeters)
+    .map(t => {
+      t.load();
+      return t.getFeatures();
+    })
+  )
+  .then(tileFeatures => {
+    const reduced = tileFeatures
+      // Flatten list of features across all nearby tiles
+      .reduce((acc, cur) => acc.concat(cur), [])
+      // Limit to roads
+      .filter(
+        f => f.feature_type == "highway" && 
+        f.geometry.type == "LineString" &&
+        f.feature_value == "primary" ||
+        f.feature_value == "residential" ||
+        f.feature_value == "tertiary" 
+      );
+    return reduced;
+  });
+
+  //This pissed me off but to define a turf point you have to put longitude first T^T
+  const point = turf.point([locationProvider.longitude, locationProvider.latitude]);
+  features.forEach(road => {
+    const snap = turf.nearestPointOnLine(road, point, {units: "meters"});
+    road.distance = locationProvider.distance(
+      snap, { units: 'meters' }
+    );
+  });
+  const sorted = features
+    .sort( (a,b) => {
+        return a.distance >= b.distance;
+    });
+  var nextIdx = 1;
+  while(sorted[nextIdx].properties.name == sorted[0].properties.name){
+    nextIdx++;
+  }
+  const nearest = Math.abs(sorted[0].distance - sorted[nextIdx].distance) < 5 ? [sorted[0],sorted[nextIdx]] : [sorted[0]];
+  return nearest;
 }
 
 export function geoToXY(myLocation, myHeading, poiLocation) {
