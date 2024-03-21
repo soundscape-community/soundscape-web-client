@@ -94,12 +94,22 @@ export function createSpatialPlayer(locationProvider) {
     // Speech synthesis customization
     voices: null,
     voice: null,
-    rate: null,
+    rate: 2,
     setVoice(voiceIndex) {
       player.voice = player.voices[voiceIndex];
     },
-    setRate(rate) {
-      player.rate = rate;
+    setRate(rateChange) {
+      // rateChange will be 1 when increaseRate button is clicked, otherwise will be -1 when decreaseRate button is clicked
+
+      // this allows: 1 <= player.rate <= 5
+      if(rateChange == 1 && player.rate != 5){
+        player.rate += rateChange;
+      }
+      else if (rateChange == -1 && player.rate != 1){
+        player.rate += rateChange;
+      }
+
+      document.getElementById('rateValue').textContent = player.rate;
     },
 
     addToQueue(item) {
