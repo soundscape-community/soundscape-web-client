@@ -1,8 +1,12 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
+const turf = require('@turf/turf');
+
+module.exports = { createBoundingBox , enumerateTilesInBoundingBox, getLocation,  watchLocation, geoToXY};
+
 // Function to create a half-kilometer bounding box around a point
-export function createBoundingBox(latitude, longitude, radiusMeters) {
+function createBoundingBox(latitude, longitude, radiusMeters) {
   // Create a Turf.js point
   const point = turf.point([longitude, latitude]);
 
@@ -28,7 +32,7 @@ function latLonToTileCoords(latitude, longitude, zoom) {
 }
 
 // Function to enumerate all Mercator tiles within a bounding box
-export function enumerateTilesInBoundingBox(bbox, minZoom, maxZoom) {
+function enumerateTilesInBoundingBox(bbox, minZoom, maxZoom) {
   const tiles = [];
 
   for (let zoom = minZoom; zoom <= maxZoom; zoom++) {
@@ -45,7 +49,7 @@ export function enumerateTilesInBoundingBox(bbox, minZoom, maxZoom) {
   return tiles;
 }
 
-export function getLocation(callback) {
+function getLocation(callback) {
   return new Promise((resolve, reject) => {
     // Check if the Geolocation API is supported
     if ("geolocation" in navigator) {
@@ -70,7 +74,7 @@ export function getLocation(callback) {
   });
 }
 
-export function watchLocation(callback) {
+function watchLocation(callback) {
   return navigator.geolocation.watchPosition(
     function (position) {
       console.log(position);
@@ -95,7 +99,7 @@ export function watchLocation(callback) {
   );
 }
 
-export function geoToXY(myLocation, myHeading, poiLocation) {
+function geoToXY(myLocation, myHeading, poiLocation) {
   // Convert degrees to radians
   const toRadians = degree => degree * (Math.PI / 180);
 

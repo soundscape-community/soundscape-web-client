@@ -2,5 +2,8 @@
   "dependencies": {
     "@turf/turf": "^6.5.0",
     "leaflet": "^1.9.4"
+  },
+  "scripts": {
+    "test": "mocha"
   }
 }
