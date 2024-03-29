@@ -133,9 +133,11 @@ document.addEventListener('DOMContentLoaded', function () {
           locationProvider.updateOrientation({ alpha: coords.heading });
           
           
-          (async () => {
-            var road = await getCurrentRoad(locationProvider);
-            console.log(road)
+         // Speak nearest road
+         (async () => {
+          var road = await getCurrentRoad(locationProvider);
+          audioQueue.addToQueue({ soundUrl: 'app/sounds/sense_mobility.wav' })
+          audioQueue.addToQueue({ text: `Nearest road: ${road[0].properties.name}` })
           })();
           // Call out nearby features once
           announcer.calloutAllFeatures(coords.latitude, coords.longitude)
