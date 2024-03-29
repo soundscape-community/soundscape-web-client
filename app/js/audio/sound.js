@@ -98,18 +98,20 @@ export function createSpatialPlayer(locationProvider) {
     setVoice(voiceIndex) {
       player.voice = player.voices[voiceIndex];
     },
-    setRate(rateChange) {
-      // rateChange will be 1 when increaseRate button is clicked, otherwise will be -1 when decreaseRate button is clicked
-
-      // this allows: 1 <= player.rate <= 5
-      if(rateChange == 1 && player.rate != 5){
-        player.rate += rateChange;
+    setRate(rate) {
+      player.rate = rate;
+    },
+    increaseRate() {
+      if (player.rate < 5) {
+        player.rate++;
       }
-      else if (rateChange == -1 && player.rate != 1){
-        player.rate += rateChange;
+      return player.rate;
+    },
+    decreaseRate() {
+      if (player.rate > 1) {
+        player.rate--;
       }
-
-      document.getElementById('rateValue').textContent = player.rate;
+      return player.rate;
     },
 
     addToQueue(item) {
