@@ -133,15 +133,19 @@ export async function getCurrentRoad(locationProvider){
       snap, { units: 'meters' }
     );
   });
-  const sorted = features
-    .sort( (a,b) => {
-        return a.distance >= b.distance;
-    });
-  var nextIdx = 1;
-  while(sorted[nextIdx].properties.name == sorted[0].properties.name){
-    nextIdx++;
+  
+  // Finds all non-duplicate roads under 5 meters
+  const nearestMap = new Map();
+  for(let i = 0; sorted[i].distance < 5; i++){
+    // Gets street name
+    const name = sorted[i].properties.name;
+    // Maps street name to its index in the sorted list
+    if(!nearestMap.has(name)){
+      nearestMap[name] = i; 
+    }
   }
-  const nearest = Math.abs(sorted[0].distance - sorted[nextIdx].distance) < 5 ? [sorted[0],sorted[nextIdx]] : [sorted[0]];
+  // Combines all the mapped roads into a list
+  const nearest = Array.from(nearestMap, ([n,i]) => sorted[i]);
   return nearest;
 }
 
