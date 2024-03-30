@@ -36,11 +36,6 @@ function createVoiceControls(audioQueue) {
   };
 
   // Update voice and rate when user changes them
-  // rateInput.addEventListener('input', function(e) {
-
-  //   audioQueue.setRate(parseFloat(rateInput.value));
-  // });
-
   decreaseRate.addEventListener("click", function (e) {
     rateValue.textContent = audioQueue.decreaseRate();
   });
