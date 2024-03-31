@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@turf/turf": "^6.5.0",
+    "chai": "^5.1.0",
     "leaflet": "^1.9.4"
   },
   "scripts": {
