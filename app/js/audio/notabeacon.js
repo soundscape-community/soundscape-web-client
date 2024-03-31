@@ -3,12 +3,14 @@
 
 // This file is called "notabeacon.js" because "beacon.js" is blocked by some ad blockers.
 
+import { point } from '@turf/turf';
+
 const onCourseAngle = 30;  // degrees +/- Y axis
 const foundProximityMeters = 10;  // proximity to auto-stop beacon
 const announceEveryMetters = 50;
 
 export function createBeacon(latitude, longitude, locationProvider, audioQueue) {
-  const sourceLocation = turf.point([longitude, latitude]);
+  const sourceLocation = point([longitude, latitude]);
   var relativePosition = locationProvider.normalizedRelativePosition(sourceLocation);
   var lastAnnouncedDistance = null;
 

@@ -1,6 +1,8 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
+import "../css/main.css"
+
 import { createSpatialPlayer } from './audio/sound.js'
 import createCalloutAnnouncer from './audio/callout.js';
 import cache from './data/cache.js'

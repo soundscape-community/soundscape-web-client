@@ -1,16 +1,18 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
+import { point, buffer, bbox } from '@turf/turf';
+
 // Function to create a half-kilometer bounding box around a point
 export function createBoundingBox(latitude, longitude, radiusMeters) {
   // Create a Turf.js point
-  const point = turf.point([longitude, latitude]);
+  const point = point([longitude, latitude]);
 
   // Buffer the point with the specified readius
-  const buffered = turf.buffer(point, radiusMeters, { units: 'meters' });
+  const buffered = buffer(point, radiusMeters, { units: 'meters' });
 
   // Extract the bounding box coordinates
-  const bbox = turf.bbox(buffered);
+  const bbox = bbox(buffered);
 
   return bbox;
 }

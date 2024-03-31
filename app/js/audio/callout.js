@@ -1,6 +1,7 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
+import { centroid} from '@turf/turf';
 import cache from '../data/cache.js'
 import { enumerateTilesAround } from '../data/tile.js'
 
@@ -29,7 +30,7 @@ function createCalloutAnnouncer(audioQueue) {
 
   function playSoundAndSpeech(sound, text, sourceLocation, includeDistance) {
     audioQueue.addToQueue({
-      soundUrl: `app/sounds/${sound}.wav`,
+      soundUrl: `sounds/${sound}.wav`,
       location: sourceLocation,
     });
     audioQueue.addToQueue({
@@ -52,7 +53,7 @@ function createCalloutAnnouncer(audioQueue) {
 
   // Annotate GeoJSON feature with attributes and methods used for spatial audio callouts
   function announceable(feature) {
-    feature.centroid = turf.centroid(feature.geometry);
+    feature.centroid = centroid(feature.geometry);
     feature.distance = audioQueue.locationProvider.distance(
       feature.centroid, { units: 'meters' }
     );

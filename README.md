@@ -34,10 +34,10 @@ To use a location other than what's reported by your device, include the latitud
     $ pip install -r requirements.txt
     $ python tile_server_proxy.py
     ```
-2. Run a web server, such as live-server, in the working directory. Make sure you specify a port that doesn't conflict with the tile server proxy.
+2. Install the JavaScript dependencies, and run the Webpack server:
     ```
-    $ npm install live-server
-    $ live-server --port=8081 .
+    $ npm install
+    $ npx webpack serve --config webpack.config.j
     ```
 
 ## Third-party libraries used

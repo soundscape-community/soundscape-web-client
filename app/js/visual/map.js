@@ -1,6 +1,9 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
 function createMap(id) {
   var map = L.map(id);
 

@@ -1,6 +1,8 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
+import "../css/main.css"
+
 import { audioContext, createSpatialPlayer, playSpatialSpeech } from './audio/sound.js'
 import createCalloutAnnouncer from './audio/callout.js'
 import { getLocation, watchLocation } from './spatial/geo.js';
@@ -93,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Clear queued audio
     if (activeMode) {
       audioQueue.stopAndClear();
-      audioQueue.addToQueue({ soundUrl: 'app/sounds/mode_exit.wav' });
+      audioQueue.addToQueue({ soundUrl: 'sounds/mode_exit.wav' });
     }
 
     // Remove any location and orientation change event handlers
@@ -114,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function () {
     activeMode = newMode;
 
     // play mode-enter sound
-    audioQueue.addToQueue({ soundUrl: 'app/sounds/mode_enter.wav' });
+    audioQueue.addToQueue({ soundUrl: 'sounds/mode_enter.wav' });
 
     switch (newMode) {
       case 'callouts':
