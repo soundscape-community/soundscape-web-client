@@ -1,64 +1,74 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
     <meta charset="UTF-8" />
-    <!-- Render to a usable size on mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="app/css/main.css" />
-
     <title>FAQ</title>
-
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
     <script src="app/js/vendor/unmute.js"></script>
     <script src="app/js/main.js" type="module"></script>
-  </head>
-  <body>
-    <nav>
-        <button class ="home" title="Home">
-            <a href="index.html" class="help-link">&#x2302;</a>
-        </button>  
-      <h1>FAQ Page</h1>
-    </nav>
 
-    <div class="grey-box">
-      <button title="btn_callouts">
-        <i class="fas">&#xf124;</i>
-        
-      </button>
+<body>
+<nav>
+    <button class="home" title="Home">
+        <a href="index.html" class="help-link">&#x2302;</a>
+    </button>
+    <h1>FAQ Page</h1>
+</nav>
 
-      <br />
-      <br />
-
-      <button id="btn_near_me" title="Announce places near me">ⓘ</button>
-
-      <br>
-      <br>
-      <button title="Voice">
-        <i class="fas">🗣</i>
-        
-      </button>
-      
-    <br>
-    <br>
-
-      <input
-        type="number"
-        id="rate"
-        title="Speaking rate"
-        value="2"
-        name="rate"
-        min="0.5"
-        max="5"
-        step="0.5"
-      />
-
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <div class="grey-box">
+                <button title="btn_callouts">
+                    <i class="fas">&#xf124;</i>
+                </button>
+                <Strong>Start tracking callouts</Strong> - When toggled on, this feature will follow your movements and call out nearby locations.
+            </div>
+        </div>
     </div>
-  </body>
-</html>
 
+    <div class="row">
+        <div class="col">
+            <div class="grey-box">
+                <button id="btn_near_me" title="Announce places near me">ⓘ</button>
+                <Strong>Announce places near me</Strong> - When toggled on, this feature will call out nearby locations relative to your current location.
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="grey-box">
+                <button title="Voice">
+                    <i class="fas">🗣</i>
+                </button>
+                <strong>Voice</strong> - This feature allows you to select the voice that will read the beacons aloud. <br>
+                <strong>Speaking rate</strong> - This feature will increase or decrease the speed at which.
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="grey-box">
+                <input
+                        type="number"
+                        id="rate"
+                        title="Speaking rate"
+                        value="2"
+                        name="rate"
+                        min="0.5"
+                        max="5"
+                        step="0.5"
+                />
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

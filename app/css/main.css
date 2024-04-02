@@ -115,8 +115,9 @@ main {
 .home {
     font-size: 2.0em;
     padding: 5px 10px; 
-    margin-right: 20px;  
+    margin-right: auto;
 }
+
 #map {
     width: 100%;
     height: 300px;
