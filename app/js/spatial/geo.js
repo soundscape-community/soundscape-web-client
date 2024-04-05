@@ -125,7 +125,7 @@ export async function getCurrentRoad(locationProvider){
     return reduced;
   });
 
-  //This pissed me off but to define a turf point you have to put longitude first T^T
+  //To define a turf point you have to put longitude first 
   const point = turf.point([locationProvider.longitude, locationProvider.latitude]);
   features.forEach(road => {
     const snap = turf.nearestPointOnLine(road, point, {units: "meters"});
@@ -133,16 +133,23 @@ export async function getCurrentRoad(locationProvider){
       snap, { units: 'meters' }
     );
   });
+
   const sorted = features
     .sort( (a,b) => {
         return a.distance >= b.distance;
     });
-  var nextIdx = 1;
-  while(sorted[nextIdx].properties.name == sorted[0].properties.name){
-    nextIdx++;
+
+  if( sorted.length != 0){
+    var nextIdx = 1;
+    while(sorted[nextIdx].properties.name == sorted[0].properties.name){
+      nextIdx++;
+    }
+    const nearest = Math.abs(sorted[0].distance - sorted[nextIdx].distance) < 5 ? [sorted[0],sorted[nextIdx]] : [sorted[0]];
+    return nearest;
   }
-  const nearest = Math.abs(sorted[0].distance - sorted[nextIdx].distance) < 5 ? [sorted[0],sorted[nextIdx]] : [sorted[0]];
-  return nearest;
+  else{
+    return 0;
+  }
 }
 
 export function geoToXY(myLocation, myHeading, poiLocation) {
