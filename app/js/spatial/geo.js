@@ -134,19 +134,28 @@ export async function getCurrentRoad(locationProvider){
     );
   });
   
-  // Finds all non-duplicate roads under 5 meters
-  const nearestMap = new Map();
-  for(let i = 0; sorted[i].distance < 5; i++){
-    // Gets street name
-    const name = sorted[i].properties.name;
-    // Maps street name to its index in the sorted list
-    if(!nearestMap.has(name)){
-      nearestMap[name] = i; 
+  const sorted = features
+    .sort( (a,b) => {
+        return a.distance >= b.distance;
+    });
+
+  if( sorted.length != 0){
+    // Finds all non-duplicate roads under 5 meters
+    const nearestMap = new Map();
+    for(let i = 0; sorted[i].distance < 5; i++){
+      // Gets street name
+      const name = sorted[i].properties.name;
+      // Maps street name to its index in the sorted list
+      if(!nearestMap.has(name)){
+        nearestMap[name] = i; 
+      }
     }
+    // Combines all the mapped roads into a list
+    const nearest = Array.from(nearestMap, ([n,i]) => sorted[i]);
+    return nearest;
+  }else{
+    return 0;
   }
-  // Combines all the mapped roads into a list
-  const nearest = Array.from(nearestMap, ([n,i]) => sorted[i]);
-  return nearest;
 }
 
 export function geoToXY(myLocation, myHeading, poiLocation) {
