@@ -11,65 +11,67 @@
     <script src="app/js/vendor/unmute.js"></script>
     <script src="app/js/main.js" type="module"></script>
 
-<body>
-<nav>
-    <button class="home" title="Home">
-        <a href="index.html" class="help-link">&#x2302;</a>
-    </button>
-    <h1>FAQ Page</h1>
-</nav>
-
-<div class="container">
-    <div class="row">
-        <div class="col">
-            <div class="grey-box">
-                <button title="btn_callouts">
-                    <i class="fas">&#xf124;</i>
-                </button>
-                <Strong>Track callouts</Strong> - Follow your movements and call out nearby locations.
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col">
-            <div class="grey-box">
-                <button id="btn_near_me" title="Announce places near me">ⓘ</button>
-                <Strong>Announce places near me</Strong> - Nearby locations relative to your current location will be called out.
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col">
-            <div class="grey-box">
-                <button title="Voice">
-                    <i class="fas">🗣</i>
-                </button>
-                <strong>Voice</strong> - Select the voice that reads the beacons aloud.
-                
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col">
-            <div class="grey-box">
-                <input
-                    type="number"
-                    id="rate"
-                    title="Speaking rate"
-                    value="2"
-                    name="rate"
-                    min="0.5"
-                    max="5"
-                    step="0.5"
-                />
-                <strong>Speaking rate</strong> - Adjust the speed at which the beacons are announced.
-            </div>
-        </div>
+    <body>
+        <nav>
+            <button class="home" title="Home">
+                <a href="index.html" class="help-link">&#x2302;</a>
+            </button>
+            <h1>FAQ Page</h1>
+        </nav>
         
-    </div>
-</div>
-</body>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="grey-box">
+                        <button title="Track callouts">
+                            <i class="fas">&#xf124;</i>
+                        </button>
+                        <strong>Track callouts</strong>
+                        - Follow your movements and call out nearby locations.
+                    </div>
+                </div>
+            </div>
+        
+            <div class="row">
+                <div class="col">
+                    <div class="grey-box">
+                        <button id="btn_near_me" title="Announce places near me">ⓘ</button>
+                        <strong>Announce places near me</strong>
+                        - Nearby locations relative to your current location will be called out.
+                    </div>
+                </div>
+            </div>
+        
+            <div class="row">
+                <div class="col">
+                    <div class="grey-box">
+                        <button title="Voice">
+                            <i class="fas">🗣</i>
+                        </button>
+                        <strong>Voice</strong>
+                        - Select the voice that reads the beacons aloud.
+                    </div>
+                </div>
+            </div>
+        
+            <div class="row">
+                <div class="col">
+                    <div class="grey-box">
+                        <input
+                            type="number"
+                            id="rate"
+                            title="Speaking rate"
+                            value="2"
+                            name="rate"
+                            min="0.5"
+                            max="5"
+                            step="0.5"
+                        />
+                        <strong>Speaking rate</strong>
+                        - Adjust the speed at which the beacons are announced.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
 </html>

@@ -18,7 +18,9 @@ nav {
     justify-content: space-between; 
     align-items: center; 
     background-color: #2c3e50;
+    color: white;
     padding: 15px;
+    text-align: center;
 }
 
 nav h1 {
@@ -223,3 +225,14 @@ img {
     cursor: pointer; /* Change cursor to pointer */
 }
 
+/* not sure if quesiotns should be in the center
+*/
+/* .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.row {
+    margin-bottom: 20px;
+} */
