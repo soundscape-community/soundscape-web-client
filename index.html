@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="app/css/main.css" />
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
     <script src="app/js/vendor/unmute.js"></script>
@@ -15,13 +16,10 @@
   </head>
   <body>
     <nav>
-      <button
-        class="nav-button"
-        id="btn_callouts"
-        title="Start tracking callouts"
-      >
-        ⌖
-      </button>
+      <button class="nav-button"
+      id="btn_callouts" title="btn_callouts">
+        <i class='fas'>&#xf124;</i>
+    </button>
       <button
         class="nav-button"
         id="btn_near_me"
@@ -37,11 +35,23 @@
         required
       ></select>
 
-        <main>
-            <div id="map"></div>
-            <section id="recentCalloutsArea">
-                <ul id="recentCalloutsList"></ul>
-            </section>
-        </main>
-    </body>
+      <div id="rate" title="Speaking rate">
+        <button id="decreaseRate" title="Decrease speaking rate">−</button>
+        <div id="rateValue">2</div>
+        <button id="increaseRate" title="Increase speaking rate">+</button>
+      </div>
+
+      <a href="help.html" class="nav-button" title="FAQ page">
+        <i class="fas fa-question"></i>
+      </a>
+      
+    </nav>
+
+    <main>
+      <div id="map"></div>
+      <section id="recentCalloutsArea">
+        <ul id="recentCalloutsList"></ul>
+      </section>
+    </main>
+  </body>
 </html>
