@@ -6,7 +6,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="app/css/main.css" />
-    <title>FAQ</title>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
     <script src="app/js/vendor/unmute.js"></script>
@@ -27,7 +26,7 @@
                 <button title="btn_callouts">
                     <i class="fas">&#xf124;</i>
                 </button>
-                <Strong>Start tracking callouts</Strong> - When toggled on, this feature will follow your movements and call out nearby locations.
+                <Strong>Track callouts</Strong> - Follow your movements and call out nearby locations.
             </div>
         </div>
     </div>
@@ -36,7 +35,7 @@
         <div class="col">
             <div class="grey-box">
                 <button id="btn_near_me" title="Announce places near me">ⓘ</button>
-                <Strong>Announce places near me</Strong> - When toggled on, this feature will call out nearby locations relative to your current location.
+                <Strong>Announce places near me</Strong> - Nearby locations relative to your current location will be called out.
             </div>
         </div>
     </div>
@@ -47,8 +46,8 @@
                 <button title="Voice">
                     <i class="fas">🗣</i>
                 </button>
-                <strong>Voice</strong> - This feature allows you to select the voice that will read the beacons aloud. <br>
-                <strong>Speaking rate</strong> - This feature will increase or decrease the speed at which.
+                <strong>Voice</strong> - Select the voice that reads the beacons aloud.
+                
             </div>
         </div>
     </div>
@@ -57,17 +56,19 @@
         <div class="col">
             <div class="grey-box">
                 <input
-                        type="number"
-                        id="rate"
-                        title="Speaking rate"
-                        value="2"
-                        name="rate"
-                        min="0.5"
-                        max="5"
-                        step="0.5"
+                    type="number"
+                    id="rate"
+                    title="Speaking rate"
+                    value="2"
+                    name="rate"
+                    min="0.5"
+                    max="5"
+                    step="0.5"
                 />
+                <strong>Speaking rate</strong> - Adjust the speed at which the beacons are announced.
             </div>
         </div>
+        
     </div>
 </div>
 </body>
