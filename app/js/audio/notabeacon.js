@@ -20,7 +20,7 @@ export function createBeacon(latitude, longitude, locationProvider, audioQueue) 
   const onCourse = new Audio( 'app/sounds/beacons/Classic/Classic_OnAxis.wav');
   const offCourse = new Audio('app/sounds/beacons/Classic/Classic_OffAxis.wav');
   onCourse.loop = true;
-  onCourse.volume = 0;
+  onCourse.muted = true;
   offCourse.loop = true;
 
   const onCourseSource = audioContext.createMediaElementSource(onCourse);
@@ -34,56 +34,46 @@ export function createBeacon(latitude, longitude, locationProvider, audioQueue) 
       onCourse.play();
       offCourse.play();
     },
-
     stop: () => {
       onCourse.pause();
       offCourse.pause();
     },
-
-    iEnabled: () => (!onCourse.paused || !offCourse.paused),
-
-    announceDistance: (distanceMeters) => {
-      // Only announce if not actively playing something else (distance would be stale if queued)
-      if (!audioQueue.isPlaying) {
-        lastAnnouncedDistance = distanceMeters;
-        audioQueue.addToQueue({ soundUrl: 'app/sounds/sense_mobility.wav' })
-        audioQueue.addToQueue({ text: `Beacon: ${distanceMeters.toFixed(0)} meters` })
-      }
-    },
-
-    setOnOffCourse: (relativePosition) => {
-      // Transition between "on" and "off" beacons
-      const angle = Math.atan2(relativePosition.x, relativePosition.y) * 180 / Math.PI;
-      if (Math.abs(angle) < onCourseAngle) {
-        onCourse.volume = 1.0;
-        offCourse.volume = 0;
-      } else {
-        onCourse.volume = 0;
-        offCourse.volume = 1.0;
-      }
-    },
-
     recomputePosition: () => {
-      // Reevaluate how on-course we are
-      if (beacon.iEnabled()) {
-        relativePosition = locationProvider.normalizedRelativePosition(sourceLocation);
-        panner.setPosition(relativePosition.x, relativePosition.y, 0);
-
-        const distanceMeters = locationProvider.distance(sourceLocation, { units: "meters" });
-        if (distanceMeters < foundProximityMeters) {
-          // Beacon found -- stop the audio
-          beacon.stop();
-          new Audio('app/sounds/SS_beaconFound2_48k.wav').play();
-        } else if (Math.abs(lastAnnouncedDistance - distanceMeters) > announceEveryMetters) {
-          // We're closer/further by some threshold -- announce distance
-          beacon.announceDistance(distanceMeters);
-        } else if (onCourse.currentTime < 0.1) {
-          // Update the beacon sound, if just looped
-          beacon.setOnOffCourse(relativePosition);
-        }
-      }
+      relativePosition = locationProvider.normalizedRelativePosition(sourceLocation);
+      panner.setPosition(relativePosition.x, relativePosition.y, 0);
     },
   };
+
+  // Reevaluate beacon state at most once per audio loop
+  // "ended" event is not triggered by looped audio, so approximate restart based on time
+  onCourse.addEventListener('timeupdate', () => {
+    if (onCourse.currentTime < 0.1) {
+      const distanceMeters = locationProvider.distance(sourceLocation, { units: "meters" });
+      if (distanceMeters < foundProximityMeters) {
+        // Beacon found -- stop the audio
+        beacon.stop();
+        new Audio('app/sounds/SS_beaconFound2_48k.wav').play();
+      } else if (Math.abs(lastAnnouncedDistance - distanceMeters) > announceEveryMetters) {
+        // We're closer/further by some threshold -- announce distance
+        // Only announce if not actively playing something else (distance would be stale if queued)
+        if (!audioQueue.isPlaying) {
+          lastAnnouncedDistance = distanceMeters;
+          audioQueue.addToQueue({ soundUrl: 'app/sounds/sense_mobility.wav' })
+          audioQueue.addToQueue({ text: `Beacon: ${distanceMeters.toFixed(0)} meters` })
+        }
+      } else {
+        // Transition between "on" and "off" beacons
+        const angle = Math.atan2(relativePosition.x, relativePosition.y) * 180 / Math.PI;
+        if (Math.abs(angle) < onCourseAngle) {
+          onCourse.muted = false;
+          offCourse.muted = true;
+        } else {
+          onCourse.muted = true;
+          offCourse.muted = false;
+        }
+      }
+    }
+  });
 
   // Hook up listeners
   locationProvider.events.addEventListener('locationUpdated', beacon.recomputePosition)

@@ -94,24 +94,12 @@ export function createSpatialPlayer(locationProvider) {
     // Speech synthesis customization
     voices: null,
     voice: null,
-    rate: 2,
+    rate: null,
     setVoice(voiceIndex) {
       player.voice = player.voices[voiceIndex];
     },
     setRate(rate) {
       player.rate = rate;
-    },
-    increaseRate() {
-      if (player.rate < 5) {
-        player.rate++;
-      }
-      return player.rate;
-    },
-    decreaseRate() {
-      if (player.rate > 1) {
-        player.rate--;
-      }
-      return player.rate;
     },
 
     addToQueue(item) {

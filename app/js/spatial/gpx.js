@@ -20,7 +20,7 @@ function replayGPX(file, map, callbacks) {
   const headingCalculator = new HeadingCalculator(headingWindowSize);
 
   let gpxPlayer = {
-    speedupFactor: 1,
+    speedUpFactor: 1,
     trackPoints: [],
 
     getPointAtIndex: function(index) {
@@ -60,7 +60,7 @@ function replayGPX(file, map, callbacks) {
           this.pause(); // Stop playing when all points are processed
           finishedCallback();
         }
-      }, 1000 / this.speedupFactor // Delay between points in milliseconds
+      }, 1000 / this.speedUpFactor // Delay between points in milliseconds
       );
     },
 
