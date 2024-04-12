@@ -3,16 +3,17 @@
 
 import "../css/main.css"
 
-import { createSpatialPlayer } from './audio/sound.js'
-import createCalloutAnnouncer from './audio/callout.js';
-import cache from './data/cache.js'
-import createLocationProvider from './spatial/location.js'
-import replayGPX from './spatial/gpx.js';
-import createMap from './visual/map.js'
-import createRecentCalloutList from './visual/recentlist.js';
-
 // Actions to take when page is rendered in full
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
+
+  const { createSpatialPlayer } = await import('./audio/sound.js').then(module => module);
+  const createCalloutAnnouncer = (await import('./audio/callout.js')).default;
+  const cache = (await import('./data/cache.js')).default;
+  const { default: createLocationProvider } = await import('./spatial/location.js');
+  const replayGPX = (await import('./spatial/gpx.js')).default;
+  const { default: createMap } = await import('./visual/map.js');
+  const { default: createRecentCalloutList } = await import('./visual/recentlist.js');
+
   const locationProvider = createLocationProvider();
   const audioQueue = createSpatialPlayer(locationProvider);
   const announcer = createCalloutAnnouncer(audioQueue);

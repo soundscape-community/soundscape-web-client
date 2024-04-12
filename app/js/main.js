@@ -3,22 +3,23 @@
 
 import "../css/main.css"
 
-import { audioContext, createSpatialPlayer, playSpatialSpeech } from './audio/sound.js'
-import createCalloutAnnouncer from './audio/callout.js'
-import { getLocation, watchLocation } from './spatial/geo.js';
-import { startCompassListener } from './spatial/heading.js';
-import createLocationProvider from './spatial/location.js'
-import createMap from './visual/map.js';
-import createRecentCalloutList from './visual/recentlist.js';
-import createVoiceControls from './visual/voicecontrols.js';
-
 // Actions to take when page is rendered in full
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
+  const { audioContext, createSpatialPlayer, playSpatialSpeech } = await import('./audio/sound.js').then(module => module);
+  const createCalloutAnnouncer = (await import('./audio/callout.js')).default;
+  const { getLocation, watchLocation } = await import('./spatial/geo.js').then(module => module);
+  const { startCompassListener } = await import('./spatial/heading.js').then(module => module);
+  const createLocationProvider = (await import('./spatial/location.js')).default;
+  const createMap = (await import('./visual/map.js')).default;
+  const createRecentCalloutList = (await import('./visual/recentlist.js')).default;
+  const createVoiceControls = (await import('./visual/voicecontrols.js')).default;
+
   const locationProvider = createLocationProvider();
   const audioQueue = createSpatialPlayer(locationProvider);
   const announcer = createCalloutAnnouncer(audioQueue);
   const map = createMap('map');
   const recentCalloutsList = createRecentCalloutList(locationProvider, audioQueue);
+  
 
   //XXX disabled to debug beacons on iOS
   // iOS Safari workaround to allow audio while mute switch is on

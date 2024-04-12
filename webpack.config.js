@@ -6,13 +6,12 @@ module.exports = {
     mode: 'production',
     context: __dirname,
     entry: { 
-        main: [
-            './app/js/main.js',
-            './app/js/vendor/unmute.js'
-        ],
-        replay_gpx: [
-            './app/js/replay.js',
-        ]
+        main: {
+            import: ['./app/js/main.js', './app/js/vendor/unmute.js'],
+        },        
+        replay_gpx: {
+            import: './app/js/replay.js',
+        },
     },
     devServer: {
         open: true,

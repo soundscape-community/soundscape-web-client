@@ -37,7 +37,7 @@ To use a location other than what's reported by your device, include the latitud
 2. Install the JavaScript dependencies, and run the Webpack server:
     ```
     $ npm install
-    $ npx webpack serve --config webpack.config.j
+    $ npx webpack serve --config webpack.config.js
     ```
 
 ## Third-party libraries used
