@@ -120,7 +120,7 @@ export async function getCurrentRoad(locationProvider){
       .filter(
         f => f.feature_type == "highway" && 
         f.geometry.type == "LineString" &&
-        f.feature_value in ["primary", "residential", "tertiary"]
+        ["primary", "residential", "tertiary"].includes(f.feature_value)
       );
     return reduced;
   });
