@@ -109,10 +109,12 @@ document.addEventListener('DOMContentLoaded', function () {
     if (activeMode == newMode) {
       activeMode = null;
 
-      // Release the Wake Lock
-      wakeLock.release().then(() => {
-        wakeLock = null;
-      });
+      if (wakeLock) {
+        // Release the Wake Lock
+        wakeLock.release().then(() => {
+          wakeLock = null;
+        });
+      }
 
       return;
     }
@@ -121,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function () {
     activeMode = newMode;
 
     // Request a Wake Lock
-    if (!wakeLock){
+    if ("wakeLock" in navigator && !wakeLock){
       try {
         wakeLock = await navigator.wakeLock.request("screen");
         console.log("Wake Lock is active!");
@@ -134,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       } catch (err) {
         // The Wake Lock request has failed - usually system related, such as battery.
-        console.log(error);
+        console.log(err);
       }
     }
 
