@@ -5,6 +5,13 @@
     "leaflet": "^1.9.4"
   },
   "scripts": {
-    "test": "mocha"
-  }
+    "test": "mocha --require @babel/register"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.4",
+    "@babel/preset-env": "^7.24.4",
+    "@babel/register": "^7.23.7",
+    "esm": "^3.2.25"
+  },
+  "type": "module"
 }
