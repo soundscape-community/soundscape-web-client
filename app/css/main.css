@@ -111,13 +111,21 @@ main {
   }
 
   .grey-box button {
-    margin-right: 10px; /* Add margin between buttons and text */
+    background-color: #e74c3d; 
+    color: white; 
+    border: none; 
+    padding: 10px; 
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
 }
 
 .home {
     font-size: 2.0em;
     padding: 5px 10px; 
     margin-right: auto;
+    background-color: #e74c3d; 
+    border: none; 
 }
 
 #map {
