@@ -17,20 +17,6 @@ export function createBoundingBox(latitude, longitude, radiusMeters) {
   return bbox;
 }
 
-// Function to create a half-kilometer bounding box around a point
-// function createBoundingBox(latitude, longitude, radiusMeters) {
-//   // Create a Turf.js point
-//   const point = turf.point([longitude, latitude]);
-
-//   // Buffer the point with the specified readius
-//   const buffered = turf.buffer(point, radiusMeters, { units: 'meters' });
-
-//   // Extract the bounding box coordinates
-//   const bbox = turf.bbox(buffered);
-
-//   return bbox;
-// }
-
 // Function to convert latitude and longitude to Mercator tile coordinates
 export function latLonToTileCoords(latitude, longitude, zoom) {
   const tileSize = 256; // Standard size for Mercator tiles
@@ -42,18 +28,6 @@ export function latLonToTileCoords(latitude, longitude, zoom) {
 
   return { x, y, z: zoom };
 }
-
-
-// function latLonToTileCoords(latitude, longitude, zoom) {
-//   const tileSize = 256; // Standard size for Mercator tiles
-//   const scale = 1 << zoom;
-//   const worldSize = tileSize * scale;
-
-//   const x = Math.floor((longitude + 180) / 360 * scale);
-//   const y = Math.floor((1 - Math.log(Math.tan(latitude * Math.PI / 180) + 1 / Math.cos(latitude * Math.PI / 180)) / Math.PI) / 2 * scale);
-
-//   return { x, y, z: zoom };
-// }
 
 // Function to enumerate all Mercator tiles within a bounding box
 function enumerateTilesInBoundingBox(bbox, minZoom, maxZoom) {
