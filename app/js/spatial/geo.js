@@ -11,12 +11,12 @@ export function createBoundingBox(latitude, longitude, radiusMeters) {
 
   // Extract the bounding box coordinates
   const bbox = turf.bbox(buffered);
-
+  
   return bbox;
 }
 
 // Function to convert latitude and longitude to Mercator tile coordinates
-function latLonToTileCoords(latitude, longitude, zoom) {
+export function latLonToTileCoords(latitude, longitude, zoom) {
   const tileSize = 256; // Standard size for Mercator tiles
   const scale = 1 << zoom;
   const worldSize = tileSize * scale;
