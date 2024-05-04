@@ -2,7 +2,8 @@
   "dependencies": {
     "@turf/turf": "^6.5.0",
     "chai": "^5.1.0",
-    "leaflet": "^1.9.4"
+    "leaflet": "^1.9.4",
+    "mocha": "^10.4.0"
   },
   "scripts": {
     "test": "mocha --require @babel/register"
