@@ -23,6 +23,10 @@ nav {
     overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
+nav select#voice {
+    max-width: 25%; 
+}
+
 .home-container {
     margin-right: auto; /* Push the home button to the left */
 }
@@ -77,7 +81,7 @@ nav h1 {
     background-color: transparent;
     border: none;
     color: white;
-    padding: 2vw;
+    padding: 1vw;
     font-size: 1em;
     display: flex;
     justify-content: center;
