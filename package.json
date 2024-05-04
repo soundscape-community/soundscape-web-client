@@ -6,7 +6,7 @@
     "mocha": "^10.4.0"
   },
   "scripts": {
-    "test": "mocha --require @babel/register"
+    "test": "mocha --require @babel/register --require test/setup.js"
   },
   "devDependencies": {
     "@babel/core": "^7.24.4",

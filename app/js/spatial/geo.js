@@ -1,9 +1,7 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-import * as turf from '@turf/turf';
-
-//Function to create a half-kilometer bounding box around a point
+// Function to create a half-kilometer bounding box around a point
 export function createBoundingBox(latitude, longitude, radiusMeters) {
   // Create a Turf.js point
   const point = turf.point([longitude, latitude]);
@@ -30,7 +28,7 @@ export function latLonToTileCoords(latitude, longitude, zoom) {
 }
 
 // Function to enumerate all Mercator tiles within a bounding box
-function enumerateTilesInBoundingBox(bbox, minZoom, maxZoom) {
+export function enumerateTilesInBoundingBox(bbox, minZoom, maxZoom) {
   const tiles = [];
 
   for (let zoom = minZoom; zoom <= maxZoom; zoom++) {
@@ -47,7 +45,7 @@ function enumerateTilesInBoundingBox(bbox, minZoom, maxZoom) {
   return tiles;
 }
 
-function getLocation(callback) {
+export function getLocation(callback) {
   return new Promise((resolve, reject) => {
     // Check if the Geolocation API is supported
     if ("geolocation" in navigator) {
@@ -72,7 +70,7 @@ function getLocation(callback) {
   });
 }
 
-function watchLocation(callback) {
+export function watchLocation(callback) {
   return navigator.geolocation.watchPosition(
     function (position) {
       console.log(position);
@@ -97,7 +95,7 @@ function watchLocation(callback) {
   );
 }
 
-function geoToXY(myLocation, myHeading, poiLocation) {
+export function geoToXY(myLocation, myHeading, poiLocation) {
   // Convert degrees to radians
   const toRadians = degree => degree * (Math.PI / 180);
 
