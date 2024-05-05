@@ -10,7 +10,7 @@ const testingConfig = {
 }
 
 // load appropriate config
-const environment = window.location.hostname === 'soundscape-community.github.io' ? 'production' : 'testing';
+const environment = typeof window !== 'undefined' && window.location.hostname === 'soundscape-community.github.io' ? 'production' : 'testing';
 const config = environment === 'production' ? productionConfig : testingConfig;
 
 export default config;
