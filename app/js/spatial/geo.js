@@ -97,46 +97,6 @@ export function watchLocation(callback) {
   );
 }
 
-/*
-  I think we should probably have this bit of mapping enumerateTilesAround() be executed only once 
-  and passed to different functions, because as it is now, this first part is done twice for both this function
-  and the announcer function to get all the tiles features.
-  - Kris
-*/
-// Returns a list of named roads, annotated with distance to current location, sorted by proximity
-export async function getNearestRoads(locationProvider){
-  const myLocation = turf.point([locationProvider.longitude, locationProvider.latitude]);
-  return Promise.all(
-    enumerateTilesAround(locationProvider.latitude, locationProvider.longitude, locationProvider.radiusMeters)
-    .map(t => {
-      t.load();
-      return t.getFeatures();
-    })
-  )
-  .then(tileFeatures => {
-    return tileFeatures
-      // Flatten list of features across all nearby tiles
-      .reduce((acc, cur) => acc.concat(cur), [])
-      // Limit to named roads
-      .filter(
-        f => f.feature_type == "highway" && 
-        f.geometry.type == "LineString" &&
-        ["primary", "residential", "tertiary"].includes(f.feature_value) &&
-        f.properties.name
-      )
-      // Annotate with distance to current location
-      .map(road => {
-        const snap = turf.nearestPointOnLine(road, myLocation, { units: "meters"});
-        road.distance = locationProvider.distance(snap, { units: 'meters' });
-        return road;
-      })
-      // Sort by distance
-      .sort( (a,b) => {
-        return a.distance >= b.distance;
-      })
-  });
-}
-
 export function geoToXY(myLocation, myHeading, poiLocation) {
   // Convert degrees to radians
   const toRadians = degree => degree * (Math.PI / 180);
