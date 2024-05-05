@@ -3,7 +3,7 @@
 
 import { audioContext, createSpatialPlayer, playSpatialSpeech } from './audio/sound.js'
 import createCalloutAnnouncer from './audio/callout.js'
-import { getLocation, watchLocation } from './spatial/geo.js';
+import { getNearestRoads, getLocation, watchLocation } from './spatial/geo.js';
 import { startCompassListener } from './spatial/heading.js';
 import createLocationProvider from './spatial/location.js'
 import createMap from './visual/map.js';
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return new Promise((resolve, reject) => {
       var searchParams = new URLSearchParams(window.location.search);
       var lat = parseFloat(searchParams.get('lat'));
-      var lon= parseFloat(searchParams.get('lon'));
+      var lon = parseFloat(searchParams.get('lon'));
       var head = parseFloat(searchParams.get('heading'));
       if (!isNaN(lat) && !isNaN(lon) && !isNaN(head)) {
         resolve({ latitude: lat, longitude: lon, heading: head } );
@@ -159,6 +159,14 @@ document.addEventListener('DOMContentLoaded', function () {
           console.log(coords);
           locationProvider.updateLocation(coords.latitude, coords.longitude);
           locationProvider.updateOrientation({ alpha: coords.heading });
+
+          // Speak nearest road
+          getNearestRoads(locationProvider).then(roads => {
+            if (roads.length > 0) {
+              audioQueue.addToQueue({ soundUrl: 'app/sounds/sense_mobility.wav' })
+              audioQueue.addToQueue({ text: `Nearest road: ${roads[0].properties.name}` })
+            }
+          });
 
           // Call out nearby features once
           announcer.calloutAllFeatures(coords.latitude, coords.longitude)
