@@ -14,6 +14,7 @@ function createRecentCalloutList(locationProvider, audioQueue) {
       const p = document.createElement('p');
       const toggleBeacon = document.createElement('button');
       toggleBeacon.setAttribute('id', 'toggleBeacon');
+      toggleBeacon.classList.add('beacon-button');
       toggleBeacon.innerText = '⏸';
       p.appendChild(toggleBeacon);
       const span = document.createElement('span');

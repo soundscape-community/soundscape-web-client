@@ -36,8 +36,8 @@ function replayGPX(file, map, callbacks) {
       let minIdx = Math.max(0, index - headingWindowSize);
       let maxIdx = Math.min(index, this.trackPoints.length - 1);
       for (let idx = minIdx; idx <= maxIdx; idx++) {
-        let point = this.getPointAtIndex(idx);
-        headingCalculator.addPoint(point.lat, point.lon);
+        let { lat, lon } = this.getPointAtIndex(idx);
+        headingCalculator.addPoint(lat, lon);
       }
       return headingCalculator.computeHeading();
     },
@@ -45,9 +45,7 @@ function replayGPX(file, map, callbacks) {
     play: function() {
       intervalId = setInterval(() => {
         if (currentIndex < gpxPlayer.trackPoints.length) {
-          const point = gpxPlayer.trackPoints[currentIndex];
-          const lat = parseFloat(point.getAttribute("lat"));
-          const lon = parseFloat(point.getAttribute("lon"));
+          const { lat, lon } = this.getPointAtIndex(currentIndex);
 
           headingCalculator.addPoint(lat, lon);
           const heading = headingCalculator.computeHeading();

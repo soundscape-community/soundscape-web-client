@@ -66,8 +66,8 @@ const cache = {
   db: null, // to be populated on first request
 
   clear: function() {
-    return clearObjectStore('features');
-    return clearObjectStore('urls');
+    clearObjectStore('features');
+    clearObjectStore('urls');
   },
 
   // Function to fetch a URL only if it hasn't been fetched for a certain duration

@@ -5,7 +5,7 @@
 
 const onCourseAngle = 30;  // degrees +/- Y axis
 const foundProximityMeters = 10;  // proximity to auto-stop beacon
-const announceEveryMetters = 50;
+const announceEveryMeters = 50;
 
 export function createBeacon(latitude, longitude, locationProvider, audioQueue) {
   const sourceLocation = turf.point([longitude, latitude]);
@@ -74,7 +74,7 @@ export function createBeacon(latitude, longitude, locationProvider, audioQueue) 
           // Beacon found -- stop the audio
           beacon.stop();
           new Audio('app/sounds/SS_beaconFound2_48k.wav').play();
-        } else if (Math.abs(lastAnnouncedDistance - distanceMeters) > announceEveryMetters) {
+        } else if (Math.abs(lastAnnouncedDistance - distanceMeters) > announceEveryMeters) {
           // We're closer/further by some threshold -- announce distance
           beacon.announceDistance(distanceMeters);
         } else if (onCourse.currentTime < 0.1) {
