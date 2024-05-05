@@ -1,7 +1,18 @@
 {
   "dependencies": {
     "@turf/turf": "^6.5.0",
+    "chai": "^5.1.0",
     "leaflet": "^1.9.4",
-    "live-server": "^1.2.2"
-  }
+    "mocha": "^10.4.0"
+  },
+  "scripts": {
+    "test": "mocha --require @babel/register --require test/setup.js"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.4",
+    "@babel/preset-env": "^7.24.4",
+    "@babel/register": "^7.23.7",
+    "esm": "^3.2.25"
+  },
+  "type": "module"
 }
