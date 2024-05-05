@@ -103,9 +103,10 @@ export function watchLocation(callback) {
   and the announcer function to get all the tiles features.
   - Kris
 */
-// Gets the street from nearest address and returns its name and city
-export async function getCurrentRoad(locationProvider){
-  const features = await Promise.all(
+// Returns a list of named roads, annotated with distance to current location, sorted by proximity
+export async function getNearestRoads(locationProvider){
+  const myLocation = turf.point([locationProvider.longitude, locationProvider.latitude]);
+  return Promise.all(
     enumerateTilesAround(locationProvider.latitude, locationProvider.longitude, locationProvider.radiusMeters)
     .map(t => {
       t.load();
@@ -113,49 +114,27 @@ export async function getCurrentRoad(locationProvider){
     })
   )
   .then(tileFeatures => {
-    const reduced = tileFeatures
+    return tileFeatures
       // Flatten list of features across all nearby tiles
       .reduce((acc, cur) => acc.concat(cur), [])
-      // Limit to roads
+      // Limit to named roads
       .filter(
         f => f.feature_type == "highway" && 
         f.geometry.type == "LineString" &&
-        ["primary", "residential", "tertiary"].includes(f.feature_value)
-      );
-    return reduced;
-  });
-
-  //To define a turf point you have to put longitude first 
-  const point = turf.point([locationProvider.longitude, locationProvider.latitude]);
-  features.forEach(road => {
-    const snap = turf.nearestPointOnLine(road, point, {units: "meters"});
-    road.distance = locationProvider.distance(
-      snap, { units: 'meters' }
-    );
-  });
-  
-  const sorted = features
-    .sort( (a,b) => {
+        ["primary", "residential", "tertiary"].includes(f.feature_value) &&
+        f.properties.name
+      )
+      // Annotate with distance to current location
+      .map(road => {
+        const snap = turf.nearestPointOnLine(road, myLocation, { units: "meters"});
+        road.distance = locationProvider.distance(snap, { units: 'meters' });
+        return road;
+      })
+      // Sort by distance
+      .sort( (a,b) => {
         return a.distance >= b.distance;
-    });
-
-  if( sorted.length != 0){
-    // Finds all non-duplicate roads under 5 meters
-    const nearestMap = new Map();
-    for(let i = 0; sorted[i].distance < 5; i++){
-      // Gets street name
-      const name = sorted[i].properties.name;
-      // Maps street name to its index in the sorted list
-      if(!nearestMap.has(name)){
-        nearestMap[name] = i; 
-      }
-    }
-    // Combines all the mapped roads into a list
-    const nearest = Array.from(nearestMap, ([n,i]) => sorted[i]);
-    return nearest;
-  }else{
-    return 0;
-  }
+      })
+  });
 }
 
 export function geoToXY(myLocation, myHeading, poiLocation) {
