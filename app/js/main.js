@@ -18,11 +18,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const map = createMap('map');
   const recentCalloutsList = createRecentCalloutList(locationProvider, audioQueue);
 
-  //XXX disabled to debug beacons on iOS
   // iOS Safari workaround to allow audio while mute switch is on
-  //let allowBackgroundPlayback = true;
-  //let forceIOSBehavior = false;
-  //unmute(audioContext, allowBackgroundPlayback, forceIOSBehavior);
+  let allowBackgroundPlayback = true;
+  let forceIOSBehavior = false;
+  unmute(audioContext, allowBackgroundPlayback, forceIOSBehavior);
 
   // Register for updates to location
   locationProvider.events.addEventListener('locationUpdated', e => {
