@@ -6,8 +6,8 @@ const productionConfig = {
 }
 
 const testingConfig = {
-  tileServer: 'http://localhost:8080/tiles',
-}
+  tileServer: "/tiles",
+};
 
 // load appropriate config
 const environment = typeof window !== 'undefined' && window.location.hostname === 'soundscape-community.github.io' ? 'production' : 'testing';

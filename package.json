@@ -1,12 +1,16 @@
 {
   "dependencies": {
     "@turf/turf": "^6.5.0",
+    "axios": "^1.7.2",
     "chai": "^5.1.0",
+    "express": "^4.19.2",
+    "http-proxy-middleware": "^3.0.0",
     "leaflet": "^1.9.4",
     "mocha": "^10.4.0"
   },
   "scripts": {
-    "test": "mocha --require @babel/register --require test/setup.js"
+    "test": "mocha --require @babel/register --require test/setup.js",
+    "start": "node server.js"
   },
   "devDependencies": {
     "@babel/core": "^7.24.4",

@@ -26,18 +26,9 @@ https://soundscape-community.github.io/soundscape-web-client/replay_gpx.html
 To use a location other than what's reported by your device, include the latitude, longitude, and compass heading (degrees from north) in the URL, e.g. https://soundscape-community.github.io/soundscape-web-client/?lon=-77.006156&lat=38.897600&heading=0.0 will place you near Union Station in Washington, D.C.
 
 ### Running the app on your own machine
-1. Install the Python dependencies, and run the tile server proxy.
+1. Install dependencies and start the server
     ```
-    $ cd server
-    $ python -m venv env
-    $ . env/bin/activate
-    $ pip install -r requirements.txt
-    $ python tile_server_proxy.py
-    ```
-2. Run a web server, such as live-server, in the working directory. Make sure you specify a port that doesn't conflict with the tile server proxy.
-    ```
-    $ npm install live-server
-    $ live-server --port=8081 .
+    $ npm install && npm start
     ```
 
 ## Third-party libraries used
