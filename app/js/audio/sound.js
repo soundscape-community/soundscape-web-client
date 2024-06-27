@@ -1,6 +1,8 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
+import { createPanner } from './notabeacon.js'
+
 export const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
 // Variables to store the current sound and speech sources
@@ -29,10 +31,10 @@ async function loadSound(url) {
 // Function to create a spatial audio source
 function createSpatialSource(buffer, x, y) {
   const source = audioContext.createBufferSource();
-  const panner = audioContext.createPanner();
+  const panner = createPanner(audioContext);
 
   // Set the position of the audio source in 3D space
-  panner.setPosition(x, y, 0);
+  panner.setCoordinates(x, y);
 
   // Connect the source to the panner and the panner to the audio context's destination
   source.connect(panner);
