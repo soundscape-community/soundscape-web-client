@@ -20,7 +20,7 @@ const proxyHandler = async (req, res) => {
 
     const response = await axios.get(targetUrl, {
       headers: {
-        "User-Agent": "YourNewUserAgent",
+        "User-Agent": "soundscape-web-client/0.1",
       },
       responseType: "arraybuffer",
     });
@@ -39,11 +39,6 @@ const proxyHandler = async (req, res) => {
 
 // Route for /tiles
 app.use("/tiles/*", proxyHandler);
-
-// Fallback to serve the index.html for single-page applications
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
