@@ -5,7 +5,8 @@
     "chai": "^5.1.0",
     "express": "^4.19.2",
     "leaflet": "^1.9.4",
-    "mocha": "^10.4.0"
+    "mocha": "^10.4.0",
+    "morgan": "^1.10.0"
   },
   "scripts": {
     "test": "mocha --require @babel/register --require test/setup.js",

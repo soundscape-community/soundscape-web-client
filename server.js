@@ -1,4 +1,5 @@
 import express from "express";
+import morgan from "morgan";
 import axios from "axios";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -10,6 +11,9 @@ const port = 8080;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Log all requested URLs to the console.
+app.use(morgan('dev'))
+
 // Serve static files from the root directory
 app.use(express.static(path.join(__dirname)));
 
@@ -20,7 +24,7 @@ const proxyHandler = async (req, res) => {
 
     const response = await axios.get(targetUrl, {
       headers: {
-        "User-Agent": "soundscape-web-client/0.1",
+        "User-Agent": "soundscape-web-client/0.1 (dev server)",
       },
       responseType: "arraybuffer",
     });
