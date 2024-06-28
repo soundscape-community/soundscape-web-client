@@ -1,0 +1,1 @@
+These sounds come from the original Soundscape app from Microsoft (https://github.com/soundscape-community/soundscape/tree/main/apps/ios/GuideDogs/Assets/Sounds).
