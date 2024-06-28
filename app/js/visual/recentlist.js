@@ -5,7 +5,7 @@ import { createBeacon } from '../audio/notabeacon.js';
 
 const maxRecentCount = 25;
 
-function createRecentCalloutList(locationProvider, audioQueue) {
+function createRecentCalloutList(locationProvider, audioQueue, map) {
   let activeBeacon = null;
 
   const beaconControls = {
@@ -62,7 +62,7 @@ function createRecentCalloutList(locationProvider, audioQueue) {
         } else {
           beaconControls.init(document.getElementById('recentCalloutsArea'));
         }
-        activeBeacon = createBeacon(latitude, longitude, locationProvider, audioQueue);
+        activeBeacon = createBeacon(latitude, longitude, locationProvider, audioQueue, map);
         activeBeacon.start();
         beaconControls.update(text);
       })

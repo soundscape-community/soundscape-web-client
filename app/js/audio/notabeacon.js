@@ -34,7 +34,7 @@ export function createPanner(audioContext) {
   return panner;
 }
 
-export function createBeacon(latitude, longitude, locationProvider, audioQueue) {
+export function createBeacon(latitude, longitude, locationProvider, audioQueue, map) {
   const sourceLocation = turf.point([longitude, latitude]);
   var relativePosition = locationProvider.normalizedRelativePosition(sourceLocation);
   var lastAnnouncedDistance = null;
@@ -56,15 +56,20 @@ export function createBeacon(latitude, longitude, locationProvider, audioQueue) 
   offCourseSource.connect(panner);
   panner.connect(audioContext.destination);
 
+  // Render beacon on the visual map
+  map.plotBeacon(latitude, longitude);
+
   var beacon = {
     start: () => {
       onCourse.play();
       offCourse.play();
+      map.startBeaconPulse()
     },
 
     stop: () => {
       onCourse.pause();
       offCourse.pause();
+      map.pauseBeaconPulse()
     },
 
     isEnabled: () => (!onCourse.paused || !offCourse.paused),

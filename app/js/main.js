@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const audioQueue = createSpatialPlayer(locationProvider);
   const announcer = createCalloutAnnouncer(audioQueue);
   const map = createMap('map');
-  const recentCalloutsList = createRecentCalloutList(locationProvider, audioQueue);
+  const recentCalloutsList = createRecentCalloutList(locationProvider, audioQueue, map);
 
   // iOS Safari workaround to allow audio while mute switch is on
   let allowBackgroundPlayback = true;

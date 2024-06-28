@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const audioQueue = createSpatialPlayer(locationProvider);
   const announcer = createCalloutAnnouncer(audioQueue);
   const map = createMap('map');
-  const recentCalloutsList = createRecentCalloutList(locationProvider, audioQueue);
+  const recentCalloutsList = createRecentCalloutList(locationProvider, audioQueue, map);
   let gpxPlayer = null;  // to be initialized on file selection
 
   // Register for updates to location

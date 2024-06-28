@@ -16,11 +16,11 @@ function createMap(id) {
     iconAnchor: [7, 25] // adjust anchor based on the arrow design
   });
 
-  var markersLayer = new L.LayerGroup().addTo(map);
+  var myLocationLayer = new L.LayerGroup().addTo(map);
 
   map.plotPoints = function(points, radiusMeters) {
     // Clear existing markers
-    markersLayer.clearLayers();
+    myLocationLayer.clearLayers();
 
     // Plot each point on the map
     points.forEach(function(point) {
@@ -30,13 +30,13 @@ function createMap(id) {
         fillColor: '#f03',
         fillOpacity: 0.3,
         radius: radiusMeters  // drawn radius is based on proximity threshold for callouts
-      }).addTo(markersLayer);
+      }).addTo(myLocationLayer);
 
       if (point.heading !== null && !isNaN(point.heading)) {
         // Also render a directional arrow showing inferred compass heading
         var arrowMarker = L.marker([point.latitude, point.longitude], {
           icon: arrowIcon,
-        }).addTo(markersLayer);
+        }).addTo(myLocationLayer);
         arrowMarker._icon.style.transform += ' rotate(' + point.heading + 'deg)';
       }
     });
@@ -54,6 +54,38 @@ function createMap(id) {
         radiusMeters
       );
     }
+  };
+
+  // Render beacon marker in a separate layer, so it can be easily cleared.
+  var beaconLayer = new L.LayerGroup().addTo(map);
+
+  var beaconIcon = L.divIcon({
+    className: 'beacon-icon',
+    iconSize: [20, 20],
+  });
+
+  map.plotBeacon = function(lat, lon) {
+    // Clear existing beacons
+    beaconLayer.clearLayers();
+
+    // Render a pulsing circle (see CSS)
+    L.marker([lat, lon], {
+      icon: beaconIcon,
+    }).addTo(beaconLayer);
+  };
+
+  // Beacon pulses hwen it is active
+  map.startBeaconPulse = function() {
+    beaconLayer.eachLayer(layer => {
+      layer.getElement().classList.add('pulsing');
+    })
+  };
+
+  // Stop beacon pulsing whern it is inactive
+  map.pauseBeaconPulse = function() {
+    beaconLayer.eachLayer(layer => {
+      layer.getElement().classList.remove('pulsing');
+    })
   };
 
   return map;
