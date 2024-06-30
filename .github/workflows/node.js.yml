@@ -7,21 +7,51 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [16.x, 18.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    # strategy:
+    #   matrix:
+    #     node-version: [16.x, 18.x]
+    #     # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
     - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+    # - name: Use Node.js ${{ matrix.node-version }}
+    - uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node-version }}
+        # node-version: ${{ matrix.node-version }}
+        node-version: 18
         cache: 'npm'
     - run: npm ci
     - run: npm run build --if-present
     - run: npm test
+
+    # TODO: Does it work ?
+    - uses: actions/upload-artifact@v4
+      with:
+        name: github-pages
+        path: dist/ 
+      if: github.event.pull_request.merged == true
+    
+  # see https://github.com/actions/deploy-pages
+  deploy_google_page:
+    if: github.event_name == 'push'
+    needs: build-and-test
+
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+      
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        if: github.event.pull_request.merged == true
+        id: deployment
+        uses: actions/deploy-pages@v4 # or specific "vX.X.X" version tag for this action

@@ -1,4 +1,9 @@
-.DS_Store
-env/
+.idea/
 node_modules/
+.vscode/
+*.map
+.DS_Store
+.sourcemaps
+dist/
+env/
 TODO.md

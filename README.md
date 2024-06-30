@@ -26,9 +26,15 @@ https://soundscape-community.github.io/soundscape-web-client/replay_gpx.html
 To use a location other than what's reported by your device, include the latitude, longitude, and compass heading (degrees from north) in the URL, e.g. https://soundscape-community.github.io/soundscape-web-client/?lon=-77.006156&lat=38.897600&heading=0.0 will place you near Union Station in Washington, D.C.
 
 ### Running the app on your own machine
-1. Install dependencies and start the server
+1. Install dependencies, build the app, and start the server
     ```
-    $ npm install && npm start
+    npm ci && npm run build && npm run serve-tiles
+    ```
+
+2. To see it from your phone
+    Once the server is running,
+    ```
+    ngrok http http://127.0.0.1:8080/
     ```
 
 ## Third-party libraries used

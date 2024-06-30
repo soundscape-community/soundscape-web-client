@@ -3,8 +3,13 @@
 
 // This file is called "notabeacon.js" because "beacon.js" is blocked by some ad blockers.
 
-const onCourseAngle = 30;  // degrees +/- Y axis
-const foundProximityMeters = 10;  // proximity to auto-stop beacon
+import Classic_OnAxis_wav from "/sounds/beacons/Classic/Classic_OnAxis.wav";
+import Classic_OffAxis_wav from "/sounds/beacons/Classic/Classic_OffAxis.wav";
+import sense_mobility_wav from "/sounds/sense_mobility.wav";
+import SS_beaconFound2_48k_wav from "/sounds/SS_beaconFound2_48k.wav";
+
+const onCourseAngle = 30; // degrees +/- Y axis
+const foundProximityMeters = 10; // proximity to auto-stop beacon
 const announceEveryMeters = 50;
 
 // Create a WebAudio panner with the settings that will be used by both
@@ -34,9 +39,16 @@ export function createPanner(audioContext) {
   return panner;
 }
 
-export function createBeacon(latitude, longitude, locationProvider, audioQueue, map) {
+export function createBeacon(
+  latitude,
+  longitude,
+  locationProvider,
+  audioQueue,
+  map
+) {
   const sourceLocation = turf.point([longitude, latitude]);
-  var relativePosition = locationProvider.normalizedRelativePosition(sourceLocation);
+  var relativePosition =
+    locationProvider.normalizedRelativePosition(sourceLocation);
   var lastAnnouncedDistance = null;
 
   const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -44,8 +56,9 @@ export function createBeacon(latitude, longitude, locationProvider, audioQueue, 
 
   // For smooth transitions between "on" and "off" beacons, we keep two audio elements
   // constantly looping, and selectively mute one or the other.
-  const onCourse = new Audio( 'app/sounds/beacons/Classic/Classic_OnAxis.wav');
-  const offCourse = new Audio('app/sounds/beacons/Classic/Classic_OffAxis.wav');
+
+  const onCourse = new Audio(Classic_OnAxis_wav);
+  const offCourse = new Audio(Classic_OffAxis_wav);
   onCourse.loop = true;
   onCourse.volume = 0;
   offCourse.loop = true;
@@ -63,29 +76,32 @@ export function createBeacon(latitude, longitude, locationProvider, audioQueue, 
     start: () => {
       onCourse.play();
       offCourse.play();
-      map.startBeaconPulse()
+      map.startBeaconPulse();
     },
 
     stop: () => {
       onCourse.pause();
       offCourse.pause();
-      map.pauseBeaconPulse()
+      map.pauseBeaconPulse();
     },
 
-    isEnabled: () => (!onCourse.paused || !offCourse.paused),
+    isEnabled: () => !onCourse.paused || !offCourse.paused,
 
     announceDistance: (distanceMeters) => {
       // Only announce if not actively playing something else (distance would be stale if queued)
       if (!audioQueue.isPlaying) {
         lastAnnouncedDistance = distanceMeters;
-        audioQueue.addToQueue({ soundUrl: 'app/sounds/sense_mobility.wav' })
-        audioQueue.addToQueue({ text: `Beacon: ${distanceMeters.toFixed(0)} meters` })
+        audioQueue.addToQueue({ soundUrl: sense_mobility_wav });
+        audioQueue.addToQueue({
+          text: `Beacon: ${distanceMeters.toFixed(0)} meters`,
+        });
       }
     },
 
     setOnOffCourse: (relativePosition) => {
       // Transition between "on" and "off" beacons
-      const angle = Math.atan2(relativePosition.x, relativePosition.y) * 180 / Math.PI;
+      const angle =
+        (Math.atan2(relativePosition.x, relativePosition.y) * 180) / Math.PI;
       if (Math.abs(angle) < onCourseAngle) {
         onCourse.volume = 1.0;
         offCourse.volume = 0;
@@ -98,15 +114,20 @@ export function createBeacon(latitude, longitude, locationProvider, audioQueue, 
     recomputePosition: () => {
       // Reevaluate how on-course we are
       if (beacon.isEnabled()) {
-        relativePosition = locationProvider.normalizedRelativePosition(sourceLocation);
+        relativePosition =
+          locationProvider.normalizedRelativePosition(sourceLocation);
         panner.setCoordinates(relativePosition.x, relativePosition.y);
 
-        const distanceMeters = locationProvider.distance(sourceLocation, { units: "meters" });
+        const distanceMeters = locationProvider.distance(sourceLocation, {
+          units: "meters",
+        });
         if (distanceMeters < foundProximityMeters) {
           // Beacon found -- stop the audio
           beacon.stop();
-          new Audio('app/sounds/SS_beaconFound2_48k.wav').play();
-        } else if (Math.abs(lastAnnouncedDistance - distanceMeters) > announceEveryMeters) {
+          new Audio(SS_beaconFound2_48k_wav).play();
+        } else if (
+          Math.abs(lastAnnouncedDistance - distanceMeters) > announceEveryMeters
+        ) {
           // We're closer/further by some threshold -- announce distance
           beacon.announceDistance(distanceMeters);
         } else if (onCourse.currentTime < 0.1) {
@@ -118,8 +139,14 @@ export function createBeacon(latitude, longitude, locationProvider, audioQueue, 
   };
 
   // Hook up listeners
-  locationProvider.events.addEventListener('locationUpdated', beacon.recomputePosition)
-  locationProvider.events.addEventListener('orientationUpdated', beacon.recomputePosition)
+  locationProvider.events.addEventListener(
+    "locationUpdated",
+    beacon.recomputePosition
+  );
+  locationProvider.events.addEventListener(
+    "orientationUpdated",
+    beacon.recomputePosition
+  );
 
   return beacon;
 }
