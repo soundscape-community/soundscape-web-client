@@ -1,22 +1,26 @@
 {
-  "dependencies": {
-    "@turf/turf": "^6.5.0",
-    "axios": "^1.7.2",
-    "chai": "^5.1.0",
-    "express": "^4.19.2",
-    "leaflet": "^1.9.4",
-    "mocha": "^10.4.0",
-    "morgan": "^1.10.0"
-  },
+  "name": "soundscape-multiplatform",
+  "version": "1.0.0",
+  "description": "Soundscape multiplatform client",
+  "main": "index.js",
+  "keywords": [
+    "capacitor",
+    "mobile"
+  ],
   "scripts": {
-    "test": "mocha --require @babel/register --require test/setup.js",
-    "start": "node server.js"
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@capacitor/core": "latest",
+    "@capacitor/camera": "latest",
+    "@capacitor/splash-screen": "latest"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.4",
-    "@babel/preset-env": "^7.24.4",
-    "@babel/register": "^7.23.7",
-    "esm": "^3.2.25"
+    "@capacitor/cli": "latest",
+    "vite": "^2.9.13"
   },
-  "type": "module"
+  "author": "",
+  "license": "ISC"
 }
