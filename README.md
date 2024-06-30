@@ -30,12 +30,12 @@ To use a location other than what's reported by your device, include the latitud
     ```
     npm ci && npm run build && npm run serve-tiles
     ```
+    The app should now be running and accessible over HTTP from a web browser at http://127.0.0.1:8080/
 
-2. To see it from your phone
-    Once the server is running,
-    ```
-    ngrok http http://127.0.0.1:8080/
-    ```
+2. For the app to work properly from your phone, you'll need to serve it over HTTPS. The easiest way to do this is via a tunnel, such as:
+    a. ngrok: `ngrok http http://127.0.0.1:8080/`
+    b. [Microsoft Dev Tunnels](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/overview): `devtunnel host -p 8080`
+    c. Many other [tunneling options](https://github.com/anderspitman/awesome-tunneling?tab=readme-ov-file)
 
 ## Third-party libraries used
 1. [Turf.js](https://turfjs.org/) (for GeoJSON processingand geospatial calculations)
