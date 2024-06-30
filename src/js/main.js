@@ -1,5 +1,8 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
+import mode_exit_wav from "/sounds/mode_exit.wav";
+import mode_enter_wav from "/sounds/mode_enter.wav";
+
 import unmute from "./vendor/unmute.js";
 import {
   audioContext,
@@ -101,7 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Clear queued audio
     if (activeMode) {
       audioQueue.stopAndClear();
-      audioQueue.addToQueue({ soundUrl: "app/sounds/mode_exit.wav" });
+      audioQueue.addToQueue({ soundUrl: mode_exit_wav });
     }
 
     // Remove any location and orientation change event handlers
@@ -153,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // play mode-enter sound
-    audioQueue.addToQueue({ soundUrl: "app/sounds/mode_enter.wav" });
+    audioQueue.addToQueue({ soundUrl: mode_enter_wav });
 
     switch (newMode) {
       case "callouts":
