@@ -12,10 +12,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Log all requested URLs to the console.
-app.use(morgan('dev'))
+app.use(morgan("dev"));
 
 // Serve static files from the root directory
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join(__dirname, "dist")));
 
 // Proxy handler
 const proxyHandler = async (req, res) => {
