@@ -27,22 +27,14 @@ jobs:
     - run: npm run build --if-present
     - run: npm test
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-pages-artifact@v3
       with:
-        name: github-pages
         path: dist/ 
-    
-  # see https://github.com/actions/deploy-pages
-  # and https://github.com/sitek94/vite-deploy-demo
+
   deploy_github_page:
     if: github.ref == 'refs/heads/main'
     needs: build-and-test
 
-    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
-    permissions:
-      pages: write      # to deploy to Pages
-      id-token: write   # to verify the deployment originates from an appropriate source
-      
     # Deploy to the github-pages environment
     environment:
       name: github-pages
@@ -58,6 +50,3 @@ jobs:
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
