@@ -15,6 +15,9 @@ const __dirname = path.dirname(__filename);
 app.use(morgan("dev"));
 
 // Serve static files from the root directory
+app.use(express.static(__dirname));
+
+// Serve static files from the root directory
 app.use(express.static(path.join(__dirname, "dist")));
 
 // Proxy handler
