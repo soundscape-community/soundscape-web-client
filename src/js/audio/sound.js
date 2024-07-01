@@ -69,7 +69,12 @@ export async function playSpatialSpeech(text, voice, rate, x, y) {
   // Cancel the current speech source if any
   TextToSpeech.stop();
 
-  return TextToSpeech.speak({ text, voice, rate });
+
+  return TextToSpeech.speak({
+    text,
+    voice: typeof voice !== "undefined" ? voice.voiceIndex : voice,
+    rate,
+  });
 }
 
 // Function to create a player with a dynamic sequence of spatial sounds and spatial speech

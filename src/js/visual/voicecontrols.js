@@ -26,6 +26,11 @@ function createVoiceControls(audioQueue) {
     audioQueue.voices = [];
 
     TextToSpeech.getSupportedVoices().then((voices) => {
+      // add "voiceIndex" as it is required by the TextToSpeech.speak
+      voices.voices.forEach(function (voice, index) {
+        voice.voiceIndex = index;
+      });
+
       const voicesEn = voices.voices.filter((voice) =>
         voice.lang.startsWith("en")
       );
