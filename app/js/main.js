@@ -77,6 +77,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var btnNearMe = document.getElementById('btn_near_me');
   var watchPositionHandler = null;
   var activeMode = null;
+  var wakeLock = null;
   const selectedColor = '#18b3c3';
   const unselectedColor = '#e74c3c';
   // When mode button is clicked:
@@ -107,11 +108,38 @@ document.addEventListener('DOMContentLoaded', function () {
     // Stop here if the intent was to end the current mode
     if (activeMode == newMode) {
       activeMode = null;
+
+      if (wakeLock) {
+        // Release the Wake Lock
+        wakeLock.release().then(() => {
+          wakeLock = null;
+        });
+      }
+
       return;
     }
 
     // Button clicked was different from current mode -- start new mode
     activeMode = newMode;
+
+    // Request a Wake Lock
+    if ("wakeLock" in navigator && !wakeLock){
+      try {
+        wakeLock = await navigator.wakeLock.request("screen");
+        console.log("Wake Lock is active!");
+
+        // Listen for Wake Lock being released
+        //   (when no active modes OR when page loses focus)
+        wakeLock.addEventListener('release', () => {
+          console.log('Wake Lock released.');
+        });
+
+      } catch (err) {
+        // The Wake Lock request has failed - usually system related, such as battery.
+        console.log(err);
+      }
+    }
+
 
     // play mode-enter sound
     audioQueue.addToQueue({ soundUrl: 'app/sounds/mode_enter.wav' });
@@ -159,4 +187,13 @@ document.addEventListener('DOMContentLoaded', function () {
   btnNearMe.addEventListener('click', function() {
     toggleMode('near_me');
   });
+
+  // Reacquire Wake Lock when page regains focus
+  document.addEventListener("visibilitychange", async () => {
+    if (wakeLock !== null && document.visibilityState === "visible") {
+      wakeLock = await navigator.wakeLock.request("screen");
+      console.log("Wake Lock reacquired.")
+    }
+  });
+
 });
