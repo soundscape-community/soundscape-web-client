@@ -9,8 +9,6 @@ import replayGPX from './spatial/gpx.js';
 import createMap from './visual/map.js'
 import createRecentCalloutList from './visual/recentlist.js';
 
-const maxSpeedupFactor = 9;  // max multiple for faster GPX replays
-
 // Actions to take when page is rendered in full
 document.addEventListener('DOMContentLoaded', function () {
   const locationProvider = createLocationProvider();
@@ -42,10 +40,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const inputElement = document.getElementById("gpxFileInput");
   const playPauseButton = document.getElementById("playPauseButton");
   const pointSlider = document.getElementById("pointSlider");
-  const decreaseSpeed = document.getElementById('decreaseSpeed');
-  const increaseSpeed = document.getElementById('increaseSpeed');
-  const speedDisplay = document.getElementById('speedupFactor');
-  let speedupFactor = parseFloat(speedDisplay.textContent);
   let playing = false;
 
   inputElement.addEventListener("change", function (event) {
@@ -84,23 +78,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  decreaseSpeed.addEventListener("click", function (e) {
-    if (speedupFactor > 1) {
-      speedDisplay.textContent = --speedupFactor;
-    }
-  });
-
-  increaseSpeed.addEventListener("click", function (e) {
-    if (speedupFactor < maxSpeedupFactor) {
-      speedDisplay.textContent = ++speedupFactor;
-    }
-  });
-
   playPauseButton.addEventListener("click", function () {
     if (gpxPlayer) {
       // Read speed setting, and speed up speech proportionally
-      gpxPlayer.speedupFactor = speedupFactor;
-      audioQueue.setRate(speedupFactor);
+      gpxPlayer.speedUpFactor = document.getElementById("speed").value;
+      audioQueue.setRate(gpxPlayer.speedUpFactor);
 
       // Toggle play/pause
       if (!playing) {
