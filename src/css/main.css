@@ -238,6 +238,7 @@ img {
 
 .row {
     margin-bottom: 20px;
+}
 /* Current beacon marker on map */
 /* .beacon-icon {
     position: relative;
@@ -259,4 +260,4 @@ img {
     50% {
         opacity: 1.0;
     }
-} */
+} 
