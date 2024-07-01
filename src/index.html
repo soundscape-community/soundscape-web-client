@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon-16x16.png">
+    <link crossorigin="use-credentials" rel="manifest" href="./manifest.json">
+
+    <meta charset="UTF-8" />
+    <!-- Render to a usable size on mobile -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+
+    <script
+      type="module"
+      src="https://unpkg.com/@ionic/pwa-elements@latest/dist/ionicpwaelements/ionicpwaelements.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://unpkg.com/@ionic/pwa-elements@latest/dist/ionicpwaelements/ionicpwaelements.js"
+    ></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="./css/main.css" />
+    
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+    <script src="./js/main.js" type="module"></script>
+  </head>
+  <body>
+    <nav>
+      <button class="nav-button" id="btn_callouts" title="Start tracking callouts">
+        ⌖
+      </button>
+      <button class="nav-button" id="btn_near_me" title="Announce places near me">
+        ⓘ
+      </button>
+      <select class="nav-button" id="voice" name="voice" title="Voice" required></select>
+    
+      <div id="rate" title="Speaking rate">
+        <button id="decreaseRate" title="Decrease speaking rate">−</button>
+        <div id="rateValue">2</div>
+        <button id="increaseRate" title="Increase speaking rate">+</button>
+      </div>
+    
+    </nav>
+
+    <main>
+      <div id="map"></div>
+      <section id="recentCalloutsArea">
+        <ul id="recentCalloutsList"></ul>
+      </section>
+    </main>
+  </body>
+</html>
