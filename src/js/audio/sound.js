@@ -1,13 +1,15 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-import { createPanner } from './notabeacon.js'
+import { TextToSpeech } from "@capacitor-community/text-to-speech";
+import { createPanner } from "./notabeacon.js";
 
-export const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+export const audioContext = new (window.AudioContext ||
+  window.webkitAudioContext)();
 
 // Variables to store the current sound and speech sources
 let currentSoundSource = null;
-let currentSpeechSource = null;
+// let currentSpeechSource = null;
 
 // Fetch and decode each sound effect only once, and store here by URL
 let audioBufferCache = {};
@@ -21,7 +23,7 @@ async function loadSound(url) {
       const arrayBuffer = await response.arrayBuffer();
       audioBufferCache[url] = await audioContext.decodeAudioData(arrayBuffer);
     } catch (error) {
-      console.error('Error loading sound:', error);
+      console.error("Error loading sound:", error);
       return;
     }
   }
@@ -63,25 +65,15 @@ function playSpatialSound(buffer, x, y) {
 
 // Function to play synthesized speech with spatial audio
 //FIXME not actually spatial
-export function playSpatialSpeech(text, voice, rate, x, y) {
+export async function playSpatialSpeech(text, voice, rate, x, y) {
   // Cancel the current speech source if any
-  if (currentSpeechSource) {
-    speechSynthesis.cancel();
-  }
+  TextToSpeech.stop();
 
-  return new Promise((resolve) => {
-    const utterance = new SpeechSynthesisUtterance(text);
-    if (rate) {
-      utterance.rate = rate;
-    }
-    if (voice) {
-      utterance.voice = voice;
-    }
-    utterance.onend = () => resolve();
-    speechSynthesis.speak(utterance);
 
-    // Update the current speech source
-    currentSpeechSource = utterance;
+  return TextToSpeech.speak({
+    text,
+    voice: typeof voice !== "undefined" ? voice.voiceIndex : voice,
+    rate,
   });
 }
 
@@ -96,12 +88,24 @@ export function createSpatialPlayer(locationProvider) {
     // Speech synthesis customization
     voices: null,
     voice: null,
-    rate: null,
+    rate: 2,
     setVoice(voiceIndex) {
       player.voice = player.voices[voiceIndex];
     },
     setRate(rate) {
       player.rate = rate;
+    },
+    increaseRate() {
+      if (player.rate < 5) {
+        player.rate++;
+      }
+      return player.rate;
+    },
+    decreaseRate() {
+      if (player.rate > 1) {
+        player.rate--;
+      }
+      return player.rate;
     },
 
     addToQueue(item) {
@@ -118,12 +122,7 @@ export function createSpatialPlayer(locationProvider) {
       player.isPlaying = false;
 
       // Cancel the current sound and speech sources
-      if (currentSoundSource) {
-        currentSoundSource.stop();
-      }
-      if (currentSpeechSource) {
-        speechSynthesis.cancel();
-      }
+      TextToSpeech.stop();
     },
   };
 
@@ -138,28 +137,44 @@ export function createSpatialPlayer(locationProvider) {
     // Calculate the Cartesian coordinates to position the audio.
     // (done just before the audio is spoken, since the user may have
     // moved since the audio was queued)
-    var relativePosition = {x: 0, y: 0};
+    var relativePosition = { x: 0, y: 0 };
     if (currentItem.location) {
-      relativePosition = player.locationProvider.normalizedRelativePosition(currentItem.location);
+      relativePosition = player.locationProvider.normalizedRelativePosition(
+        currentItem.location
+      );
     }
 
     // Compute current distance to POI (may be greater than proximityThreshold, if user has moved away since it was queued)
     if (currentItem.includeDistance) {
-      const units = 'feet';
-      const distance = player.locationProvider.distance(currentItem.location, { units: units }).toFixed(0);
-      currentItem.text += `, ${distance} ${units}`
+      const units = "feet";
+      const distance = player.locationProvider
+        .distance(currentItem.location, { units: units })
+        .toFixed(0);
+      currentItem.text += `, ${distance} ${units}`;
     }
 
-    if (typeof currentItem === 'object' && currentItem.soundUrl) {
+    if (typeof currentItem === "object" && currentItem.soundUrl) {
       // If it's an object with a 'soundUrl' property, assume it's a spatial sound
       const soundBuffer = await loadSound(currentItem.soundUrl);
-      await playSpatialSound(soundBuffer, relativePosition.x || 0, relativePosition.y || 0);
-    } else if (typeof currentItem === 'object' && currentItem.text) {
+      await playSpatialSound(
+        soundBuffer,
+        relativePosition.x || 0,
+        relativePosition.y || 0
+      );
+    } else if (typeof currentItem === "object" && currentItem.text) {
       // If it's an object with a 'text' property, assume it's spatial speech
-      player.events.dispatchEvent(new CustomEvent('speechPlayed', { detail: currentItem }));
-      await playSpatialSpeech(currentItem.text, player.voice, player.rate, relativePosition.x || 0, relativePosition.y || 0);
+      player.events.dispatchEvent(
+        new CustomEvent("speechPlayed", { detail: currentItem })
+      );
+      await playSpatialSpeech(
+        currentItem.text,
+        player.voice,
+        player.rate,
+        relativePosition.x || 0,
+        relativePosition.y || 0
+      );
     } else {
-      console.error(`unrecognized object in audio queue: ${currentItem}`)
+      console.error(`unrecognized object in audio queue: ${currentItem}`);
     }
 
     // Play the next item recursively

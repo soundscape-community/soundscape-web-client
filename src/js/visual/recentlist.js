@@ -53,6 +53,7 @@ function createRecentCalloutList(locationProvider, audioQueue, map) {
       const beaconLink = document.createElement('button');
       beaconLink.innerHTML = '🔊';
       beaconLink.title = 'Start beacon';
+      beaconLink.classList.add('beacon-button');
       newCallout.insertBefore(beaconLink, newCallout.firstChild);
 
       beaconLink.addEventListener('click', () => {

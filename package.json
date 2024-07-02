@@ -15,6 +15,7 @@
     "serve-tiles": "node server.js"
   },
   "dependencies": {
+    "@capacitor-community/text-to-speech": "^4.0.2",
     "@capacitor/camera": "latest",
     "@capacitor/core": "latest",
     "@capacitor/splash-screen": "latest",
