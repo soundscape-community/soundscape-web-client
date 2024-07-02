@@ -54,6 +54,8 @@ function createVoiceControls(audioQueue) {
 
         console.log(`VOICE ${voice.name} with value ${index} APPENDED`);
       });
+      // set initial voice
+      audioQueue.setVoice(voiceSelect.value);
     });
   }
   populateVoices();
