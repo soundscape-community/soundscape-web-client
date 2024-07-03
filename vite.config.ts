@@ -13,6 +13,7 @@ export default defineConfig({
       input: {
         index: './src/index.html',
         replay_gpx: './src/replay_gpx.html',
+        help: './src/help.html'
       }
     }
   },
