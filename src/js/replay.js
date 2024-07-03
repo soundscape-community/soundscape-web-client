@@ -20,6 +20,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const recentCalloutsList = createRecentCalloutList(locationProvider, audioQueue, map);
   let gpxPlayer = null;  // to be initialized on file selection
 
+  audioQueue.loadVoices();
+
   // Register for updates to location
   // (no need to separately watch heading changes in GPX simulation)
   locationProvider.events.addEventListener('locationUpdated', e => {
