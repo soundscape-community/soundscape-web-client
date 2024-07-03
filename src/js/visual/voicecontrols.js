@@ -31,13 +31,17 @@ function createVoiceControls(audioQueue) {
     // Set voice and rate to match initial form values
     audioQueue.setRate(parseFloat(rateValue.textContent));
     audioQueue.setVoice(voiceSelect.value);
-  })
+  });
 
-  // Update voices when they change
-  window.speechSynthesis.onvoiceschanged = function () {
-    voiceSelect.innerHTML = ""; // Clear existing options
-    populateVoices();
-  };
+  // Android Webview doesn have speechSynthesis 
+  // (and the capacitor plugin @capacitor-community / text - to - speech" doesn't support onvoiceschanged. )
+  if (window.speechSynthesis) {
+    // Update voices when they change
+    window.speechSynthesis.onvoiceschanged = function () {
+      voiceSelect.innerHTML = ""; // Clear existing options
+      populateVoices();
+    };
+  }
 
   // Update voice and rate when user changes them
   decreaseRate.addEventListener("click", function (e) {

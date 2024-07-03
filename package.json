@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@capacitor-community/text-to-speech": "^4.0.2",
+    "@capacitor/android": "^6.1.0",
     "@capacitor/camera": "latest",
     "@capacitor/core": "latest",
     "@capacitor/splash-screen": "latest",
