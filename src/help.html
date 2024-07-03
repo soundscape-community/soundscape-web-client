@@ -1,16 +1,11 @@
 <!DOCTYPE html>
 <html>
-
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <link rel="stylesheet" href="./css/main.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
-    <script src="./js/vendor/unmute.js" type="module"></script>
-    <script src="./js/main.js" type="module"></script>
-
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+        <link rel="stylesheet" href="./css/main.css" />
+    </head>
     <body>
         <nav>
             <div class="home-container">
@@ -19,7 +14,7 @@
                 </button>
             </div>
             <div class="title-container">
-                <h1>FAQ Page</h1>
+                <h1>Help</h1>
             </div>
         </nav>
         
@@ -31,7 +26,7 @@
                             <i class="fas">&#xf124;</i>
                         </button>
                         <strong>Track callouts</strong>
-                        - Follow your movements and call out nearby locations.
+                        - Announce nearby locations as you move around.
                     </div>
                 </div>
             </div>
@@ -41,7 +36,7 @@
                     <div class="grey-box">
                         <button id="btn_near_me" title="Announce places near me">ⓘ</button>
                         <strong>Announce places near me</strong>
-                        - Nearby locations relative to your current location will be called out.
+                        - Announce nearby locations and how far away they are.
                     </div>
                 </div>
             </div>
@@ -53,7 +48,7 @@
                             <i class="fas">🗣</i>
                         </button>
                         <strong>Voice</strong>
-                        - Select the voice that reads the beacons aloud.
+                        - Select the voice that announces nearby locations.
                     </div>
                 </div>
             </div>
@@ -66,7 +61,7 @@
                         <div id="rateValue">2</div>
                         <button id="increaseRate" title="Increase speaking rate">+</button>
                     </div>
-                    <strong>Speaking rate </strong>- Adjust the speed at which the beacons are announced.
+                    <strong>Speaking rate </strong>- Adjust how fast the voice talks.
                 </div>
             </div>
             </div>
