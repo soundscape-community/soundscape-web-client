@@ -1,12 +1,16 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
+import { Capacitor } from "@capacitor/core";
 
 const productionConfig = {
   tileServer: 'https://tiles.soundscape.services',
 }
 
 const testingConfig = {
-  tileServer: "/tiles",
+  tileServer:
+    Capacitor.getPlatform() === "android"
+      ? productionConfig.tileServer
+      : "/tiles",
 };
 
 // load appropriate config
