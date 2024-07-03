@@ -69,7 +69,6 @@ export async function playSpatialSpeech(text, voice, rate, x, y) {
   // Cancel the current speech source if any
   TextToSpeech.stop();
 
-
   return TextToSpeech.speak({
     text,
     voice: typeof voice !== "undefined" ? voice.voiceIndex : voice,
@@ -123,6 +122,31 @@ export function createSpatialPlayer(locationProvider) {
 
       // Cancel the current sound and speech sources
       TextToSpeech.stop();
+    },
+
+    async loadVoices() {
+      // Build list of available voices
+      return TextToSpeech.getSupportedVoices().then((voices) => {
+        // add "voiceIndex" as it is required by the TextToSpeech.speak
+        voices.voices.forEach(function (voice, index) {
+          voice.voiceIndex = index;
+        });
+
+        const voicesEn = voices.voices.filter((voice) =>
+          voice.lang.startsWith("en")
+        );
+        const voicesNames = new Set(voicesEn.map((voice) => voice.name));
+
+        player.voices = Array.from(voicesNames).map((name) =>
+          voicesEn.find((voice) => voice.name === name)
+        );
+
+        // Select the system default voice by default
+        const systemDefaultVoice = player.voices.find((voice) => voice.default) || 0;
+        player.setVoice(systemDefaultVoice);
+
+        return player.voices;
+      });
     },
   };
 
