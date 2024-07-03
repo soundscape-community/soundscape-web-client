@@ -1,6 +1,5 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
-import { TextToSpeech } from "@capacitor-community/text-to-speech";
 
 function createVoiceControls(audioQueue) {
   // Fetch available voices
