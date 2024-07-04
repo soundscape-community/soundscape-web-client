@@ -10,14 +10,8 @@
   >
       ⓘ
   </button>
-  <select
-    class="nav-button"
-    id="voice"
-    name="voice"
-    title="Voice"
-    required
-  ></select>
 
+  <VoiceList />
   <SpeechRate />
 
   <button class="nav-button">
@@ -29,11 +23,13 @@
 
 <script>
 import SpeechRate from './components/SpeechRate.vue';
+import VoiceList from './components/VoiceList.vue';
 
 export default {
   name: 'App',
   components: {
-    SpeechRate
+    SpeechRate,
+    VoiceList
   },
 };
 </script>

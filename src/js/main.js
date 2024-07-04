@@ -18,7 +18,6 @@ import { startCompassListener } from "./spatial/heading.js";
 import createLocationProvider from "./spatial/location.js";
 import createMap from "./visual/map.js";
 import createRecentCalloutList from "./visual/recentlist.js";
-import createVoiceControls from "./visual/voicecontrols.js";
 
 // Actions to take when page is rendered in full
 document.addEventListener("DOMContentLoaded", function () {
@@ -62,8 +61,6 @@ document.addEventListener("DOMContentLoaded", function () {
       );
     }
   });
-
-  createVoiceControls(audioQueue);
 
   // Use location from URL if specified, otherwise use device location services
   async function getRelevantLocation() {

@@ -1,4 +1,3 @@
-
 <template>
   <div id="rate" title="Speaking rate">
     <button id="decreaseRate" @click="decrease" title="Decrease speaking rate">−</button>
