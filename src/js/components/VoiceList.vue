@@ -12,7 +12,7 @@
       :key="voice.voiceIndex"
       :value="voice.voiceIndex"
     >
-        🗣 {{ voice.name }}
+      🗣 {{ voice.name }}
     </option>
   </select>
 </template>

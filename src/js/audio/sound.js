@@ -1,11 +1,15 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
+import { ref } from 'vue';
 import { TextToSpeech } from "@capacitor-community/text-to-speech";
 import { createPanner } from "./notabeacon.js";
 
 export const audioContext = new (window.AudioContext ||
   window.webkitAudioContext)();
+
+// Use a Vue ref for recent callouts list so that changes trigger UI updates
+export const recentCallouts = ref([]);
 
 // Variables to store the current sound and speech sources
 let currentSoundSource = null;
@@ -82,7 +86,6 @@ export function createSpatialPlayer(locationProvider) {
     queue: [],
     isPlaying: false,
     locationProvider: locationProvider,
-    events: new EventTarget(),
 
     // Speech synthesis customization
     voices: null,
@@ -187,9 +190,10 @@ export function createSpatialPlayer(locationProvider) {
       );
     } else if (typeof currentItem === "object" && currentItem.text) {
       // If it's an object with a 'text' property, assume it's spatial speech
-      player.events.dispatchEvent(
-        new CustomEvent("speechPlayed", { detail: currentItem })
-      );
+      if (currentItem.location) {
+        // Visual list will update with callouts as they are announced
+        recentCallouts.value.unshift(currentItem);
+      }
       await playSpatialSpeech(
         currentItem.text,
         player.voice,

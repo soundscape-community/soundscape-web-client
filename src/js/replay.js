@@ -1,13 +1,15 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-import { createSpatialPlayer } from './audio/sound.js'
+import { createApp } from 'vue';
+import ReplayGPX from './ReplayGPX.vue';
+
+import { createSpatialPlayer, recentCallouts } from './audio/sound.js'
 import createCalloutAnnouncer from './audio/callout.js';
 import cache from './data/cache.js'
 import createLocationProvider from './spatial/location.js'
 import replayGPX from './spatial/gpx.js';
 import createMap from './visual/map.js'
-import createRecentCalloutList from './visual/recentlist.js';
 
 const maxSpeedupFactor = 9;  // max multiple for faster GPX replays
 
@@ -16,8 +18,13 @@ document.addEventListener('DOMContentLoaded', function () {
   const locationProvider = createLocationProvider();
   const audioQueue = createSpatialPlayer(locationProvider);
   const announcer = createCalloutAnnouncer(audioQueue);
+
+  const app = createApp(ReplayGPX);
+  app.provide('audioQueue', audioQueue);
+  app.provide('locationProvider', locationProvider);
+  app.mount('body');
+
   const map = createMap('map');
-  const recentCalloutsList = createRecentCalloutList(locationProvider, audioQueue, map);
   let gpxPlayer = null;  // to be initialized on file selection
 
   audioQueue.loadVoices();
@@ -28,17 +35,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Map should follow current point
     map.setView([e.detail.latitude, e.detail.longitude], 16);
     map.plotMyLocation(locationProvider);
-  });
-
-  // Add callouts to visual list as they are announced
-  audioQueue.events.addEventListener('speechPlayed', e => {
-    if (e.detail.location) {
-      recentCalloutsList.add(
-        e.detail.text,
-        e.detail.location.geometry.coordinates[1],
-        e.detail.location.geometry.coordinates[0]
-      );
-    }
   });
 
   const inputElement = document.getElementById("gpxFileInput");
@@ -63,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function () {
       pointSlider.value = 0;
 
       // Clear recent callout list
-      recentCalloutsList.clear();
+      recentCallouts.value = [];
 
       gpxPlayer = replayGPX(file, map, {
         // When GPX file has been loadedm trigger draw map at first point

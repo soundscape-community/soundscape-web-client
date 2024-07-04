@@ -17,23 +17,19 @@ import { getLocation, watchLocation } from "./spatial/geo.js";
 import { startCompassListener } from "./spatial/heading.js";
 import createLocationProvider from "./spatial/location.js";
 import createMap from "./visual/map.js";
-import createRecentCalloutList from "./visual/recentlist.js";
 
 // Actions to take when page is rendered in full
 document.addEventListener("DOMContentLoaded", function () {
   const locationProvider = createLocationProvider();
   const audioQueue = createSpatialPlayer(locationProvider);
   const announcer = createCalloutAnnouncer(audioQueue);
-  const map = createMap("map");
-  const recentCalloutsList = createRecentCalloutList(
-    locationProvider,
-    audioQueue,
-    map
-  );
 
   const app = createApp(App);
   app.provide('audioQueue', audioQueue);
-  app.mount('nav');
+  app.provide('locationProvider', locationProvider);
+  app.mount('body');
+
+  const map = createMap("map");
 
   // iOS Safari workaround to allow audio while mute switch is on
   let allowBackgroundPlayback = true;
@@ -49,17 +45,6 @@ document.addEventListener("DOMContentLoaded", function () {
   // Redraw location marker when compass heading changes
   locationProvider.events.addEventListener("orientationUpdated", (e) => {
     map.plotMyLocation(locationProvider);
-  });
-
-  // Add callouts to visual list as they are announced
-  audioQueue.events.addEventListener("speechPlayed", (e) => {
-    if (e.detail.location) {
-      recentCalloutsList.add(
-        e.detail.text,
-        e.detail.location.geometry.coordinates[1],
-        e.detail.location.geometry.coordinates[0]
-      );
-    }
   });
 
   // Use location from URL if specified, otherwise use device location services
