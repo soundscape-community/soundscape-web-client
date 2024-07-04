@@ -16,7 +16,6 @@ import createCalloutAnnouncer from "./audio/callout.js";
 import { getLocation, watchLocation } from "./spatial/geo.js";
 import { startCompassListener } from "./spatial/heading.js";
 import createLocationProvider from "./spatial/location.js";
-import createMap from "./visual/map.js";
 
 // Actions to take when page is rendered in full
 document.addEventListener("DOMContentLoaded", function () {
@@ -29,23 +28,10 @@ document.addEventListener("DOMContentLoaded", function () {
   app.provide('locationProvider', locationProvider);
   app.mount('body');
 
-  const map = createMap("map");
-
   // iOS Safari workaround to allow audio while mute switch is on
   let allowBackgroundPlayback = true;
   let forceIOSBehavior = false;
   unmute(audioContext, allowBackgroundPlayback, forceIOSBehavior);
-
-  // Register for updates to location
-  locationProvider.events.addEventListener("locationUpdated", (e) => {
-    // Map should follow current point
-    map.setView([e.detail.latitude, e.detail.longitude], 16);
-    map.plotMyLocation(locationProvider);
-  });
-  // Redraw location marker when compass heading changes
-  locationProvider.events.addEventListener("orientationUpdated", (e) => {
-    map.plotMyLocation(locationProvider);
-  });
 
   // Use location from URL if specified, otherwise use device location services
   async function getRelevantLocation() {

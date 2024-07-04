@@ -5,7 +5,7 @@ import { HeadingCalculator } from './heading.js'
 
 const headingWindowSize = 5;  // number of recent points to use for estimating heading
 
-function replayGPX(file, map, callbacks) {
+function replayGPX(file, callbacks) {
   const {
     loadedCallback = () => {},
     finishedCallback = () => {},
@@ -49,8 +49,6 @@ function replayGPX(file, map, callbacks) {
 
           headingCalculator.addPoint(lat, lon);
           const heading = headingCalculator.computeHeading();
-
-          map.setView([lat, lon], 16);
 
           pointCallback({ lat, lon, heading });
           currentIndex++;

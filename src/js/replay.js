@@ -9,7 +9,6 @@ import createCalloutAnnouncer from './audio/callout.js';
 import cache from './data/cache.js'
 import createLocationProvider from './spatial/location.js'
 import replayGPX from './spatial/gpx.js';
-import createMap from './visual/map.js'
 
 const maxSpeedupFactor = 9;  // max multiple for faster GPX replays
 
@@ -24,18 +23,9 @@ document.addEventListener('DOMContentLoaded', function () {
   app.provide('locationProvider', locationProvider);
   app.mount('body');
 
-  const map = createMap('map');
   let gpxPlayer = null;  // to be initialized on file selection
 
   audioQueue.loadVoices();
-
-  // Register for updates to location
-  // (no need to separately watch heading changes in GPX simulation)
-  locationProvider.events.addEventListener('locationUpdated', e => {
-    // Map should follow current point
-    map.setView([e.detail.latitude, e.detail.longitude], 16);
-    map.plotMyLocation(locationProvider);
-  });
 
   const inputElement = document.getElementById("gpxFileInput");
   const playPauseButton = document.getElementById("playPauseButton");
@@ -61,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
       // Clear recent callout list
       recentCallouts.value = [];
 
-      gpxPlayer = replayGPX(file, map, {
+      gpxPlayer = replayGPX(file, {
         // When GPX file has been loadedm trigger draw map at first point
         loadedCallback: (firstPoint) => locationProvider.updateLocation(firstPoint.lat, firstPoint.lon),
         // When GPX finishes playing, toggle to paused state and reset slider

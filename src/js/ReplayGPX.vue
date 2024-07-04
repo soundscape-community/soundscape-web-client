@@ -11,17 +11,19 @@
     <button class="nav-button" id="btn_clear" title="Clear cached data">&#128465;</button>
   </nav>
   <main>
-    <div id="map"></div>
+    <Map />
     <RecentList />
   </main>
 </template>
 
 <script>
+import Map from './components/Map.vue';
 import RecentList from './components/RecentList.vue';
 
 export default {
   name: 'ReplayGPX',
   components: {
+    Map,
     RecentList,
   },
 };

@@ -23,12 +23,13 @@
     </nav>
 
     <main>
-      <div id="map"></div>
+      <Map />
       <RecentList />
     </main>
 </template>
 
 <script>
+import Map from './components/Map.vue';
 import RecentList from './components/RecentList.vue';
 import SpeechRate from './components/SpeechRate.vue';
 import VoiceList from './components/VoiceList.vue';
@@ -36,6 +37,7 @@ import VoiceList from './components/VoiceList.vue';
 export default {
   name: 'App',
   components: {
+    Map,
     RecentList,
     SpeechRate,
     VoiceList,
