@@ -4,10 +4,6 @@
 function createVoiceControls(audioQueue) {
   // Fetch available voices
   const voiceSelect = document.getElementById("voice");
-  // const rateInput = document.getElementById('rate');
-  const decreaseRate = document.getElementById("decreaseRate");
-  const increaseRate = document.getElementById("increaseRate");
-  const rateValue = document.getElementById("rateValue");
 
   // Populate voice selector
   async function populateVoices() {
@@ -28,8 +24,7 @@ function createVoiceControls(audioQueue) {
   }
 
   populateVoices().then(() => {
-    // Set voice and rate to match initial form values
-    audioQueue.setRate(parseFloat(rateValue.textContent));
+    // Set voice to match initial form value
     audioQueue.setVoice(voiceSelect.value);
   })
 
@@ -38,15 +33,6 @@ function createVoiceControls(audioQueue) {
     voiceSelect.innerHTML = ""; // Clear existing options
     populateVoices();
   };
-
-  // Update voice and rate when user changes them
-  decreaseRate.addEventListener("click", function (e) {
-    rateValue.textContent = audioQueue.decreaseRate();
-  });
-
-  increaseRate.addEventListener("click", function (e) {
-    rateValue.textContent = audioQueue.increaseRate();
-  });
 
   voiceSelect.addEventListener("change", function () {
     audioQueue.setVoice(voiceSelect.value);

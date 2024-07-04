@@ -3,6 +3,9 @@
 import mode_exit_wav from "/sounds/mode_exit.wav";
 import mode_enter_wav from "/sounds/mode_enter.wav";
 
+import { createApp } from 'vue';
+import App from './App.vue';
+
 import unmute from "./vendor/unmute.js";
 import {
   audioContext,
@@ -28,6 +31,10 @@ document.addEventListener("DOMContentLoaded", function () {
     audioQueue,
     map
   );
+
+  const app = createApp(App);
+  app.provide('audioQueue', audioQueue);
+  app.mount('nav');
 
   // iOS Safari workaround to allow audio while mute switch is on
   let allowBackgroundPlayback = true;
