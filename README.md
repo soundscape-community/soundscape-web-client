@@ -48,6 +48,9 @@ To use a location other than what's reported by your device, include the latitud
     ```
     From Android studio you can run it either in an emulator or on a real device.
 
+### Update Splash Screens and Icons Android
+Just place your images as decrived in in `\assets` https://capacitorjs.com/docs/guides/splash-screens-and-icons and run `npx capacitor-assets generate --android`
+
 ## Third-party libraries used
 1. [Turf.js](https://turfjs.org/) (for GeoJSON processingand geospatial calculations)
 2. [Leaflet](https://leafletjs.com/) (provides OpenStreetMap widget)

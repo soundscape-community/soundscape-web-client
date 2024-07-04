@@ -27,6 +27,7 @@
     "@babel/core": "^7.24.7",
     "@babel/preset-env": "^7.24.7",
     "@babel/register": "^7.24.6",
+    "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "latest",
     "axios": "^1.7.2",
     "chai": "^5.1.1",
