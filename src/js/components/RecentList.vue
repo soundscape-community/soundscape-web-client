@@ -1,18 +1,7 @@
 <template>
   <section id="recentCalloutsArea">
-    <!-- Beacon controls -->
-    <p v-if="currentBeacon.beacon">
-      <button
-        id="toggleBeacon"
-        class="beacon-button"
-        @click="toggleBeacon"
-      >
-        {{ currentBeacon.playing ? '⏸' : '▶' }}
-      </button>
-      <span id="currentBeacon">{{ currentBeacon.beacon.name }}</span>
-    </p>
+    <BeaconController />
 
-    <!-- List of 25 most recent callouts (newest first) -->
     <ul id="recentCalloutsList">
       <li v-for="callout in calloutsList.slice(0, 25)">
         <button
@@ -32,6 +21,7 @@
 </template>
 
 <script setup>
+import BeaconController from './BeaconController.vue'
 import { recentCallouts } from '../audio/sound.js';
 import { createBeacon, currentBeacon } from '../audio/notabeacon.js';
 import { inject } from 'vue';
@@ -58,17 +48,6 @@ const startBeacon = (e) => {
   currentBeacon.beacon.start();
   currentBeacon.playing= currentBeacon.beacon.isEnabled();
 };
-
-const toggleBeacon = () => {
-  if (currentBeacon.beacon) {
-    if (currentBeacon.playing) {
-      currentBeacon.beacon.stop();
-    } else {
-      currentBeacon.beacon.start();
-    }
-    currentBeacon.playing= currentBeacon.beacon.isEnabled();
-  }
-};
 </script>
 
 <style>
@@ -92,17 +71,6 @@ const toggleBeacon = () => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-/* Active beacon controls */
-#recentCalloutsArea p {
-  background-color: #e74c3c;
-  color: #fff;
-  font-weight: bold;
-}
-
-#recentCalloutsArea p button {
-  background-color: #2c3e50;
 }
 
 #recentCalloutsArea button {
