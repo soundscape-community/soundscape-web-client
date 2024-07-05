@@ -13,7 +13,12 @@
       </button>
 
       <VoiceSelector />
-      <RateSelector />
+      <InputSpinner
+        title="Speaking rate"
+        :min="1" :max="5" :initial="audioQueue.rate"
+        :incAction="audioQueue.increaseRate"
+        :decAction="audioQueue.decreaseRate"
+      />
 
       <button class="nav-button">
         <a href="./help.html" title="FAQ page">
@@ -29,9 +34,12 @@
 </template>
 
 <script setup>
+import { inject } from 'vue';
 import CalloutList from './components/CalloutList.vue';
+import InputSpinner from './components/InputSpinner.vue';
 import Map from './components/Map.vue';
-import RateSelector from './components/RateSelector.vue';
 import VoiceSelector from './components/VoiceSelector.vue';
+
+const audioQueue = inject('audioQueue');
 </script>
 

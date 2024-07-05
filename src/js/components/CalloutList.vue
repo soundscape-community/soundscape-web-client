@@ -57,6 +57,14 @@ const startBeacon = (e) => {
   flex-basis: 100%;
 }
 
+/* display map + recent callouts side-by-side on sufficiently wide screens */
+@media screen and (min-width: 600px) {
+  #recentCalloutsArea {
+    height: calc(100vh - 140px);
+    flex-basis: 48%;
+  }
+}
+
 #recentCalloutsList {
   padding: 0;
   margin: 0;

@@ -129,6 +129,14 @@ watch(currentBeacon, (newValue, oldValue) => {
   margin-bottom: 15px;
 }
 
+/* display map + recent callouts side-by-side on sufficiently wide screens */
+@media screen and (min-width: 600px) {
+  #map {
+      height: calc(100vh - 140px);
+      width: 48%;
+  }
+}
+
 /* Current position marker on map */
 .arrow-icon {
   width: 0;

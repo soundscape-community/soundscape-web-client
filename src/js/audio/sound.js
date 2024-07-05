@@ -98,16 +98,10 @@ export function createSpatialPlayer(locationProvider) {
       player.rate = rate;
     },
     increaseRate() {
-      if (player.rate < 5) {
-        player.rate++;
-      }
-      return player.rate;
+      return ++player.rate;
     },
     decreaseRate() {
-      if (player.rate > 1) {
-        player.rate--;
-      }
-      return player.rate;
+      return --player.rate;
     },
 
     addToQueue(item) {

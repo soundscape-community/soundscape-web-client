@@ -6,7 +6,6 @@ import ReplayGPX from './ReplayGPX.vue';
 
 import { createSpatialPlayer, recentCallouts } from './audio/sound.js'
 import createCalloutAnnouncer from './audio/callout.js';
-import cache from './data/cache.js'
 import createLocationProvider from './spatial/location.js'
 import replayGPX from './spatial/gpx.js';
 
@@ -115,10 +114,5 @@ document.addEventListener('DOMContentLoaded', function () {
       const newIndex = Math.round((pointSlider.value / 100) * totalPoints);
       gpxPlayer.seekTo(newIndex);
     }
-  });
-
-  var btnClear = document.getElementById('btn_clear');
-  btnClear.addEventListener('click', function() {
-    cache.clear();
   });
 });
