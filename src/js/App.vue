@@ -12,8 +12,8 @@
           ⓘ
       </button>
 
-      <VoiceList />
-      <SpeechRate />
+      <VoiceSelector />
+      <RateSelector />
 
       <button class="nav-button">
         <a href="./help.html" title="FAQ page">
@@ -24,24 +24,14 @@
 
     <main>
       <Map />
-      <RecentList />
+      <CalloutList />
     </main>
 </template>
 
-<script>
+<script setup>
+import CalloutList from './components/CalloutList.vue';
 import Map from './components/Map.vue';
-import RecentList from './components/RecentList.vue';
-import SpeechRate from './components/SpeechRate.vue';
-import VoiceList from './components/VoiceList.vue';
-
-export default {
-  name: 'App',
-  components: {
-    Map,
-    RecentList,
-    SpeechRate,
-    VoiceList,
-  },
-};
+import RateSelector from './components/RateSelector.vue';
+import VoiceSelector from './components/VoiceSelector.vue';
 </script>
 

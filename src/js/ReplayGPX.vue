@@ -12,19 +12,11 @@
   </nav>
   <main>
     <Map />
-    <RecentList />
+    <CalloutList />
   </main>
 </template>
 
-<script>
+<script setup>
+import CalloutList from './components/CalloutList.vue';
 import Map from './components/Map.vue';
-import RecentList from './components/RecentList.vue';
-
-export default {
-  name: 'ReplayGPX',
-  components: {
-    Map,
-    RecentList,
-  },
-};
 </script>
