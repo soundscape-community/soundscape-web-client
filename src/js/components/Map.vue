@@ -5,6 +5,7 @@
 <script setup>
 import { inject, ref, onMounted, watch } from 'vue';
 import * as L from 'leaflet';
+import { currentBeacon } from '../audio/notabeacon.js';
 
 const locationProvider = inject('locationProvider');
 // To be initialized on component mount
@@ -107,4 +108,57 @@ const pauseBeaconPulse = () => {
     layer.getElement().classList.remove('pulsing');
   })
 };
+
+watch(currentBeacon, (newValue, oldValue) => {
+  if (newValue.beacon) {
+    plotBeacon(newValue.beacon.latitude, newValue.beacon.longitude);
+  }
+  if (newValue.playing) {
+    startBeaconPulse();
+  } else {
+    pauseBeaconPulse();
+  }
+});
 </script>
+
+<style>
+#map {
+  width: 100%;
+  height: 300px;
+  border: 2px solid #000;
+  margin-bottom: 15px;
+}
+
+/* Current position marker on map */
+.arrow-icon {
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 40px solid red;
+  transform-origin: bottom center;
+}
+
+/* Current beacon marker on map */
+.beacon-icon {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  background-color: #e74c3c;
+  border-radius: 50% 50% 50% 50%;
+  border: 3px solid #2c3e50;
+}
+
+.pulsing {
+  animation: pulse 0.75s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+      opacity: 0.1;
+  }
+  50% {
+      opacity: 1.0;
+  }
+}
+</style>

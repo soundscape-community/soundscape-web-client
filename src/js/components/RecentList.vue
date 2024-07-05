@@ -1,16 +1,18 @@
 <template>
   <section id="recentCalloutsArea">
-    <p v-if="currentBeacon">
+    <!-- Beacon controls -->
+    <p v-if="currentBeacon.beacon">
       <button
         id="toggleBeacon"
         class="beacon-button"
         @click="toggleBeacon"
       >
-        {{ beaconIsPlaying ? '⏸' : '▶' }}
+        {{ currentBeacon.playing ? '⏸' : '▶' }}
       </button>
-      <span id="currentBeacon">{{ currentBeacon.name }}</span>
+      <span id="currentBeacon">{{ currentBeacon.beacon.name }}</span>
     </p>
 
+    <!-- List of 25 most recent callouts (newest first) -->
     <ul id="recentCalloutsList">
       <li v-for="callout in calloutsList.slice(0, 25)">
         <button
@@ -31,42 +33,79 @@
 
 <script setup>
 import { recentCallouts } from '../audio/sound.js';
-import { createBeacon } from '../audio/notabeacon.js';
-import { inject, ref, onMounted, watch } from 'vue';
+import { createBeacon, currentBeacon } from '../audio/notabeacon.js';
+import { inject } from 'vue';
 
 const audioQueue = inject('audioQueue');
 const locationProvider = inject('locationProvider');
 
 const calloutsList = recentCallouts;
-const currentBeacon = ref(null);
-const beaconIsPlaying = ref(false);
 
 const startBeacon = (e) => {
   // Stop old beacon
-  if (currentBeacon.value) {
-    currentBeacon.value.stop();
+  if (currentBeacon.beacon) {
+    currentBeacon.beacon.stop();
   }
 
   // Create and start new beacon
-  currentBeacon.value = createBeacon(
+  currentBeacon.beacon = createBeacon(
     e.target.getAttribute("data-name"),
     e.target.getAttribute('data-latitude'),
     e.target.getAttribute('data-longitude'),
     locationProvider,
     audioQueue
   );
-  currentBeacon.value.start();
-  beaconIsPlaying.value = currentBeacon.value.isEnabled();
+  currentBeacon.beacon.start();
+  currentBeacon.playing= currentBeacon.beacon.isEnabled();
 };
 
 const toggleBeacon = () => {
-  if (currentBeacon.value) {
-    if (currentBeacon.value.isEnabled()) {
-      currentBeacon.value.stop();
+  if (currentBeacon.beacon) {
+    if (currentBeacon.playing) {
+      currentBeacon.beacon.stop();
     } else {
-      currentBeacon.value.start();
+      currentBeacon.beacon.start();
     }
-    beaconIsPlaying.value = currentBeacon.value.isEnabled();
+    currentBeacon.playing= currentBeacon.beacon.isEnabled();
   }
 };
 </script>
+
+<style>
+#recentCalloutsArea {
+  height: calc(100vh - 435px);
+  overflow-y: auto;
+  flex-basis: 100%;
+}
+
+#recentCalloutsList {
+  padding: 0;
+  margin: 0;
+}
+
+#recentCalloutsList li,
+#recentCalloutsArea p {
+  list-style: none;
+  border-bottom: 2px solid #000;
+  padding: 15px;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Active beacon controls */
+#recentCalloutsArea p {
+  background-color: #e74c3c;
+  color: #fff;
+  font-weight: bold;
+}
+
+#recentCalloutsArea p button {
+  background-color: #2c3e50;
+}
+
+#recentCalloutsArea button {
+  width: 60px;
+}
+</style>
