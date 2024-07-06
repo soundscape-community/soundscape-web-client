@@ -37,6 +37,20 @@ To use a location other than what's reported by your device, include the latitud
     2. [Microsoft Dev Tunnels](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/overview): `devtunnel host -p 8080`
     3. Many other [tunneling options](https://github.com/anderspitman/awesome-tunneling?tab=readme-ov-file)
 
+### Running the Android version
+1. Build and sync the app
+    ```
+    npm ci && npm run build && npx cap sync
+    ```
+2. Open it in Android studio and run it from there
+    ```
+    npx cap open android
+    ```
+    From Android studio you can run it either in an emulator or on a real device.
+
+### Update Splash Screens and Icons Android
+Just place your images as decrived in in `\assets` https://capacitorjs.com/docs/guides/splash-screens-and-icons and run `npx capacitor-assets generate --android`
+
 ## Third-party libraries used
 1. [Turf.js](https://turfjs.org/) (for GeoJSON processingand geospatial calculations)
 2. [Leaflet](https://leafletjs.com/) (provides OpenStreetMap widget)

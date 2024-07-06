@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@capacitor-community/text-to-speech": "^4.0.2",
+    "@capacitor/android": "^6.1.0",
     "@capacitor/camera": "latest",
     "@capacitor/core": "latest",
     "@capacitor/splash-screen": "latest",
@@ -32,6 +33,7 @@
     "@babel/core": "^7.24.7",
     "@babel/preset-env": "^7.24.7",
     "@babel/register": "^7.24.6",
+    "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "latest",
     "@vitejs/plugin-vue": "^5.0.5",
     "axios": "^1.7.2",
