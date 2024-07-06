@@ -35,10 +35,10 @@
 
 <script setup>
 import { inject } from 'vue';
-import CalloutList from './components/CalloutList.vue';
-import InputSpinner from './components/InputSpinner.vue';
-import Map from './components/Map.vue';
-import VoiceSelector from './components/VoiceSelector.vue';
+import CalloutList from './CalloutList.vue';
+import InputSpinner from './InputSpinner.vue';
+import Map from './Map.vue';
+import VoiceSelector from './VoiceSelector.vue';
 
 const audioQueue = inject('audioQueue');
 </script>

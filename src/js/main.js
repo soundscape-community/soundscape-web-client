@@ -4,7 +4,7 @@ import mode_exit_wav from "/sounds/mode_exit.wav";
 import mode_enter_wav from "/sounds/mode_enter.wav";
 
 import { createApp } from 'vue';
-import App from './App.vue';
+import Main from './components/Main.vue';
 
 import unmute from "./vendor/unmute.js";
 import {
@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const audioQueue = createSpatialPlayer(locationProvider);
   const announcer = createCalloutAnnouncer(audioQueue);
 
-  const app = createApp(App);
+  const app = createApp(Main);
   app.provide('audioQueue', audioQueue);
   app.provide('locationProvider', locationProvider);
   app.mount('body');
