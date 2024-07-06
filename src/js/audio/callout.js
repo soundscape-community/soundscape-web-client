@@ -4,6 +4,8 @@
 import sense_mobility_wav from "/sounds/sense_mobility.wav";
 import sense_poi_wav from "/sounds/sense_poi.wav";
 
+import { centroid } from '@turf/centroid';
+import { nearestPointOnLine } from '@turf/nearest-point-on-line';
 import cache from "../data/cache.js";
 import { enumerateTilesAround } from "../data/tile.js";
 
@@ -62,14 +64,14 @@ function createCalloutAnnouncer(audioQueue) {
     // point on a line, or to the centroid of a polygon.
     switch (feature.geometry.type) {
       case "LineString": // e.g. roads
-        feature.point = turf.nearestPointOnLine(
+        feature.point = nearestPointOnLine(
           feature,
           audioQueue.locationProvider.turfPoint(),
           { units: "meters" }
         );
         break;
       default: // buildings, landmarks, etc.
-        feature.point = turf.centroid(feature.geometry);
+        feature.point = centroid(feature.geometry);
     }
     feature.distance = audioQueue.locationProvider.distance(feature.point, {
       units: "meters",

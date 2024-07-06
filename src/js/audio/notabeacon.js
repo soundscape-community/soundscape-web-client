@@ -8,6 +8,9 @@ import Classic_OffAxis_wav from "/sounds/beacons/Classic/Classic_OffAxis.wav";
 import sense_mobility_wav from "/sounds/sense_mobility.wav";
 import SS_beaconFound2_48k_wav from "/sounds/SS_beaconFound2_48k.wav";
 
+import { point } from '@turf/helpers';
+import { reactive } from 'vue';
+
 const onCourseAngle = 30; // degrees +/- Y axis
 const foundProximityMeters = 10; // proximity to auto-stop beacon
 const announceEveryMeters = 50;
@@ -40,13 +43,13 @@ export function createPanner(audioContext) {
 }
 
 export function createBeacon(
+  name,
   latitude,
   longitude,
   locationProvider,
   audioQueue,
-  map
 ) {
-  const sourceLocation = turf.point([longitude, latitude]);
+  const sourceLocation = point([longitude, latitude]);
   var relativePosition =
     locationProvider.normalizedRelativePosition(sourceLocation);
   var lastAnnouncedDistance = null;
@@ -69,20 +72,18 @@ export function createBeacon(
   offCourseSource.connect(panner);
   panner.connect(audioContext.destination);
 
-  // Render beacon on the visual map
-  map.plotBeacon(latitude, longitude);
-
   var beacon = {
+    name: name,
+    latitude: latitude,
+    longitude: longitude,
     start: () => {
       onCourse.play();
       offCourse.play();
-      map.startBeaconPulse();
     },
 
     stop: () => {
       onCourse.pause();
       offCourse.pause();
-      map.pauseBeaconPulse();
     },
 
     isEnabled: () => !onCourse.paused || !offCourse.paused,
@@ -150,3 +151,9 @@ export function createBeacon(
 
   return beacon;
 }
+
+// state that will make UI responsive to changes
+export const currentBeacon = reactive({
+  beacon: null,
+  playing: false,
+})

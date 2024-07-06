@@ -1,20 +1,23 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
+import { bbox } from '@turf/bbox';
+import { buffer} from '@turf/buffer';
+import { point } from '@turf/helpers';
 import cache from '../data/cache.js'
 import { enumerateTilesAround } from '../data/tile.js'
 
 // Function to create a half-kilometer bounding box around a point
 export function createBoundingBox(latitude, longitude, radiusMeters) {
   // Create a Turf.js point
-  const point = turf.point([longitude, latitude]);
+  const somePint = point([longitude, latitude]);
 
   // Buffer the point with the specified readius
-  const buffered = turf.buffer(point, radiusMeters, { units: 'meters' });
+  const buffered = buffer(somePint, radiusMeters, { units: 'meters' });
 
   // Extract the bounding box coordinates
-  const bbox = turf.bbox(buffered);
+  const someBbox = bbox(buffered);
   
-  return bbox;
+  return someBbox;
 }
 
 // Function to convert latitude and longitude to Mercator tile coordinates
