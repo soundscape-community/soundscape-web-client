@@ -180,6 +180,19 @@ function createCalloutAnnouncer(audioQueue) {
         });
     },
 
+    // Same as above, but says a message if no features were announced
+    calloutAllFeaturesOrSayNoneFound: (latitude, longitude) => {
+      announcer
+        .calloutAllFeatures(latitude, longitude)
+        .then((anythingToSay) => {
+          if (!anythingToSay) {
+            audioQueue.addToQueue({
+              text: "Nothing to call out right now",
+            });
+          }
+        });
+    },
+
     // Announce only features not already called out (useful for continuous tracking)
     calloutNewFeatures: (latitude, longitude) => {
       const radiusMeters = audioQueue.locationProvider.radiusMeters;

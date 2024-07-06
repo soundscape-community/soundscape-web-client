@@ -25,41 +25,17 @@ import mode_enter_wav from "/sounds/mode_enter.wav";
 
 import { inject, ref } from 'vue';
 import { playSpatialSpeech } from '../audio/sound.js';
-import { getLocation, watchLocation } from "../spatial/geo.js";
-import { startCompassListener } from "../spatial/heading.js";
+
+const props = defineProps({
+  tracker: Object,
+});
 
 const announcer = inject('announcer');
 const audioQueue = inject('audioQueue');
 const locationProvider = inject('locationProvider');
 
 const activeMode = ref(null);
-var watchPositionHandler = null;
 var wakeLock = null;
-
-// Use location from URL if specified, otherwise use device location services
-async function getRelevantLocation() {
-  return new Promise((resolve, reject) => {
-    var searchParams = new URLSearchParams(window.location.search);
-    var lat = parseFloat(searchParams.get("lat"));
-    var lon = parseFloat(searchParams.get("lon"));
-    var head = parseFloat(searchParams.get("heading"));
-    if (!isNaN(lat) && !isNaN(lon) && !isNaN(head)) {
-      resolve({ latitude: lat, longitude: lon, heading: head });
-    } else {
-      getLocation()
-        .then((coords) => {
-          resolve({
-            latitude: coords.latitude,
-            longitude: coords.longitude,
-            heading: 0, // only available from change event handler?
-          });
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    }
-  });
-}
 
 // When mode button is clicked:
 //   If a mode is currently active, end that mode
@@ -79,14 +55,7 @@ async function toggleMode(newMode) {
     "locationUpdated",
     announcer.locationChanged
   );
-  if (watchPositionHandler) {
-    navigator.geolocation.clearWatch(watchPositionHandler);
-    window.removeEventListener(
-      "deviceorientation",
-      locationProvider.updateOrientation
-    );
-    watchPositionHandler = null;
-  }
+  props.tracker.stop();
 
   // Stop here if the intent was to end the current mode
   if (activeMode.value == newMode) {
@@ -131,41 +100,18 @@ async function toggleMode(newMode) {
         "locationUpdated",
         announcer.locationChanged
       );
-      startCompassListener(locationProvider.updateOrientation);
-
-      watchPositionHandler = watchLocation(locationProvider.updateLocation);
+      props.tracker.start();
       break;
 
     case "near_me":
-      getRelevantLocation()
+      props.tracker.current()
         .then((coords) => {
-          console.log(coords);
           locationProvider.updateLocation(coords.latitude, coords.longitude);
           locationProvider.updateOrientation({ alpha: coords.heading });
 
-          // Speak nearest road
           announcer.calloutNearestRoad(coords.latitude, coords.longitude);
-
-          // Call out nearby features once
-          announcer
-            .calloutAllFeatures(coords.latitude, coords.longitude)
-            .then((anythingToSay) => {
-              if (!anythingToSay) {
-                audioQueue.addToQueue({
-                  text: "Nothing to call out right now",
-                });
-              }
-            });
+          announcer.calloutAllFeaturesOrSayNoneFound(coords.latitude, coords.longitude);
         })
-        .catch((error) => {
-          if (error.code == error.PERMISSION_DENIED) {
-            alert(
-              "Could not get your location. If you did not see a permission request, make sure your browser is not configured to always block location services."
-            );
-          } else {
-            console.error("Error getting current position: " + error.message);
-          }
-        });
       break;
   }
 }
