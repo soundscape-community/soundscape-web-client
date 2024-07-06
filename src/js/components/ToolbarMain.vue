@@ -14,19 +14,12 @@
       </a>
     </button>
   </nav>
-
-  <main>
-    <Map />
-    <CalloutList />
-  </main>
 </template>
 
 <script setup>
 import { inject } from 'vue';
-import CalloutList from './CalloutList.vue';
 import InputSpinner from './InputSpinner.vue';
 import MainModeSelector from './MainModeSelector.vue';
-import Map from './Map.vue';
 import VoiceSelector from './VoiceSelector.vue';
 
 const audioQueue = inject('audioQueue');

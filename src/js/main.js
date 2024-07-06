@@ -1,7 +1,7 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 import { createApp } from 'vue';
-import Main from './components/Main.vue';
+import App from './components/App.vue';
 
 import unmute from "./vendor/unmute.js";
 import {
@@ -17,7 +17,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const audioQueue = createSpatialPlayer(locationProvider);
   const announcer = createCalloutAnnouncer(audioQueue);
 
-  const app = createApp(Main);
+  audioQueue.loadVoices();
+
+  const app = createApp(App);
   app.provide('announcer', announcer);
   app.provide('audioQueue', audioQueue);
   app.provide('locationProvider', locationProvider);

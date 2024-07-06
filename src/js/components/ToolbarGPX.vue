@@ -42,17 +42,10 @@
       &#128465;
     </button>
   </nav>
-
-  <main>
-    <Map />
-    <CalloutList />
-  </main>
 </template>
 
 <script setup>
-import CalloutList from './CalloutList.vue';
 import InputSpinner from './InputSpinner.vue';
-import Map from './Map.vue';
 import cache from '../data/cache.js';
 import { recentCallouts } from '../audio/sound.js';
 import replayGPX from '../spatial/gpx.js';
