@@ -5,6 +5,15 @@ import { distance } from '@turf/distance';
 import { point } from '@turf/helpers';
 import { geoToXY } from './geo.js'
 
+import { reactive } from 'vue';
+export const location = reactive({
+  latitude: null,
+  longitude: null,
+});
+export const orientation = reactive({
+  heading: null,
+});
+
 function createLocationProvider() {
   var locationProvider = {
     radiusMeters: 40,  //TODO make this dynamic based on speed
@@ -14,6 +23,7 @@ function createLocationProvider() {
     updateLocation: function(latitude, longitude) {
       locationProvider.latitude = latitude;
       locationProvider.longitude = longitude;
+      Object.assign(location, {longitude: longitude, latitude: latitude})
 
       // Trigger all event listeners
       const updateEvent = new CustomEvent('locationUpdated', {
@@ -27,6 +37,7 @@ function createLocationProvider() {
 
     updateOrientation: function(heading) {
       locationProvider.heading = heading;
+      Object.assign(orientation, {heading: heading})
 
       // Trigger all event listeners
       const updateEvent = new CustomEvent('orientationUpdated', {

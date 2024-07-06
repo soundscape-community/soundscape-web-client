@@ -5,9 +5,13 @@
 <script setup>
 import { inject, ref, onMounted, watch } from 'vue';
 import * as L from 'leaflet';
-import { currentBeacon } from '../audio/notabeacon.js';
 
-const locationProvider = inject('locationProvider');
+const props = defineProps({
+  location: Object,
+  orientation: Object,
+  beacon: Object,
+})
+
 // To be initialized on component mount
 var map = null;
 var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -59,30 +63,28 @@ const plotPoints = (points, radiusMeters) => {
   });
 };
 
-const plotMyLocation = (locationProvider) => {
-  const lat = locationProvider.latitude;
-  const lon = locationProvider.longitude;
-  const head = locationProvider.heading;
-  const radiusMeters = locationProvider.radiusMeters;
-  // Don't try to plot points before location is available
-  if (!isNaN(lat) && !isNaN(lon)) {
-    plotPoints(
-      [{ latitude: lat, longitude: lon, heading: head }],
-      radiusMeters
-    );
-  }
+const plotMyLocation = () => {
+  const radiusMeters = 40; //FIXME locationProvider.radiusMeters;
+  plotPoints(
+    [{
+      latitude: props.location.latitude,
+      longitude: props.location.longitude,
+      heading: props.orientation.heading,
+    }],
+    radiusMeters
+  );
 };
 
 // Register for updates to location
-locationProvider.events.addEventListener("locationUpdated", (e) => {
+watch(props.location, (newValue, oldValue) => {
   // Map should follow current point
-  map.setView([e.detail.latitude, e.detail.longitude], 16);
-  plotMyLocation(locationProvider);
+  map.setView([newValue.latitude, newValue.longitude], 16);
+  plotMyLocation();
 });
 
 // Redraw location marker when compass heading changes
-locationProvider.events.addEventListener("orientationUpdated", (e) => {
-  plotMyLocation(locationProvider);
+watch(props.location, (newValue, oldValue) => {
+  plotMyLocation();
 });
 
 const plotBeacon = (lat, lon) => {
@@ -109,7 +111,7 @@ const pauseBeaconPulse = () => {
   })
 };
 
-watch(currentBeacon, (newValue, oldValue) => {
+watch(props.beacon, (newValue, oldValue) => {
   if (newValue.beacon) {
     plotBeacon(newValue.beacon.latitude, newValue.beacon.longitude);
   }
