@@ -1,6 +1,8 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
+import { distance } from '@turf/distance';
+import { point } from '@turf/helpers';
 import { geoToXY } from './geo.js'
 
 function createLocationProvider() {
@@ -34,7 +36,7 @@ function createLocationProvider() {
     },
 
     turfPoint: function() {
-      return turf.point([locationProvider.longitude, locationProvider.latitude]);
+      return point([locationProvider.longitude, locationProvider.latitude]);
     },
 
     relativePosition: function(someLocation) {
@@ -50,7 +52,7 @@ function createLocationProvider() {
     },
 
     distance: function(someLocation, options) {
-      return turf.distance(locationProvider.turfPoint(), someLocation, options);
+      return distance(locationProvider.turfPoint(), someLocation, options);
     },
   };
 

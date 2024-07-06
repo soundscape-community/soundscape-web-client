@@ -8,6 +8,7 @@ import Classic_OffAxis_wav from "/sounds/beacons/Classic/Classic_OffAxis.wav";
 import sense_mobility_wav from "/sounds/sense_mobility.wav";
 import SS_beaconFound2_48k_wav from "/sounds/SS_beaconFound2_48k.wav";
 
+import { point } from '@turf/helpers';
 import { reactive } from 'vue';
 
 const onCourseAngle = 30; // degrees +/- Y axis
@@ -48,7 +49,7 @@ export function createBeacon(
   locationProvider,
   audioQueue,
 ) {
-  const sourceLocation = turf.point([longitude, latitude]);
+  const sourceLocation = point([longitude, latitude]);
   var relativePosition =
     locationProvider.normalizedRelativePosition(sourceLocation);
   var lastAnnouncedDistance = null;

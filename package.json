@@ -11,7 +11,7 @@
     "start": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "mocha --require @babel/register --require test/setup.js",
+    "test": "mocha --require @babel/register",
     "serve-tiles": "node server.js"
   },
   "dependencies": {
@@ -19,7 +19,12 @@
     "@capacitor/camera": "latest",
     "@capacitor/core": "latest",
     "@capacitor/splash-screen": "latest",
-    "@turf/turf": "^7.0.0",
+    "@turf/bbox": "^7.0.0",
+    "@turf/buffer": "^7.0.0",
+    "@turf/centroid": "^7.0.0",
+    "@turf/distance": "^7.0.0",
+    "@turf/helpers": "^7.0.0",
+    "@turf/nearest-point-on-line": "^7.0.0",
     "leaflet": "^1.9.4",
     "vue": "^3.4.31"
   },
