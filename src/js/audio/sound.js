@@ -122,6 +122,14 @@ export function createSpatialPlayer(locationProvider) {
     },
 
     async loadVoices() {
+
+      // for some reason TextToSpeech.getSupportedVoices() is returning an empy array unless that we call getVoices onces. (it smells as a bug in TextToSpeech) 
+      if (window.speechSynthesis) {
+        const synth = window.speechSynthesis;
+        const voices = synth.getVoices();
+        console.debug(voices)
+      }
+
       // Build list of available voices
       return TextToSpeech.getSupportedVoices().then((voices) => {
         // add "voiceIndex" as it is required by the TextToSpeech.speak
@@ -139,7 +147,7 @@ export function createSpatialPlayer(locationProvider) {
         );
 
         // Select the system default voice by default
-        const systemDefaultVoice = player.voices.find((voice) => voice.default) || 0;
+        const systemDefaultVoice = player.voices.find((voice) => voice.default).voiceIndex || 0;
         player.setVoice(systemDefaultVoice);
 
         return player.voices;
