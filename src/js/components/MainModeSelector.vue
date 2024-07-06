@@ -23,7 +23,7 @@
 import mode_exit_wav from "/sounds/mode_exit.wav";
 import mode_enter_wav from "/sounds/mode_enter.wav";
 
-import { inject, ref } from 'vue';
+import { inject, ref, watch } from 'vue';
 import { playSpatialSpeech } from '../audio/sound.js';
 
 const props = defineProps({
@@ -40,12 +40,22 @@ var wakeLock = null;
 // When mode button is clicked:
 //   If a mode is currently active, end that mode
 //   If mode button was different from current mode, start new mode
-async function toggleMode(newMode) {
+function toggleMode(newMode) {
   // required for iOS Safari: first speech must be directly triggered by user action
   playSpatialSpeech(" ");
 
+  if (activeMode.value == newMode) {
+    // exit current mode
+    activeMode.value = null;
+  } else {
+    // enter new mode
+    activeMode.value = newMode;
+  }
+}
+
+watch(activeMode, async (newMode, oldMode) => {
   // Clear queued audio
-  if (activeMode.value) {
+  if (oldMode) {
     audioQueue.stopAndClear();
     audioQueue.addToQueue({ soundUrl: mode_exit_wav });
   }
@@ -58,9 +68,7 @@ async function toggleMode(newMode) {
   props.tracker.stop();
 
   // Stop here if the intent was to end the current mode
-  if (activeMode.value == newMode) {
-    activeMode.value = null;
-
+  if (!newMode) {
     if (wakeLock) {
       // Release the Wake Lock
       wakeLock.release().then(() => {
@@ -70,9 +78,6 @@ async function toggleMode(newMode) {
 
     return;
   }
-
-  // Button clicked was different from current mode -- start new mode
-  activeMode.value = newMode;
 
   // Request a Wake Lock
   if ("wakeLock" in navigator && !wakeLock) {
@@ -114,7 +119,7 @@ async function toggleMode(newMode) {
         })
       break;
   }
-}
+});
 
 // Reacquire Wake Lock when page regains focus
 document.addEventListener("visibilitychange", async () => {
