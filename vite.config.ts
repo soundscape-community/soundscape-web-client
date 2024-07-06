@@ -11,10 +11,8 @@ export default defineConfig({
     minify: false,
     emptyOutDir: true,
     rollupOptions: {
-      // Build both the main site and the activity simulator as separate pages
       input: {
         index: './src/index.html',
-        replay_gpx: './src/replay_gpx.html',
         help: './src/help.html'
       }
     }
