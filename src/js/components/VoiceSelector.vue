@@ -25,9 +25,17 @@ const voices = ref([]);
 const selectedVoice = ref(null);
 
 onMounted(async () => {
+  if (window.speechSynthesis) {
+    // Update voices when they change (and when they initially become available)
+    window.speechSynthesis.onvoiceschanged = reloadVoices;
+  }
+  await reloadVoices();
+});
+
+const reloadVoices = async () => {
   voices.value = await audioQueue.loadVoices();
   selectedVoice.value = audioQueue.voice.voiceIndex;
-});
+};
 
 watch(selectedVoice, (newValue, oldValue) => {
   if (newValue !== null) {
