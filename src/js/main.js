@@ -9,12 +9,10 @@ import {
   createSpatialPlayer,
 } from "./audio/sound.js";
 import createCalloutAnnouncer from "./audio/callout.js";
-import createLocationProvider from "./spatial/location.js";
 
 // Actions to take when page is rendered in full
 document.addEventListener("DOMContentLoaded", function () {
-  const locationProvider = createLocationProvider();
-  const audioQueue = createSpatialPlayer(locationProvider);
+  const audioQueue = createSpatialPlayer();
   const announcer = createCalloutAnnouncer(audioQueue);
 
   audioQueue.loadVoices();
@@ -22,7 +20,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const app = createApp(App);
   app.provide('announcer', announcer);
   app.provide('audioQueue', audioQueue);
-  app.provide('locationProvider', locationProvider);
   app.mount('body');
 
   // iOS Safari workaround to allow audio while mute switch is on

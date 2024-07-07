@@ -1,5 +1,6 @@
 import { getLocation, watchLocation } from "../spatial/geo.js";
 import { startCompassListener } from "../spatial/heading.js";
+import { myLocation } from '../spatial/location.js';
 
 /*
 Implementation of an interface for user position tracking:
@@ -9,21 +10,24 @@ Implementation of an interface for user position tracking:
 */
 
 // Interfaces with device geolocation/orientation sensors.
-export function realTracker(locationProvider, announcer) {
+export function realTracker() {
   let watchPositionHandler = null;
+  let headingHandler = (heading) => {
+    console.log(heading);
+    myLocation.sstHeading(heading.alpha)
+  };
   return {
     start() {
-      startCompassListener(locationProvider.updateOrientation);
-      watchPositionHandler = watchLocation(locationProvider.updateLocation);
+      startCompassListener(headingHandler);
+      watchPositionHandler = watchLocation((latitude, longitude) => {
+        myLocation.setLocation(latitude, longitude);
+    });
     },
 
     stop() {
       if (watchPositionHandler) {
         navigator.geolocation.clearWatch(watchPositionHandler);
-        window.removeEventListener(
-          "deviceorientation",
-          locationProvider.updateOrientation
-        );
+        window.removeEventListener("deviceorientation", headingHandler);
         watchPositionHandler = null;
       }
     },
@@ -32,6 +36,8 @@ export function realTracker(locationProvider, announcer) {
       return new Promise((resolve, reject) => {
         getLocation()
         .then((coords) => {
+          myLocation.setLocation(coords.latitude, coords.longitude);
+          //myLocation.setHeading(0);
           resolve({
             latitude: coords.latitude,
             longitude: coords.longitude,
@@ -53,17 +59,19 @@ export function realTracker(locationProvider, announcer) {
 }
 
 // For testing: simulates being in a fixed location.
-export function fixedTracker(lat, lon, head, locationProvider) {
+export function fixedTracker(lat, lon, head) {
   return {
     start() {
-      locationProvider.updateLocation(lat, lon);
-      locationProvider.updateOrientation({ alpha: head });
+      myLocation.setLocation(lat, lon);
+      myLocation.setHeading(head);
     },
 
     stop() {},  // no-op
 
     async current() {
       return new Promise((resolve, reject) => {
+        myLocation.setLocation(lat, lon);
+        myLocation.setHeading(head);
         resolve({ latitude: lat, longitude: lon, heading: head });
       });
     },

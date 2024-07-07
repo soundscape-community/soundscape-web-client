@@ -4,6 +4,7 @@
 import { ref } from 'vue';
 import { TextToSpeech } from "@capacitor-community/text-to-speech";
 import { createPanner } from "./notabeacon.js";
+import { normalizedRelativePositionTo, distanceTo } from '../spatial/location.js';
 
 export const audioContext = new (window.AudioContext ||
   window.webkitAudioContext)();
@@ -81,11 +82,10 @@ export async function playSpatialSpeech(text, voice, rate, x, y) {
 }
 
 // Function to create a player with a dynamic sequence of spatial sounds and spatial speech
-export function createSpatialPlayer(locationProvider) {
+export function createSpatialPlayer() {
   const player = {
     queue: [],
     isPlaying: false,
-    locationProvider: locationProvider,
 
     // Speech synthesis customization
     voices: null,
@@ -160,7 +160,7 @@ export function createSpatialPlayer(locationProvider) {
     // moved since the audio was queued)
     var relativePosition = { x: 0, y: 0 };
     if (currentItem.location) {
-      relativePosition = player.locationProvider.normalizedRelativePosition(
+      relativePosition = normalizedRelativePositionTo.value(
         currentItem.location
       );
     }
@@ -168,8 +168,7 @@ export function createSpatialPlayer(locationProvider) {
     // Compute current distance to POI (may be greater than proximityThreshold, if user has moved away since it was queued)
     if (currentItem.includeDistance) {
       const units = "feet";
-      const distance = player.locationProvider
-        .distance(currentItem.location, { units: units })
+      const distance = distanceTo.value(currentItem.location, { units: units })
         .toFixed(0);
       currentItem.text += `, ${distance} ${units}`;
     }

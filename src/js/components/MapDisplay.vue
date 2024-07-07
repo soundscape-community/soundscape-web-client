@@ -8,7 +8,6 @@ import * as L from 'leaflet';
 
 const props = defineProps({
   location: Object,
-  orientation: Object,
   beacon: Object,
 })
 
@@ -64,12 +63,12 @@ const plotPoints = (points, radiusMeters) => {
 };
 
 const plotMyLocation = () => {
-  const radiusMeters = 40; //FIXME locationProvider.radiusMeters;
+  const radiusMeters = 40; //FIXME import form location
   plotPoints(
     [{
       latitude: props.location.latitude,
       longitude: props.location.longitude,
-      heading: props.orientation.heading,
+      heading: props.location.heading,
     }],
     radiusMeters
   );
@@ -79,11 +78,6 @@ const plotMyLocation = () => {
 watch(props.location, (newValue, oldValue) => {
   // Map should follow current point
   map.setView([newValue.latitude, newValue.longitude], 16);
-  plotMyLocation();
-});
-
-// Redraw location marker when compass heading changes
-watch(props.location, (newValue, oldValue) => {
   plotMyLocation();
 });
 

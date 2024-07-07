@@ -26,7 +26,6 @@ import { createBeacon, currentBeacon } from '../audio/notabeacon.js';
 import { inject } from 'vue';
 
 const audioQueue = inject('audioQueue');
-const locationProvider = inject('locationProvider');
 
 const props = defineProps({
   callouts: Array,
@@ -43,7 +42,6 @@ const startBeacon = (e) => {
     e.target.getAttribute("data-name"),
     e.target.getAttribute('data-latitude'),
     e.target.getAttribute('data-longitude'),
-    locationProvider,
     audioQueue
   );
   currentBeacon.beacon.start();

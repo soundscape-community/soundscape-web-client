@@ -24,8 +24,6 @@ import { inject, onMounted, ref } from 'vue';
 import { fixedTracker, realTracker } from '../spatial/tracker.js';
 
 const audioQueue = inject('audioQueue');
-const locationProvider = inject('locationProvider');
-const announcer= inject('announcer');
 
 var tracker = ref(null);
 
@@ -36,9 +34,9 @@ onMounted(() => {
   var lon = parseFloat(params.get("lon"));
   var head = parseFloat(params.get("heading"));
   if (!isNaN(lat) && !isNaN(lon) && !isNaN(head)) {
-    tracker.value = fixedTracker(lat, lon, head, locationProvider);
+    tracker.value = fixedTracker(lat, lon, head);
   } else {
-    tracker.value = realTracker(locationProvider, announcer);
+    tracker.value = realTracker();
   }
 });
 </script>

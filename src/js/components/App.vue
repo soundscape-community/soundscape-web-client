@@ -2,8 +2,7 @@
   <component :is="toolbar" />    
   <main>
     <MapDisplay
-      :location="location"
-      :orientation="orientation"
+      :location="myLocation"
       :beacon="currentBeacon"
     />
     <CalloutList :callouts="recentCallouts" />
@@ -17,7 +16,7 @@ import MapDisplay from './MapDisplay.vue';
 import ToolbarGPX from './ToolbarGPX.vue';
 import ToolbarMain from './ToolbarMain.vue';
 import { currentBeacon } from '../audio/notabeacon.js';
-import { location, orientation } from '../spatial/location.js';
+import { myLocation } from '../spatial/location.js';
 import { recentCallouts } from '../audio/sound.js';
 
 const gpxMode = ref(false);

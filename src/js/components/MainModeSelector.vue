@@ -32,7 +32,6 @@ const props = defineProps({
 
 const announcer = inject('announcer');
 const audioQueue = inject('audioQueue');
-const locationProvider = inject('locationProvider');
 
 const activeMode = ref(null);
 var wakeLock = null;
@@ -61,10 +60,7 @@ watch(activeMode, async (newMode, oldMode) => {
   }
 
   // Remove any location and orientation change event handlers
-  locationProvider.events.removeEventListener(
-    "locationUpdated",
-    announcer.locationChanged
-  );
+  announcer.stopWatching()
   props.tracker.stop();
 
   // Stop here if the intent was to end the current mode
@@ -101,19 +97,13 @@ watch(activeMode, async (newMode, oldMode) => {
 
   switch (newMode) {
     case "callouts":
-      locationProvider.events.addEventListener(
-        "locationUpdated",
-        announcer.locationChanged
-      );
+      announcer.startWatching();
       props.tracker.start();
       break;
 
     case "near_me":
       props.tracker.current()
         .then((coords) => {
-          locationProvider.updateLocation(coords.latitude, coords.longitude);
-          locationProvider.updateOrientation({ alpha: coords.heading });
-
           announcer.calloutNearestRoad(coords.latitude, coords.longitude);
           announcer.calloutAllFeaturesOrSayNoneFound(coords.latitude, coords.longitude);
         })
