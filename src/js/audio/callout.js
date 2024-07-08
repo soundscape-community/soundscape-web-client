@@ -1,8 +1,8 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-import sense_mobility_wav from "/sounds/sense_mobility.wav";
-import sense_poi_wav from "/sounds/sense_poi.wav";
+import sense_mobility_wav from "/src/sounds/sense_mobility.wav";
+import sense_poi_wav from "/src/sounds/sense_poi.wav";
 
 import { centroid } from '@turf/centroid';
 import { nearestPointOnLine } from '@turf/nearest-point-on-line';

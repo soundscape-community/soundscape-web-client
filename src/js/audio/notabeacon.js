@@ -3,10 +3,10 @@
 
 // This file is called "notabeacon.js" because "beacon.js" is blocked by some ad blockers.
 
-import Classic_OnAxis_wav from "/sounds/beacons/Classic/Classic_OnAxis.wav";
-import Classic_OffAxis_wav from "/sounds/beacons/Classic/Classic_OffAxis.wav";
-import sense_mobility_wav from "/sounds/sense_mobility.wav";
-import SS_beaconFound2_48k_wav from "/sounds/SS_beaconFound2_48k.wav";
+import Classic_OnAxis_wav from "/src/sounds/beacons/Classic/Classic_OnAxis.wav";
+import Classic_OffAxis_wav from "/src/sounds/beacons/Classic/Classic_OffAxis.wav";
+import sense_mobility_wav from "/src/sounds/sense_mobility.wav";
+import SS_beaconFound2_48k_wav from "/src/sounds/SS_beaconFound2_48k.wav";
 
 import { point } from '@turf/helpers';
 import { reactive, watch } from 'vue';
