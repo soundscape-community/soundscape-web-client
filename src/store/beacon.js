@@ -3,14 +3,14 @@
 
 // This file is called "notabeacon.js" because "beacon.js" is blocked by some ad blockers.
 
-import Classic_OnAxis_wav from "/src/sounds/beacons/Classic/Classic_OnAxis.wav";
-import Classic_OffAxis_wav from "/src/sounds/beacons/Classic/Classic_OffAxis.wav";
-import sense_mobility_wav from "/src/sounds/sense_mobility.wav";
-import SS_beaconFound2_48k_wav from "/src/sounds/SS_beaconFound2_48k.wav";
+import Classic_OnAxis_wav from "/assets/sounds/beacons/Classic/Classic_OnAxis.wav";
+import Classic_OffAxis_wav from "/assets/sounds/beacons/Classic/Classic_OffAxis.wav";
+import sense_mobility_wav from "/assets/sounds/sense_mobility.wav";
+import SS_beaconFound2_48k_wav from "/assets/sounds/SS_beaconFound2_48k.wav";
 
 import { point } from '@turf/helpers';
 import { reactive, watch } from 'vue';
-import { myLocation, distanceTo, normalizedRelativePositionTo } from '../spatial/location.js';
+import { myLocation, distanceTo, normalizedRelativePositionTo } from '../store/location.js';
 
 const onCourseAngle = 30; // degrees +/- Y axis
 const foundProximityMeters = 10; // proximity to auto-stop beacon

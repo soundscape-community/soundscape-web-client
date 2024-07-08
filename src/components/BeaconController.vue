@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import { currentBeacon } from '../audio/notabeacon.js';
+import { currentBeacon } from '../store/beacon.js';
 
 const toggleBeacon = () => {
   if (currentBeacon.beacon) {

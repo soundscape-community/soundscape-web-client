@@ -1,14 +1,14 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 import { createApp } from 'vue';
-import App from './components/App.vue';
+import App from './App.vue';
 
 import unmute from "./vendor/unmute.js";
 import {
   audioContext,
   createSpatialPlayer,
-} from "./audio/sound.js";
-import createCalloutAnnouncer from "./audio/callout.js";
+} from "./utils/sound.js";
+import createCalloutAnnouncer from "./utils/callout.js";
 
 // Actions to take when page is rendered in full
 document.addEventListener("DOMContentLoaded", function () {

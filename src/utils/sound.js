@@ -3,8 +3,8 @@
 
 import { ref } from 'vue';
 import { TextToSpeech } from "@capacitor-community/text-to-speech";
-import { createPanner } from "./notabeacon.js";
-import { normalizedRelativePositionTo, distanceTo } from '../spatial/location.js';
+import { createPanner } from "../store/beacon.js";
+import { normalizedRelativePositionTo, distanceTo } from '../store/location.js';
 
 export const audioContext = new (window.AudioContext ||
   window.webkitAudioContext)();

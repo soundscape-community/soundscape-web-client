@@ -1,6 +1,5 @@
-import { getLocation, watchLocation } from "../spatial/geo.js";
-import { startCompassListener } from "../spatial/heading.js";
-import { myLocation } from '../spatial/location.js';
+import { startCompassListener } from "./heading.js";
+import { myLocation } from '../store/location.js';
 
 /*
 Implementation of an interface for user position tracking:
@@ -13,8 +12,7 @@ Implementation of an interface for user position tracking:
 export function realTracker() {
   let watchPositionHandler = null;
   let headingHandler = (heading) => {
-    console.log(heading);
-    myLocation.sstHeading(heading.alpha)
+    myLocation.setHeading(heading);
   };
   return {
     start() {
@@ -79,4 +77,54 @@ export function fixedTracker(lat, lon, head) {
       });
     },
   };
+}
+
+function getLocation(callback) {
+  return new Promise((resolve, reject) => {
+    // Check if the Geolocation API is supported
+    if ("geolocation" in navigator) {
+      // Request the current position
+      navigator.geolocation.getCurrentPosition(
+        function (position) {
+          resolve({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            heading: position.coords.heading || 0,  // not available on all platforms
+          });
+        },
+        function (error) {
+          // Reject the Promise with the error message
+          reject("Error getting current position: " + error.message);
+        }
+      );
+    } else {
+      // Reject the Promise if Geolocation API is not supported
+      reject("Geolocation is not supported by this browser");
+    }
+  });
+}
+
+function watchLocation(callback) {
+  return navigator.geolocation.watchPosition(
+    function (position) {
+      console.log(position);
+      callback(
+        position.coords.latitude,
+        position.coords.longitude,
+        position.coords.heading,
+      );
+    },
+    function (error) {
+      if (error.code == error.PERMISSION_DENIED) {
+        alert("Could not get your location. If you did not see a permission request, make sure your browser is not configured to always block location services.")
+      } else {
+        console.error("Error getting current position: " + error.message);
+      }
+    },
+    {
+      enableHighAccuracy: false,
+      timeout: 5000,
+      maximumAge: 0,
+    }
+  );
 }

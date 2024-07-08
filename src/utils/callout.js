@@ -1,15 +1,15 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-import sense_mobility_wav from "/src/sounds/sense_mobility.wav";
-import sense_poi_wav from "/src/sounds/sense_poi.wav";
+import sense_mobility_wav from "/assets/sounds/sense_mobility.wav";
+import sense_poi_wav from "/assets/sounds/sense_poi.wav";
 
 import { centroid } from '@turf/centroid';
 import { nearestPointOnLine } from '@turf/nearest-point-on-line';
-import cache from "../data/cache.js";
-import { enumerateTilesAround } from "../data/tile.js";
+import cache from "../store/cache.js";
+import { enumerateTilesAround } from "../utils/tile.js";
 import { watch } from 'vue';
-import { myLocation, myTurfPoint, distanceTo } from '../spatial/location.js';
+import { myLocation, myTurfPoint, distanceTo } from '../store/location.js';
 
 function createCalloutAnnouncer(audioQueue) {
   // Avoid repeating myself, by maintaining a list of the most recent POIs announced

@@ -77,8 +77,10 @@ const plotMyLocation = () => {
 // Register for updates to location
 watch(props.location, (newValue, oldValue) => {
   // Map should follow current point
-  map.setView([newValue.latitude, newValue.longitude], 16);
-  plotMyLocation();
+  if (newValue.latitude && newValue.longitude) {
+    map.setView([newValue.latitude, newValue.longitude], 16);
+    plotMyLocation();
+  }
 });
 
 const plotBeacon = (lat, lon) => {
