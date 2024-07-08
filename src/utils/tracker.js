@@ -13,7 +13,7 @@ export function realTracker() {
   let watchPositionHandler = null;
   let headingHandler = (heading) => {
     console.log(heading);
-    myLocation.sstHeading(heading.alpha)
+    myLocation.setHeading(heading.alpha)
   };
   return {
     start() {
