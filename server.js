@@ -14,8 +14,14 @@ const __dirname = path.dirname(__filename);
 // Log all requested URLs to the console.
 app.use(morgan("dev"));
 
-// Serve static files from the root directory
-app.use(express.static(path.join(__dirname, "dist")));
+// Serve static files from soundscape-web-client so we can moke the real server
+app.get("/", function (req, res) {
+  res.redirect("/soundscape-web-client");
+});
+app.use(
+  "/soundscape-web-client",
+  express.static(path.join(__dirname, "dist"))
+);
 
 // Proxy handler
 const proxyHandler = async (req, res) => {
@@ -45,5 +51,7 @@ const proxyHandler = async (req, res) => {
 app.use("/tiles/*", proxyHandler);
 
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(
+    `Server is running on http://localhost:${port}/soundscape-web-client/`
+  );
 });

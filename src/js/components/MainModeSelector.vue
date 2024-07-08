@@ -20,8 +20,8 @@
 </template>
 
 <script setup>
-import mode_exit_wav from "/sounds/mode_exit.wav";
-import mode_enter_wav from "/sounds/mode_enter.wav";
+import mode_exit_wav from "/src/sounds/mode_exit.wav";
+import mode_enter_wav from "/src/sounds/mode_enter.wav";
 
 import { inject, ref } from 'vue';
 import { playSpatialSpeech } from '../audio/sound.js';
