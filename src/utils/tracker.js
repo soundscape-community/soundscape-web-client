@@ -31,6 +31,9 @@ export function realTracker() {
     },
 
     async current() {
+      // Need compass for positional audio regardless of location tracking
+      startCompassListener(headingHandler);
+
       return new Promise((resolve, reject) => {
         getLocation()
         .then((coords) => {

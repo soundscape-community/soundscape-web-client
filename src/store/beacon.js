@@ -56,13 +56,14 @@ export function createBeacon(
   const audioContext = new (window.AudioContext || window.webkitAudioContext)();
   const panner = createPanner(audioContext);
 
-  // For smooth transitions between "on" and "off" beacons, we keep two audio elements
-  // constantly looping, and selectively mute one or the other.
+  // Ideally, for smooth transitions between "on" and "off" beacons, we would 
+  // keep two audio elements constantly looping, and selectively mute one or
+  // the other. But iOS Safari doesn't allow volume to be set by JS, so we
+  // keep one paused while the other plays.
 
   const onCourse = new Audio(Classic_OnAxis_wav);
   const offCourse = new Audio(Classic_OffAxis_wav);
   onCourse.loop = true;
-  onCourse.volume = 0;
   offCourse.loop = true;
 
   const onCourseSource = audioContext.createMediaElementSource(onCourse);
@@ -103,11 +104,11 @@ export function createBeacon(
       const angle =
         (Math.atan2(relativePosition.x, relativePosition.y) * 180) / Math.PI;
       if (Math.abs(angle) < onCourseAngle) {
-        onCourse.volume = 1.0;
-        offCourse.volume = 0;
+        onCourse.play();
+        offCourse.pause();
       } else {
-        onCourse.volume = 0;
-        offCourse.volume = 1.0;
+        onCourse.pause();
+        offCourse.play();
       }
     },
 
