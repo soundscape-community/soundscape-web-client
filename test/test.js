@@ -2,7 +2,7 @@ import { expect } from "chai";
 import {
   createBoundingBox,
   latLonToTileCoords,
-} from "../src/utils/geo.js";
+} from "../src/utils/tile.js";
 
 describe("createBoundingBox", () => {
   it("should create a half-kilometer bounding box around a point", () => {
