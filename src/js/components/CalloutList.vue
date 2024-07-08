@@ -3,7 +3,7 @@
     <BeaconController />
 
     <ul id="recentCalloutsList">
-      <li v-for="callout in calloutsList.slice(0, 25)">
+      <li v-for="callout in callouts.slice(0, 25)">
         <button
           title="Start beacon"
           class="beacon-button"
@@ -22,14 +22,14 @@
 
 <script setup>
 import BeaconController from './BeaconController.vue'
-import { recentCallouts } from '../audio/sound.js';
 import { createBeacon, currentBeacon } from '../audio/notabeacon.js';
 import { inject } from 'vue';
 
 const audioQueue = inject('audioQueue');
-const locationProvider = inject('locationProvider');
 
-const calloutsList = recentCallouts;
+const props = defineProps({
+  callouts: Array,
+})
 
 const startBeacon = (e) => {
   // Stop old beacon
@@ -42,7 +42,6 @@ const startBeacon = (e) => {
     e.target.getAttribute("data-name"),
     e.target.getAttribute('data-latitude'),
     e.target.getAttribute('data-longitude'),
-    locationProvider,
     audioQueue
   );
   currentBeacon.beacon.start();

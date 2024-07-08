@@ -49,11 +49,11 @@ import InputSpinner from './InputSpinner.vue';
 import cache from '../data/cache.js';
 import { recentCallouts } from '../audio/sound.js';
 import replayGPX from '../spatial/gpx.js';
+import { myLocation } from '../spatial/location.js';
 import { inject, ref } from 'vue';
 
 const audioQueue = inject('audioQueue');
 const announcer = inject('announcer');
-const locationProvider = inject('locationProvider');
 
 const playing = ref(false);
 const sliderPosition = ref(0);
@@ -78,7 +78,7 @@ const fileChanged = (event) => {
 
     gpxPlayer = replayGPX(file, {
       // When GPX file has been loadedm trigger draw map at first point
-      loadedCallback: (firstPoint) => locationProvider.updateLocation(firstPoint.lat, firstPoint.lon),
+      loadedCallback: (firstPoint) => myLocation.setLocation(firstPoint.lat, firstPoint.lon),
       // When GPX finishes playing, toggle to paused state and reset slider
       finishedCallback: () => {
         playPause();
@@ -86,8 +86,8 @@ const fileChanged = (event) => {
         gpxPlayer.updateSlider();
       },
       pointCallback: (point) => {
-        locationProvider.updateOrientation(point.heading);
-        locationProvider.updateLocation(point.lat, point.lon);
+        myLocation.setHeading(point.heading);
+        myLocation.setLocation(point.lat, point.lon);
 
         // Update the slider when a new point is parsed
         gpxPlayer.updateSlider();
@@ -106,12 +106,12 @@ const playPause = () => {
     // Toggle play/pause
     if (!playing.value) {
       // Start triggering audio callouts
-      locationProvider.events.addEventListener('locationUpdated', announcer.locationChanged)
+      announcer.startWatching();
       gpxPlayer.play();
       playing.value = true;
     } else {
       // Strop triggering audio callouts
-      locationProvider.events.removeEventListener('locationUpdated', announcer.locationChanged);
+      announcer.stopWatching();
       audioQueue.stopAndClear();
       gpxPlayer.pause();
       playing.value = false;

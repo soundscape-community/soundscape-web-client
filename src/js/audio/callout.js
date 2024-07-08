@@ -8,6 +8,8 @@ import { centroid } from '@turf/centroid';
 import { nearestPointOnLine } from '@turf/nearest-point-on-line';
 import cache from "../data/cache.js";
 import { enumerateTilesAround } from "../data/tile.js";
+import { watch } from 'vue';
+import { myLocation, myTurfPoint, distanceTo } from '../spatial/location.js';
 
 function createCalloutAnnouncer(audioQueue) {
   // Avoid repeating myself, by maintaining a list of the most recent POIs announced
@@ -66,14 +68,14 @@ function createCalloutAnnouncer(audioQueue) {
       case "LineString": // e.g. roads
         feature.point = nearestPointOnLine(
           feature,
-          audioQueue.locationProvider.turfPoint(),
+          myTurfPoint.value,
           { units: "meters" }
         );
         break;
       default: // buildings, landmarks, etc.
         feature.point = centroid(feature.geometry);
     }
-    feature.distance = audioQueue.locationProvider.distance(feature.point, {
+    feature.distance = distanceTo.value(feature.point, {
       units: "meters",
     });
 
@@ -170,7 +172,7 @@ function createCalloutAnnouncer(audioQueue) {
     // Returns true if anything was queued for speaking
     calloutAllFeatures: (latitude, longitude) => {
       // Use 2x wider radius than standard location updates
-      const radiusMeters = 2 * audioQueue.locationProvider.radiusMeters;
+      const radiusMeters = 2 * myLocation.radiusMeters;
       return announcer
         .nearbyFeatures(latitude, longitude, radiusMeters)
         .then((fs) => {
@@ -180,9 +182,22 @@ function createCalloutAnnouncer(audioQueue) {
         });
     },
 
+    // Same as above, but says a message if no features were announced
+    calloutAllFeaturesOrSayNoneFound: (latitude, longitude) => {
+      announcer
+        .calloutAllFeatures(latitude, longitude)
+        .then((anythingToSay) => {
+          if (!anythingToSay) {
+            audioQueue.addToQueue({
+              text: "Nothing to call out right now",
+            });
+          }
+        });
+    },
+
     // Announce only features not already called out (useful for continuous tracking)
     calloutNewFeatures: (latitude, longitude) => {
-      const radiusMeters = audioQueue.locationProvider.radiusMeters;
+      const radiusMeters = myLocation.radiusMeters;
       announcer.nearbyFeatures(latitude, longitude, radiusMeters).then((fs) => {
         // Omit features already announced
         fs.filter((f) => !spokenRecently.has(f.osm_ids)).forEach((f) =>
@@ -192,7 +207,7 @@ function createCalloutAnnouncer(audioQueue) {
     },
 
     calloutNearestRoad: (latitude, longitude) => {
-      const radiusMeters = audioQueue.locationProvider.radiusMeters;
+      const radiusMeters = myLocation.radiusMeters;
       announcer.nearbyRoads(latitude, longitude, radiusMeters).then((roads) => {
         if (roads.length > 0) {
           playSoundAndSpeech(
@@ -205,11 +220,19 @@ function createCalloutAnnouncer(audioQueue) {
       });
     },
 
-    locationChanged: (event) => {
-      return announcer.calloutNewFeatures(
-        event.detail.latitude,
-        event.detail.longitude
-      );
+    unwatch: null,
+    startWatching: () => {
+      announcer.unwatch = watch(myLocation, (newValue, oldValue) => {
+        return announcer.calloutNewFeatures(
+          myLocation.latitude,
+          myLocation.longitude
+        );
+      })
+    },
+    stopWatching: () => {
+      if (announcer.unwatch) {
+        announcer.unwatch();
+      };
     },
   };
 

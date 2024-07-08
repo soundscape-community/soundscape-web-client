@@ -3,60 +3,45 @@
 
 import { distance } from '@turf/distance';
 import { point } from '@turf/helpers';
-import { geoToXY } from './geo.js'
+import { geoToXY } from './geo.js';
+import { computed, reactive } from 'vue';
 
-function createLocationProvider() {
-  var locationProvider = {
-    radiusMeters: 40,  //TODO make this dynamic based on speed
-    heading: null,
-    events: new EventTarget(),
+export const myLocation = reactive({
+  latitude: null,
+  longitude: null,
+  heading: null,
+  radiusMeters: 40,
 
-    updateLocation: function(latitude, longitude) {
-      locationProvider.latitude = latitude;
-      locationProvider.longitude = longitude;
+  setLocation(latitude, longitude) {
+    this.latitude = latitude;
+    this.longitude = longitude;
+  },
 
-      // Trigger all event listeners
-      const updateEvent = new CustomEvent('locationUpdated', {
-        detail: {
-          latitude: locationProvider.latitude,
-          longitude: locationProvider.longitude,
-        }
-      });
-      locationProvider.events.dispatchEvent(updateEvent);
-    },
+  setHeading(heading) {
+    this.heading = heading;
+  },
+});
 
-    updateOrientation: function(heading) {
-      locationProvider.heading = heading;
+export const myTurfPoint = computed(() => {
+  return point([myLocation.longitude, myLocation.latitude]);
+});
 
-      // Trigger all event listeners
-      const updateEvent = new CustomEvent('orientationUpdated', {
-        detail: { heading: locationProvider.heading, }
-      });
-      locationProvider.events.dispatchEvent(updateEvent);
-    },
+export const relativePositionTo = computed(() => {
+  return (someLocation) => geoToXY(myTurfPoint.value, myLocation.heading, someLocation);
+});
 
-    turfPoint: function() {
-      return point([locationProvider.longitude, locationProvider.latitude]);
-    },
-
-    relativePosition: function(someLocation) {
-      return geoToXY(locationProvider.turfPoint(), locationProvider.heading, someLocation);
-    },
-
-    // Relative position normalized to the unit circle
-    // Useful for audio sources that are based on angle, not distance (like beacons)
-    normalizedRelativePosition: function(someLocation) {
-      let {x, y} = locationProvider.relativePosition(someLocation);
-      let angle = Math.atan2(x, y);
-      return { x: Math.sin(angle), y: Math.cos(angle) };
-    },
-
-    distance: function(someLocation, options) {
-      return distance(locationProvider.turfPoint(), someLocation, options);
-    },
+// Relative position normalized to the unit circle
+// Useful for audio sources that are based on angle, not distance (like beacons)
+export const normalizedRelativePositionTo = computed(() => {
+  return (someLocation) => {
+    let {x, y} = relativePositionTo.value(someLocation);
+    let angle = Math.atan2(x, y);
+    return { x: Math.sin(angle), y: Math.cos(angle) };
   };
+});
 
-  return locationProvider;
-}
-
-export default createLocationProvider;
+export const distanceTo = computed(() => {
+  return (someLocation, options) => {
+    return distance(myTurfPoint.value, someLocation, options);
+  };
+});

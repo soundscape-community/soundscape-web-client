@@ -9,7 +9,8 @@ import sense_mobility_wav from "/src/sounds/sense_mobility.wav";
 import SS_beaconFound2_48k_wav from "/src/sounds/SS_beaconFound2_48k.wav";
 
 import { point } from '@turf/helpers';
-import { reactive } from 'vue';
+import { reactive, watch } from 'vue';
+import { myLocation, distanceTo, normalizedRelativePositionTo } from '../spatial/location.js';
 
 const onCourseAngle = 30; // degrees +/- Y axis
 const foundProximityMeters = 10; // proximity to auto-stop beacon
@@ -46,12 +47,10 @@ export function createBeacon(
   name,
   latitude,
   longitude,
-  locationProvider,
   audioQueue,
 ) {
   const sourceLocation = point([longitude, latitude]);
-  var relativePosition =
-    locationProvider.normalizedRelativePosition(sourceLocation);
+  var relativePosition = normalizedRelativePositionTo.value(sourceLocation);
   var lastAnnouncedDistance = null;
 
   const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -115,11 +114,10 @@ export function createBeacon(
     recomputePosition: () => {
       // Reevaluate how on-course we are
       if (beacon.isEnabled()) {
-        relativePosition =
-          locationProvider.normalizedRelativePosition(sourceLocation);
+        relativePosition = normalizedRelativePositionTo.value(sourceLocation);
         panner.setCoordinates(relativePosition.x, relativePosition.y);
 
-        const distanceMeters = locationProvider.distance(sourceLocation, {
+        const distanceMeters = distanceTo.value(sourceLocation, {
           units: "meters",
         });
         if (distanceMeters < foundProximityMeters) {
@@ -139,15 +137,7 @@ export function createBeacon(
     },
   };
 
-  // Hook up listeners
-  locationProvider.events.addEventListener(
-    "locationUpdated",
-    beacon.recomputePosition
-  );
-  locationProvider.events.addEventListener(
-    "orientationUpdated",
-    beacon.recomputePosition
-  );
+  watch(myLocation, beacon.recomputePosition);
 
   return beacon;
 }
