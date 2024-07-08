@@ -21,7 +21,7 @@ import MainModeSelector from './MainModeSelector.vue';
 import InputSpinner from './InputSpinner.vue';
 import VoiceSelector from './VoiceSelector.vue';
 import { inject, onMounted, ref } from 'vue';
-import { fixedTracker, realTracker } from '../spatial/tracker.js';
+import { fixedTracker, realTracker } from '../utils/tracker.js';
 
 const audioQueue = inject('audioQueue');
 

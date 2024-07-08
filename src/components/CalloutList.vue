@@ -22,7 +22,7 @@
 
 <script setup>
 import BeaconController from './BeaconController.vue'
-import { createBeacon, currentBeacon } from '../audio/notabeacon.js';
+import { createBeacon, currentBeacon } from '../store/beacon.js';
 import { inject } from 'vue';
 
 const audioQueue = inject('audioQueue');

@@ -11,13 +11,13 @@
 
 <script setup>
 import { computed, ref, onMounted } from 'vue';
-import CalloutList from './CalloutList.vue';
-import MapDisplay from './MapDisplay.vue';
-import ToolbarGPX from './ToolbarGPX.vue';
-import ToolbarMain from './ToolbarMain.vue';
-import { currentBeacon } from '../audio/notabeacon.js';
-import { myLocation } from '../spatial/location.js';
-import { recentCallouts } from '../audio/sound.js';
+import CalloutList from './components/CalloutList.vue';
+import MapDisplay from './components/MapDisplay.vue';
+import ToolbarGPX from './components/ToolbarGPX.vue';
+import ToolbarMain from './components/ToolbarMain.vue';
+import { currentBeacon } from './store/beacon.js';
+import { myLocation } from './store/location.js';
+import { recentCallouts } from './utils/sound.js';
 
 const gpxMode = ref(false);
 

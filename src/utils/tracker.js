@@ -1,6 +1,6 @@
-import { getLocation, watchLocation } from "../spatial/geo.js";
-import { startCompassListener } from "../spatial/heading.js";
-import { myLocation } from '../spatial/location.js';
+import { getLocation, watchLocation } from "./geo.js";
+import { startCompassListener } from "./heading.js";
+import { myLocation } from '../store/location.js';
 
 /*
 Implementation of an interface for user position tracking:

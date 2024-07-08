@@ -20,11 +20,11 @@
 </template>
 
 <script setup>
-import mode_exit_wav from "/src/sounds/mode_exit.wav";
-import mode_enter_wav from "/src/sounds/mode_enter.wav";
+import mode_exit_wav from "/assets/sounds/mode_exit.wav";
+import mode_enter_wav from "/assets/sounds/mode_enter.wav";
 
 import { inject, ref, watch } from 'vue';
-import { playSpatialSpeech } from '../audio/sound.js';
+import { playSpatialSpeech } from '../utils/sound.js';
 
 const props = defineProps({
   tracker: Object,

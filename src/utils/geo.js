@@ -3,8 +3,8 @@
 import { bbox } from '@turf/bbox';
 import { buffer} from '@turf/buffer';
 import { point } from '@turf/helpers';
-import cache from '../data/cache.js'
-import { enumerateTilesAround } from '../data/tile.js'
+import cache from '../store/cache.js'
+import { enumerateTilesAround } from '../utils/tile.js'
 
 // Function to create a half-kilometer bounding box around a point
 export function createBoundingBox(latitude, longitude, radiusMeters) {

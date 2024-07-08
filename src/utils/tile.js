@@ -1,9 +1,9 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-import cache from './cache.js'
+import cache from '../store/cache.js'
 import config from '../config.js'
-import { createBoundingBox, enumerateTilesInBoundingBox } from '../spatial/geo.js'
+import { createBoundingBox, enumerateTilesInBoundingBox } from './geo.js'
 
 export const zoomLevel = 16;
 

@@ -3,7 +3,7 @@
 
 import { distance } from '@turf/distance';
 import { point } from '@turf/helpers';
-import { geoToXY } from './geo.js';
+import { geoToXY } from '../utils/geo.js';
 import { computed, reactive } from 'vue';
 
 export const myLocation = reactive({
