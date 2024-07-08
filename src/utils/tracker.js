@@ -12,8 +12,7 @@ Implementation of an interface for user position tracking:
 export function realTracker() {
   let watchPositionHandler = null;
   let headingHandler = (heading) => {
-    console.log(heading);
-    myLocation.setHeading(heading.alpha)
+    myLocation.setHeading(heading);
   };
   return {
     start() {
