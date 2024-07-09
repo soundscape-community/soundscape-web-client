@@ -9,142 +9,127 @@ import sense_mobility_wav from "/assets/sounds/sense_mobility.wav";
 import SS_beaconFound2_48k_wav from "/assets/sounds/SS_beaconFound2_48k.wav";
 
 import { point } from '@turf/helpers';
-import { reactive, watch } from 'vue';
-import { myLocation, distanceTo, normalizedRelativePositionTo } from '../store/location.js';
+import { computed, reactive, watch } from 'vue';
+import { distanceTo, normalizedRelativePositionTo } from '../store/location.js';
+import { audioQueue, createPanner } from '../utils/sound.js';
 
 const onCourseAngle = 30; // degrees +/- Y axis
 const foundProximityMeters = 10; // proximity to auto-stop beacon
 const announceEveryMeters = 50;
 
-// Create a WebAudio panner with the settings that will be used by both
-// beacons and callouts.
-// https://developer.mozilla.org/en-US/docs/Web/API/PannerNode
-export function createPanner(audioContext) {
-  const panner = audioContext.createPanner();
-  panner.panningModel = "HRTF";
-  // Keep a constant volume regardless of distance from source.
-  panner.distanceModel = "inverse";
-  panner.refDistance = 1;
-  panner.maxDistance = 1;
-  panner.rolloffFactor = 1;
-  // Ignore the direction the source is pointing.
-  panner.coneInnerAngle = 360;
-  panner.coneOuterAngle = 0;
-  panner.coneOuterGain = 0;
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+const panner = createPanner(audioContext);
 
-  panner.setCoordinates = (x, y) => {
-    panner.positionX.value = x;
-    // Note that the panner's axes are *not* the same axes as ours,
-    // namely that Y is up/down, and Z is forward/backward.
-    panner.positionY.value = 0;
-    panner.positionZ.value = y;
-  };
+// Ideally, for smooth transitions between "on" and "off" beacons, we would 
+// keep two audio elements constantly looping, and selectively mute one or
+// the other. But iOS Safari doesn't allow volume to be set by JS, so we
+// keep one paused while the other plays.
 
-  return panner;
-}
+const onCourse = new Audio(Classic_OnAxis_wav);
+const offCourse = new Audio(Classic_OffAxis_wav);
+onCourse.loop = true;
+offCourse.loop = true;
 
-export function createBeacon(
-  name,
-  latitude,
-  longitude,
-  audioQueue,
-) {
-  const sourceLocation = point([longitude, latitude]);
-  var relativePosition = normalizedRelativePositionTo.value(sourceLocation);
-  var lastAnnouncedDistance = null;
+const onCourseSource = audioContext.createMediaElementSource(onCourse);
+const offCourseSource = audioContext.createMediaElementSource(offCourse);
+onCourseSource.connect(panner);
+offCourseSource.connect(panner);
+panner.connect(audioContext.destination);
 
-  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  const panner = createPanner(audioContext);
+export const beacon = reactive({
+  name: null,
+  latitude: null,
+  longitude: null,
+  lastAnnouncedDistance: null,
+  enabled: false,
 
-  // Ideally, for smooth transitions between "on" and "off" beacons, we would 
-  // keep two audio elements constantly looping, and selectively mute one or
-  // the other. But iOS Safari doesn't allow volume to be set by JS, so we
-  // keep one paused while the other plays.
+  set(name, latitude, longitude) {
+    this.name = name;
+    this.latitude = latitude;
+    this.longitude = longitude;
+    this.lastAnnouncedDistance = null;
+  },
+  clear() { this.set(null, null, null); },
+  start() {
+    this.enabled = true;
+    looper.start();
+  },
+  stop() {
+    this.enabled = false;
+    looper.stop();
+  },
+});
 
-  const onCourse = new Audio(Classic_OnAxis_wav);
-  const offCourse = new Audio(Classic_OffAxis_wav);
-  onCourse.loop = true;
-  offCourse.loop = true;
+// Turf.js point of the beacon's location
+const sourceLocation = computed(
+  () => beacon.enabled ? point([beacon.longitude, beacon.latitude]) : null
+);
 
-  const onCourseSource = audioContext.createMediaElementSource(onCourse);
-  const offCourseSource = audioContext.createMediaElementSource(offCourse);
-  onCourseSource.connect(panner);
-  offCourseSource.connect(panner);
-  panner.connect(audioContext.destination);
+// Distance we are currently from the beacon
+const distanceMeters = computed(
+  () => beacon.enabled ? distanceTo.value(sourceLocation.value, { units: "meters", }) : null
+);
 
-  var beacon = {
-    name: name,
-    latitude: latitude,
-    longitude: longitude,
-    start: () => {
-      onCourse.play();
-      offCourse.play();
-    },
+// Beacon's X/Y coordinates relative to us (standing at the origin, looking up Y axis)
+const relativePosition = computed(
+  () => beacon.enabled ? normalizedRelativePositionTo.value(sourceLocation.value) : null
+);
 
-    stop: () => {
-      onCourse.pause();
-      offCourse.pause();
-    },
+// Set the beacon sound effect spatial position.
+watch(relativePosition, (newValue, oldVAlue) => {
+  beacon.enabled ? panner.setCoordinates(newValue.x, newValue.y) : null;
+});
 
-    isEnabled: () => !onCourse.paused || !offCourse.paused,
+// True if we are roughly facing the beacon, +/- onCourseAngle
+const isOnCourse = computed(() => {
+  if (!beacon.enabled) return false;
+  const angle = Math.atan2(
+    relativePosition.value.x,
+    relativePosition.value.y
+  ) * 180 / Math.PI;
+  return (Math.abs(angle) < onCourseAngle);
+});
 
-    announceDistance: (distanceMeters) => {
-      // Only announce if not actively playing something else (distance would be stale if queued)
-      if (!audioQueue.isPlaying) {
-        lastAnnouncedDistance = distanceMeters;
-        audioQueue.addToQueue({ soundUrl: sense_mobility_wav });
-        audioQueue.addToQueue({
-          text: `Beacon: ${distanceMeters.toFixed(0)} meters`,
-        });
-      }
-    },
-
-    setOnOffCourse: (relativePosition) => {
-      // Transition between "on" and "off" beacons
-      const angle =
-        (Math.atan2(relativePosition.x, relativePosition.y) * 180) / Math.PI;
-      if (Math.abs(angle) < onCourseAngle) {
+// Loop beacon audio, which changes based on how on-/off-course we are.
+const looper = {
+  intervalId: null,
+  start() {
+    this.intervalId = setInterval(() => {
+      if (isOnCourse.value) {
         onCourse.play();
         offCourse.pause();
       } else {
         onCourse.pause();
         offCourse.play();
       }
-    },
+    }, 1000);
+  },
+  stop() {
+    clearInterval(this.intervalId);
+    onCourse.pause();
+    offCourse.pause();
+  },
+};
 
-    recomputePosition: () => {
-      // Reevaluate how on-course we are
-      if (beacon.isEnabled()) {
-        relativePosition = normalizedRelativePositionTo.value(sourceLocation);
-        panner.setCoordinates(relativePosition.x, relativePosition.y);
-
-        const distanceMeters = distanceTo.value(sourceLocation, {
-          units: "meters",
-        });
-        if (distanceMeters < foundProximityMeters) {
-          // Beacon found -- stop the audio
-          beacon.stop();
-          new Audio(SS_beaconFound2_48k_wav).play();
-        } else if (
-          Math.abs(lastAnnouncedDistance - distanceMeters) > announceEveryMeters
-        ) {
-          // We're closer/further by some threshold -- announce distance
-          beacon.announceDistance(distanceMeters);
-        } else if (onCourse.currentTime < 0.1) {
-          // Update the beacon sound, if just looped
-          beacon.setOnOffCourse(relativePosition);
-        }
-      }
-    },
-  };
-
-  watch(myLocation, beacon.recomputePosition);
-
-  return beacon;
-}
-
-// state that will make UI responsive to changes
-export const currentBeacon = reactive({
-  beacon: null,
-  playing: false,
-})
+// Announce the beacon distance  periodically
+watch(distanceMeters, (newValue, oldValue) => {
+  if (!beacon.enabled) {
+    return;
+  } else if(newValue < foundProximityMeters) {
+    // Stop the beacon when we're within the threshold.
+    beacon.stop();
+    new Audio(SS_beaconFound2_48k_wav).play();
+  } else if (
+    Math.abs(beacon.lastAnnouncedDistance - newValue) > announceEveryMeters
+  ) {
+    // We're closer/further by some threshold -- announce distance
+    // Only announce if not actively playing something else (distance would be stale if queued)
+    if (!audioQueue.isPlaying) {
+      beacon.lastAnnouncedDistance = distanceMeters.value;
+      audioQueue.addToQueue({ soundUrl: sense_mobility_wav });
+      audioQueue.addToQueue({
+        text: `Beacon: ${distanceMeters.value.toFixed(0)} meters`,
+      });
+    }
+  }
+});

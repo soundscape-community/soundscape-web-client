@@ -3,7 +3,6 @@
 
 import { ref } from 'vue';
 import { TextToSpeech } from "@capacitor-community/text-to-speech";
-import { createPanner } from "../store/beacon.js";
 import { normalizedRelativePositionTo, distanceTo } from '../store/location.js';
 
 export const audioContext = new (window.AudioContext ||
@@ -203,4 +202,33 @@ export function createSpatialPlayer() {
   }
 
   return player;
+}
+
+export const audioQueue = createSpatialPlayer();
+
+// Create a WebAudio panner with the settings that will be used by both
+// beacons and callouts.
+// https://developer.mozilla.org/en-US/docs/Web/API/PannerNode
+export function createPanner(audioContext) {
+  const panner = audioContext.createPanner();
+  panner.panningModel = "HRTF";
+  // Keep a constant volume regardless of distance from source.
+  panner.distanceModel = "inverse";
+  panner.refDistance = 1;
+  panner.maxDistance = 1;
+  panner.rolloffFactor = 1;
+  // Ignore the direction the source is pointing.
+  panner.coneInnerAngle = 360;
+  panner.coneOuterAngle = 0;
+  panner.coneOuterGain = 0;
+
+  panner.setCoordinates = (x, y) => {
+    panner.positionX.value = x;
+    // Note that the panner's axes are *not* the same axes as ours,
+    // namely that Y is up/down, and Z is forward/backward.
+    panner.positionY.value = 0;
+    panner.positionZ.value = y;
+  };
+
+  return panner;
 }

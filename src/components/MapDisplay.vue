@@ -108,10 +108,10 @@ const pauseBeaconPulse = () => {
 };
 
 watch(props.beacon, (newValue, oldValue) => {
-  if (newValue.beacon) {
-    plotBeacon(newValue.beacon.latitude, newValue.beacon.longitude);
+  if (newValue.name) {
+    plotBeacon(newValue.latitude, newValue.longitude);
   }
-  if (newValue.playing) {
+  if (newValue.enabled) {
     startBeaconPulse();
   } else {
     pauseBeaconPulse();

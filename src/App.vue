@@ -3,7 +3,7 @@
   <main>
     <MapDisplay
       :location="myLocation"
-      :beacon="currentBeacon"
+      :beacon="beacon"
     />
     <CalloutList :callouts="recentCallouts" />
   </main>
@@ -15,7 +15,7 @@ import CalloutList from './components/CalloutList.vue';
 import MapDisplay from './components/MapDisplay.vue';
 import ToolbarGPX from './components/ToolbarGPX.vue';
 import ToolbarMain from './components/ToolbarMain.vue';
-import { currentBeacon } from './store/beacon.js';
+import { beacon } from './store/beacon.js';
 import { myLocation } from './store/location.js';
 import { recentCallouts } from './utils/sound.js';
 

@@ -22,30 +22,19 @@
 
 <script setup>
 import BeaconController from './BeaconController.vue'
-import { createBeacon, currentBeacon } from '../store/beacon.js';
-import { inject } from 'vue';
-
-const audioQueue = inject('audioQueue');
+import { beacon } from '../store/beacon.js';
 
 const props = defineProps({
   callouts: Array,
 })
 
 const startBeacon = (e) => {
-  // Stop old beacon
-  if (currentBeacon.beacon) {
-    currentBeacon.beacon.stop();
-  }
-
-  // Create and start new beacon
-  currentBeacon.beacon = createBeacon(
+  beacon.set(
     e.target.getAttribute("data-name"),
     e.target.getAttribute('data-latitude'),
-    e.target.getAttribute('data-longitude'),
-    audioQueue
+    e.target.getAttribute('data-longitude')
   );
-  currentBeacon.beacon.start();
-  currentBeacon.playing= currentBeacon.beacon.isEnabled();
+  beacon.start();
 };
 </script>
 
