@@ -1,4 +1,3 @@
-import { startCompassListener } from "./heading.js";
 import { myLocation } from '../store/location.js';
 
 /*
@@ -11,29 +10,21 @@ Implementation of an interface for user position tracking:
 // Interfaces with device geolocation/orientation sensors.
 export function realTracker() {
   let watchPositionHandler = null;
-  let headingHandler = (heading) => {
-    myLocation.setHeading(heading);
-  };
   return {
     start() {
-      startCompassListener(headingHandler);
       watchPositionHandler = watchLocation((latitude, longitude) => {
         myLocation.setLocation(latitude, longitude);
-    });
+      });
     },
 
     stop() {
       if (watchPositionHandler) {
         navigator.geolocation.clearWatch(watchPositionHandler);
-        window.removeEventListener("deviceorientation", headingHandler);
         watchPositionHandler = null;
       }
     },
 
     async current() {
-      // Need compass for positional audio regardless of location tracking
-      startCompassListener(headingHandler);
-
       return new Promise((resolve, reject) => {
         getLocation()
         .then((coords) => {
