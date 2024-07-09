@@ -6,13 +6,12 @@ import App from './App.vue';
 import unmute from "./vendor/unmute.js";
 import {
   audioContext,
-  createSpatialPlayer,
+  audioQueue,
 } from "./utils/sound.js";
 import createCalloutAnnouncer from "./utils/callout.js";
 
 // Actions to take when page is rendered in full
 document.addEventListener("DOMContentLoaded", function () {
-  const audioQueue = createSpatialPlayer();
   const announcer = createCalloutAnnouncer(audioQueue);
 
   audioQueue.loadVoices();

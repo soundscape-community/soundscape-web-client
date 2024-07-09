@@ -1,27 +1,24 @@
 <template>
-  <p v-if="currentBeacon.beacon">
+  <p v-if="beacon.name">
     <button
       id="toggleBeacon"
       class="beacon-button"
       @click="toggleBeacon"
     >
-      {{ currentBeacon.playing ? '⏸' : '▶' }}
+      {{ beacon.enabled ? '⏸' : '▶' }}
     </button>
-    <span id="currentBeacon">{{ currentBeacon.beacon.name }}</span>
+    <span id="currentBeacon">{{ beacon.name }}</span>
   </p>
 </template>
 
 <script setup>
-import { currentBeacon } from '../store/beacon.js';
+import { beacon } from '../store/beacon.js';
 
 const toggleBeacon = () => {
-  if (currentBeacon.beacon) {
-    if (currentBeacon.playing) {
-      currentBeacon.beacon.stop();
-    } else {
-      currentBeacon.beacon.start();
-    }
-    currentBeacon.playing= currentBeacon.beacon.isEnabled();
+  if (beacon.enabled) {
+    beacon.stop();
+  } else {
+    beacon.start();
   }
 };
 </script>
