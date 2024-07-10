@@ -51,11 +51,16 @@ export function realTracker() {
 }
 
 // For testing: simulates being in a fixed location.
-export function fixedTracker(lat, lon, head) {
+export function fixedTracker(lat, lon) {
   return {
     start() {
       myLocation.setLocation(lat, lon);
-      myLocation.setHeading(head);
+      // Heading points at mouse pointer
+      const mapLocation = document.getElementById("map");
+      window.addEventListener('mousemove', (event) => {
+        const angle = getMouseAngle(mapLocation, event);
+        myLocation.setHeading(angle);
+      });
     },
 
     stop() {},  // no-op
@@ -63,8 +68,7 @@ export function fixedTracker(lat, lon, head) {
     async current() {
       return new Promise((resolve, reject) => {
         myLocation.setLocation(lat, lon);
-        myLocation.setHeading(head);
-        resolve({ latitude: lat, longitude: lon, heading: head });
+        resolve({ latitude: lat, longitude: lon, heading: 0 });
       });
     },
   };
@@ -118,4 +122,26 @@ function watchLocation(callback) {
       maximumAge: 0,
     }
   );
+}
+
+// For testing, let heading follow mouse pointer
+function getMouseAngle(node, event) {
+  // Get the node's bounding rectangle
+  const rect = node.getBoundingClientRect();
+
+  // Calculate the center of the node
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+
+  // Calculate the position of the mouse relative to the center of the node
+  const mouseX = event.clientX - centerX;
+  const mouseY = event.clientY - centerY;
+
+  // Calculate the angle in radians
+  const angleRadians = Math.atan2(mouseX, -mouseY);
+
+  // Convert the angle to degrees
+  const angleDegrees = angleRadians * (180 / Math.PI);
+
+  return angleDegrees;
 }

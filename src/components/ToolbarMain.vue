@@ -32,9 +32,8 @@ onMounted(() => {
   const params = new URLSearchParams(window.location.search);
   var lat = parseFloat(params.get("lat"));
   var lon = parseFloat(params.get("lon"));
-  var head = parseFloat(params.get("heading"));
-  if (!isNaN(lat) && !isNaN(lon) && !isNaN(head)) {
-    tracker.value = fixedTracker(lat, lon, head);
+  if (!isNaN(lat) && !isNaN(lon)) {
+    tracker.value = fixedTracker(lat, lon);
   } else {
     tracker.value = realTracker();
   }
