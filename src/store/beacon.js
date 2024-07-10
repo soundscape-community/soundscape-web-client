@@ -1,8 +1,6 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-// This file is called "notabeacon.js" because "beacon.js" is blocked by some ad blockers.
-
 import Classic_OnAxis_wav from "/assets/sounds/beacons/Classic/Classic_OnAxis.wav";
 import Classic_OffAxis_wav from "/assets/sounds/beacons/Classic/Classic_OffAxis.wav";
 import sense_mobility_wav from "/assets/sounds/sense_mobility.wav";
@@ -17,23 +15,35 @@ const onCourseAngle = 30; // degrees +/- Y axis
 const foundProximityMeters = 10; // proximity to auto-stop beacon
 const announceEveryMeters = 50;
 
+/*
+For smooth transitions between "on" and "off" beacons, we keep two audio
+sources constantly looping, and selectively mute one or the other. On iOS
+Safari, we can't directly set the volume of an audio element, so we use
+gain nodes instead. A panner node is used to create spatial audio.
+
+The resulting audio graph looks something like this:
+
+  source -> gain -> panner <- gain <- source
+                      |
+                      V
+                    output
+*/
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 const panner = createPanner(audioContext);
 
-// Ideally, for smooth transitions between "on" and "off" beacons, we would 
-// keep two audio elements constantly looping, and selectively mute one or
-// the other. But iOS Safari doesn't allow volume to be set by JS, so we
-// keep one paused while the other plays.
+const onCourseAudio = new Audio(Classic_OnAxis_wav);
+const offCourseAudio = new Audio(Classic_OffAxis_wav);
+onCourseAudio.loop = true;
+offCourseAudio.loop = true;
 
-const onCourse = new Audio(Classic_OnAxis_wav);
-const offCourse = new Audio(Classic_OffAxis_wav);
-onCourse.loop = true;
-offCourse.loop = true;
-
-const onCourseSource = audioContext.createMediaElementSource(onCourse);
-const offCourseSource = audioContext.createMediaElementSource(offCourse);
-onCourseSource.connect(panner);
-offCourseSource.connect(panner);
+const onCourseSource = audioContext.createMediaElementSource(onCourseAudio);
+const offCourseSource = audioContext.createMediaElementSource(offCourseAudio);
+const onCourseGain = audioContext.createGain();
+const offCourseGain = audioContext.createGain();
+onCourseSource.connect(onCourseGain);
+offCourseSource.connect(offCourseGain);
+onCourseGain.connect(panner);
+offCourseGain.connect(panner);
 panner.connect(audioContext.destination);
 
 export const beacon = reactive({
@@ -93,21 +103,28 @@ const isOnCourse = computed(() => {
 // Loop beacon audio, which changes based on how on-/off-course we are.
 const looper = {
   intervalId: null,
-  start() {
+  async start() {
+    // Resume the audio context (especially needed for Safari)
+    if (audioContext.state === 'suspended') {
+      await audioContext.resume();
+    }
+    onCourseAudio.play();
+    offCourseAudio.play()
+    // Switch between on/off-course effects no more than once per second
     this.intervalId = setInterval(() => {
       if (isOnCourse.value) {
-        onCourse.play();
-        offCourse.pause();
+        onCourseGain.gain.setValueAtTime(1, audioContext.currentTime);
+        offCourseGain.gain.setValueAtTime(0, audioContext.currentTime);
       } else {
-        onCourse.pause();
-        offCourse.play();
+        onCourseGain.gain.setValueAtTime(0, audioContext.currentTime);
+        offCourseGain.gain.setValueAtTime(1, audioContext.currentTime);
       }
     }, 1000);
   },
   stop() {
     clearInterval(this.intervalId);
-    onCourse.pause();
-    offCourse.pause();
+    onCourseAudio.pause();
+    offCourseAudio.pause();
   },
 };
 
