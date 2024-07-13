@@ -26,7 +26,7 @@ import mode_enter_wav from "/assets/sounds/mode_enter.wav";
 import { inject, ref } from 'vue';
 import { playSpatialSpeech } from '../utils/sound.js';
 import { startCompassListener } from "../utils/heading.js";
-import { myLocation } from '../store/location.js';
+import { myLocation } from '../state/location.js';
 
 const props = defineProps({
   tracker: Object,

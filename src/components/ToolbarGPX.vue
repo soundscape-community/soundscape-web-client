@@ -46,10 +46,10 @@
 
 <script setup>
 import InputSpinner from './InputSpinner.vue';
-import cache from '../store/cache.js';
+import cache from '../state/cache.js';
 import { recentCallouts } from '../utils/sound.js';
 import replayGPX from '../utils/gpx.js';
-import { myLocation } from '../store/location.js';
+import { myLocation } from '../state/location.js';
 import { inject, ref } from 'vue';
 
 const audioQueue = inject('audioQueue');

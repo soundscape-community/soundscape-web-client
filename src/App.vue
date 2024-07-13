@@ -20,8 +20,8 @@ import HelpView from './components/HelpView.vue';
 import MapDisplay from './components/MapDisplay.vue';
 import ToolbarGPX from './components/ToolbarGPX.vue';
 import ToolbarMain from './components/ToolbarMain.vue';
-import { beacon } from './store/beacon.js';
-import { myLocation } from './store/location.js';
+import { beacon } from './state/beacon.js';
+import { myLocation } from './state/location.js';
 import { recentCallouts } from './utils/sound.js';
 
 const mode = ref(null);

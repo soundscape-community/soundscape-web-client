@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import { beacon } from '../store/beacon.js';
+import { beacon } from '../state/beacon.js';
 
 const toggleBeacon = () => {
   if (beacon.enabled) {

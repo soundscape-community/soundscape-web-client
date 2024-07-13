@@ -6,10 +6,10 @@ import sense_poi_wav from "/assets/sounds/sense_poi.wav";
 
 import { centroid } from '@turf/centroid';
 import { nearestPointOnLine } from '@turf/nearest-point-on-line';
-import cache from "../store/cache.js";
+import cache from "../state/cache.js";
 import { enumerateTilesAround } from "../utils/tile.js";
 import { watch } from 'vue';
-import { myLocation, myTurfPoint, distanceTo } from '../store/location.js';
+import { myLocation, myTurfPoint, distanceTo } from '../state/location.js';
 
 function createCalloutAnnouncer(audioQueue) {
   // Avoid repeating myself, by maintaining a list of the most recent POIs announced

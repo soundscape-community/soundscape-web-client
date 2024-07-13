@@ -3,7 +3,7 @@
 
 import { ref } from 'vue';
 import { TextToSpeech } from "@capacitor-community/text-to-speech";
-import { normalizedRelativePositionTo, distanceTo } from '../store/location.js';
+import { normalizedRelativePositionTo, distanceTo } from '../state/location.js';
 
 export const audioContext = new (window.AudioContext ||
   window.webkitAudioContext)();

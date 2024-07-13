@@ -22,7 +22,7 @@
 
 <script setup>
 import BeaconController from './BeaconController.vue'
-import { beacon } from '../store/beacon.js';
+import { beacon } from '../state/beacon.js';
 
 const props = defineProps({
   callouts: Array,

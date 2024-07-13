@@ -1,4 +1,4 @@
-import { myLocation } from '../store/location.js';
+import { myLocation } from '../state/location.js';
 
 /*
 Implementation of an interface for user position tracking:

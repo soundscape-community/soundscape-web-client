@@ -4,7 +4,7 @@
 import { bbox } from '@turf/bbox';
 import { buffer} from '@turf/buffer';
 import { point } from '@turf/helpers';
-import cache from '../store/cache.js'
+import cache from '../state/cache.js'
 import config from '../config.js'
 
 export const zoomLevel = 16;
