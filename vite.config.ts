@@ -48,7 +48,6 @@ export default defineConfig({
     rollupOptions: {
       input: {
         index: 'index.html',
-        help: 'help.html'
       }
     }
   },

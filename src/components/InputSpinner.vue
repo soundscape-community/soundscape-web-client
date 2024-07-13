@@ -54,6 +54,10 @@ span {
   font-size: 1em;
 }
 
+a {
+  color: white;
+}
+
 button {
   background-color: transparent;
   border: none;

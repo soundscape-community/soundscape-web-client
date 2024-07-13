@@ -9,7 +9,7 @@
       :decAction="audioQueue.decreaseRate"
     />
     <button class="nav-button">
-      <a href="./help.html" title="FAQ page">
+      <a href="./?mode=help" title="FAQ page">
         <i class="fas fa-question" style="color: white;"></i>
       </a>
     </button>
