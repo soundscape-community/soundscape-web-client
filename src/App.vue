@@ -22,7 +22,7 @@ import ToolbarGPX from './components/ToolbarGPX.vue';
 import ToolbarMain from './components/ToolbarMain.vue';
 import { beacon } from './state/beacon.js';
 import { myLocation } from './state/location.js';
-import { recentCallouts } from './utils/sound.js';
+import { recentCallouts } from './state/audio.js';
 
 const mode = ref(null);
 

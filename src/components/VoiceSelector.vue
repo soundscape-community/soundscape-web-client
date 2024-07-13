@@ -18,7 +18,7 @@
 </template>
 
 <script setup>
-import { audioQueue } from '../utils/sound.js';
+import { audioQueue } from '../state/audio.js';
 import { ref, onMounted, watch } from 'vue';
 
 const voices = ref([]);

@@ -48,7 +48,7 @@
 import InputSpinner from './InputSpinner.vue';
 import cache from '../state/cache.js';
 import useAnnouncer from '../composables/announcer.js';
-import { audioQueue, recentCallouts } from '../utils/sound.js';
+import { audioQueue, recentCallouts } from '../state/audio.js';
 import replayGPX from '../utils/gpx.js';
 import { myLocation } from '../state/location.js';
 import { inject, ref } from 'vue';

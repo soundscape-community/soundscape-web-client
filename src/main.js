@@ -7,7 +7,7 @@ import unmute from "./vendor/unmute.js";
 import {
   audioContext,
   audioQueue,
-} from "./utils/sound.js";
+} from "./state/audio.js";
 
 // Actions to take when page is rendered in full
 document.addEventListener("DOMContentLoaded", function () {

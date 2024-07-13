@@ -21,7 +21,7 @@ import MainModeSelector from './MainModeSelector.vue';
 import InputSpinner from './InputSpinner.vue';
 import VoiceSelector from './VoiceSelector.vue';
 import { onMounted, ref } from 'vue';
-import { audioQueue } from '../utils/sound.js';
+import { audioQueue } from '../state/audio.js';
 import { fixedTracker, realTracker } from '../utils/tracker.js';
 
 var tracker = ref(null);

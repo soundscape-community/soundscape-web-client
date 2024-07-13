@@ -24,7 +24,7 @@ import mode_exit_wav from "/assets/sounds/mode_exit.wav";
 import mode_enter_wav from "/assets/sounds/mode_enter.wav";
 
 import { ref } from 'vue';
-import { audioQueue, playSpatialSpeech } from '../utils/sound.js';
+import { audioQueue, playSpatialSpeech } from '../state/audio.js';
 import useAnnouncer from '../composables/announcer.js';
 import { startCompassListener } from "../utils/heading.js";
 import { myLocation } from '../state/location.js';
