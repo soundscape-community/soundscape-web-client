@@ -240,4 +240,6 @@ function createCalloutAnnouncer() {
   return announcer;
 }
 
-export default createCalloutAnnouncer;
+const announcer = createCalloutAnnouncer();
+
+export default announcer;
