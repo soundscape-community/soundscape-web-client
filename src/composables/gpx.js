@@ -1,11 +1,11 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-import { HeadingCalculator } from './heading.js'
+import { HeadingCalculator } from '../utils/heading.js'
 
 const headingWindowSize = 5;  // number of recent points to use for estimating heading
 
-function replayGPX(file, callbacks) {
+function useGPX(file, callbacks) {
   const {
     loadedCallback = () => {},
     finishedCallback = () => {},
@@ -108,4 +108,4 @@ function replayGPX(file, callbacks) {
   return gpxPlayer;
 }
 
-export default replayGPX;
+export default useGPX;

@@ -49,7 +49,7 @@ import InputSpinner from './InputSpinner.vue';
 import cache from '../state/cache.js';
 import useAnnouncer from '../composables/announcer.js';
 import { audioQueue, recentCallouts } from '../state/audio.js';
-import replayGPX from '../utils/gpx.js';
+import useGPX from '../composables/gpx.js';
 import { myLocation } from '../state/location.js';
 import { inject, ref } from 'vue';
 
@@ -75,7 +75,7 @@ const fileChanged = (event) => {
     // Clear recent callout list
     recentCallouts.value = [];
 
-    gpxPlayer = replayGPX(file, {
+    gpxPlayer = useGPX(file, {
       // When GPX file has been loadedm trigger draw map at first point
       loadedCallback: (firstPoint) => myLocation.setLocation(firstPoint.lat, firstPoint.lon),
       // When GPX finishes playing, toggle to paused state and reset slider
