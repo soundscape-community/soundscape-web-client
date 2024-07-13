@@ -47,7 +47,7 @@
 <script setup>
 import InputSpinner from './InputSpinner.vue';
 import cache from '../state/cache.js';
-import announcer from '../utils/callout.js';
+import useAnnouncer from '../composables/announcer.js';
 import { audioQueue, recentCallouts } from '../utils/sound.js';
 import replayGPX from '../utils/gpx.js';
 import { myLocation } from '../state/location.js';
@@ -57,6 +57,7 @@ const playing = ref(false);
 const sliderPosition = ref(0);
 const speedupFactor = ref(5);
 
+const announcer = useAnnouncer();
 let gpxPlayer = null;  // to be initialized on file selection
 
 const fileChanged = (event) => {

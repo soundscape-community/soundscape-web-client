@@ -12,7 +12,7 @@ import { enumerateTilesAround } from "../utils/tile.js";
 import { watch } from 'vue';
 import { myLocation, myTurfPoint, distanceTo } from '../state/location.js';
 
-function createCalloutAnnouncer() {
+function useAnnouncer() {
   // Avoid repeating myself, by maintaining a list of the most recent POIs announced
   const spokenRecently = {
     keys: new Set(), // for quick lookups
@@ -240,6 +240,4 @@ function createCalloutAnnouncer() {
   return announcer;
 }
 
-const announcer = createCalloutAnnouncer();
-
-export default announcer;
+export default useAnnouncer;

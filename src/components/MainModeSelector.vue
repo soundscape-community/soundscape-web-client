@@ -25,7 +25,7 @@ import mode_enter_wav from "/assets/sounds/mode_enter.wav";
 
 import { ref } from 'vue';
 import { audioQueue, playSpatialSpeech } from '../utils/sound.js';
-import announcer from '../utils/callout.js';
+import useAnnouncer from '../composables/announcer.js';
 import { startCompassListener } from "../utils/heading.js";
 import { myLocation } from '../state/location.js';
 
@@ -33,6 +33,7 @@ const props = defineProps({
   tracker: Object,
 });
 
+const announcer = useAnnouncer();
 const activeMode = ref(null);
 var wakeLock = null;
 
