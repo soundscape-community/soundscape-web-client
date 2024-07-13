@@ -18,7 +18,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const app = createApp(App);
   app.provide('announcer', announcer);
-  app.provide('audioQueue', audioQueue);
   app.mount('body');
 
   // iOS Safari workaround to allow audio while mute switch is on

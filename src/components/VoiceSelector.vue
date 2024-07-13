@@ -18,9 +18,9 @@
 </template>
 
 <script setup>
-import { inject, ref, onMounted, watch } from 'vue';
+import { audioQueue } from '../utils/sound.js';
+import { ref, onMounted, watch } from 'vue';
 
-const audioQueue = inject('audioQueue');
 const voices = ref([]);
 const selectedVoice = ref(null);
 
