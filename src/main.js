@@ -8,12 +8,14 @@ import {
   audioContext,
   audioQueue,
 } from "./state/audio.js";
+import router from './router/index.js';
 
 // Actions to take when page is rendered in full
 document.addEventListener("DOMContentLoaded", function () {
   audioQueue.loadVoices();
 
   const app = createApp(App);
+  app.use(router);
   app.mount('body');
 
   // iOS Safari workaround to allow audio while mute switch is on

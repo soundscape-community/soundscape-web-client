@@ -20,7 +20,7 @@ Help is welcome! Please see the [issue board](https://github.com/soundscape-comm
 
 Select a local GPX file from your computer, and it will be replayed on a visual map with audio callouts.
 
-https://soundscape-community.github.io/soundscape-web-client/?mode=gpx
+https://soundscape-community.github.io/soundscape-web-client/#/gpx
 
 ### Location override
 To use a location other than what's reported by your device, include the latitude and longitude in the URL, e.g. https://soundscape-community.github.io/soundscape-web-client/?lon=-77.006156&lat=38.897600 will place you near Union Station in Washington, D.C. The compass heading will follow your mouse pointer.

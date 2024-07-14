@@ -2,7 +2,7 @@
     <nav>
         <div class="home-container">
             <button class="home" title="Home">
-                <a href="./index.html" class="help-link">&#x2302;</a>
+                <RouterLink to="/" class="help-link">&#x2302;</RouterLink>
             </button>
         </div>
         <div class="title-container">
@@ -59,7 +59,7 @@
 </template>
 
 <script setup>
-import InputSpinner from './InputSpinner.vue';
+import InputSpinner from '../components/InputSpinner.vue';
 </script>
 
 <style>

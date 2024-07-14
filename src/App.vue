@@ -1,35 +1,8 @@
 <template>
-  <!--TODO separate views-->
-  <HelpView v-if="mode == 'help'" />
-  <ToolbarGPX v-else-if="mode == 'gpx'" />
-  <ToolbarMain v-else />
-
-  <main v-if="mode != 'help'">
-    <MapDisplay
-      :location="myLocation"
-      :beacon="beacon"
-    />
-    <CalloutList :callouts="recentCallouts" />
-  </main>
+  <router-view></router-view>
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue';
-import CalloutList from './components/CalloutList.vue';
-import HelpView from './components/HelpView.vue';
-import MapDisplay from './components/MapDisplay.vue';
-import ToolbarGPX from './components/ToolbarGPX.vue';
-import ToolbarMain from './components/ToolbarMain.vue';
-import { beacon } from './state/beacon.js';
-import { myLocation } from './state/location.js';
-import { recentCallouts } from './state/audio.js';
-
-const mode = ref(null);
-
-onMounted(() => {
-  const params = new URLSearchParams(window.location.search);
-  mode.value = params.get('mode')
-});
 </script>
 
 <style>

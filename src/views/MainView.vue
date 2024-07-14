@@ -9,20 +9,33 @@
       :decAction="audioQueue.decreaseRate"
     />
     <button class="nav-button">
-      <a href="./?mode=help" title="FAQ page">
+      <RouterLink to="/help">
         <i class="fas fa-question" style="color: white;"></i>
-      </a>
+      </RouterLink>
     </button>
   </nav>
+
+  <main>
+    <MapDisplay
+      :location="myLocation"
+      :beacon="beacon"
+    />
+    <CalloutList :callouts="recentCallouts" />
+  </main>
 </template>
 
 <script setup>
-import MainModeSelector from './MainModeSelector.vue';
-import InputSpinner from './InputSpinner.vue';
-import VoiceSelector from './VoiceSelector.vue';
-import { onMounted, ref } from 'vue';
+import CalloutList from '../components/CalloutList.vue';
+import InputSpinner from '../components/InputSpinner.vue';
+import MainModeSelector from '../components/MainModeSelector.vue';
+import MapDisplay from '../components/MapDisplay.vue';
+import VoiceSelector from '../components/VoiceSelector.vue';
+import { beacon } from '../state/beacon.js';
+import { myLocation } from '../state/location.js';
+import { recentCallouts } from '../state/audio.js';
 import { audioQueue } from '../state/audio.js';
 import { useFixedPosition, useRealPosition } from '../composables/tracking.js';
+import { onMounted, ref } from 'vue';
 
 var tracker = ref(null);
 

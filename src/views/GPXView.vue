@@ -42,15 +42,26 @@
       &#128465;
     </button>
   </nav>
+
+  <main>
+    <MapDisplay
+      :location="myLocation"
+      :beacon="beacon"
+    />
+    <CalloutList :callouts="recentCallouts" />
+  </main>
 </template>
 
 <script setup>
-import InputSpinner from './InputSpinner.vue';
-import cache from '../state/cache.js';
+import CalloutList from '../components/CalloutList.vue';
+import InputSpinner from '../components/InputSpinner.vue';
+import MapDisplay from '../components/MapDisplay.vue';
 import useAnnouncer from '../composables/announcer.js';
-import { audioQueue, recentCallouts } from '../state/audio.js';
 import useGPX from '../composables/gpx.js';
+import { beacon } from '../state/beacon.js';
+import cache from '../state/cache.js';
 import { myLocation } from '../state/location.js';
+import { audioQueue, recentCallouts } from '../state/audio.js';
 import { inject, ref } from 'vue';
 
 const playing = ref(false);
