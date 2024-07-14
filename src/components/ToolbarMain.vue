@@ -22,7 +22,7 @@ import InputSpinner from './InputSpinner.vue';
 import VoiceSelector from './VoiceSelector.vue';
 import { onMounted, ref } from 'vue';
 import { audioQueue } from '../state/audio.js';
-import { fixedTracker, realTracker } from '../utils/tracker.js';
+import { useFixedPosition, useRealPosition } from '../composables/tracking.js';
 
 var tracker = ref(null);
 
@@ -32,9 +32,9 @@ onMounted(() => {
   var lat = parseFloat(params.get("lat"));
   var lon = parseFloat(params.get("lon"));
   if (!isNaN(lat) && !isNaN(lon)) {
-    tracker.value = fixedTracker(lat, lon);
+    tracker.value = useFixedPosition(lat, lon);
   } else {
-    tracker.value = realTracker();
+    tracker.value = useRealPosition();
   }
 });
 </script>

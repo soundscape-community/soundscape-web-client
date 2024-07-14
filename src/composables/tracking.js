@@ -8,7 +8,7 @@ Implementation of an interface for user position tracking:
 */
 
 // Interfaces with device geolocation/orientation sensors.
-export function realTracker() {
+export function useRealPosition() {
   let watchPositionHandler = null;
   return {
     start() {
@@ -51,11 +51,11 @@ export function realTracker() {
 }
 
 // For testing: simulates being in a fixed location.
-export function fixedTracker(lat, lon) {
+export function useFixedPosition(lat, lon) {
   return {
     start() {
       myLocation.setLocation(lat, lon);
-      // Heading points at mouse pointer
+      // Compass points at mouse pointer
       const mapLocation = document.getElementById("map");
       window.addEventListener('mousemove', (event) => {
         const angle = getMouseAngle(mapLocation, event);
