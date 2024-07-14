@@ -3,7 +3,7 @@
 
 // Cross-platform compass heading
 // https://stackoverflow.com/a/75792197
-export function startCompassListener(callback) {
+export function useDeviceOrientation(callback) {
   if (!window["DeviceOrientationEvent"]) {
     console.warn("DeviceOrientation API not available");
     return;
@@ -43,7 +43,7 @@ export function startCompassListener(callback) {
 }
 
 // For estimating heading using stream of points
-export class HeadingCalculator {
+class HeadingCalculator {
   constructor(windowSize) {
     this.windowSize = windowSize;
     this.points = [];
@@ -107,3 +107,7 @@ export class HeadingCalculator {
     return radians * (180 / Math.PI);
   }
 }
+
+export const useDirectionOfTravel = (windowSize) => {
+  return new HeadingCalculator(windowSize);
+};

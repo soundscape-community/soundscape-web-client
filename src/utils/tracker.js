@@ -66,8 +66,8 @@ export function fixedTracker(lat, lon) {
     stop() {},  // no-op
 
     async current() {
+      this.start();
       return new Promise((resolve, reject) => {
-        myLocation.setLocation(lat, lon);
         resolve({ latitude: lat, longitude: lon, heading: 0 });
       });
     },

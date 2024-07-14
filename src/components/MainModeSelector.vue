@@ -26,7 +26,7 @@ import mode_enter_wav from "/assets/sounds/mode_enter.wav";
 import { ref } from 'vue';
 import { audioQueue, playSpatialSpeech } from '../state/audio.js';
 import useAnnouncer from '../composables/announcer.js';
-import { startCompassListener } from "../utils/heading.js";
+import { useDeviceOrientation } from "../composables/compass.js";
 import { myLocation } from '../state/location.js';
 
 const props = defineProps({
@@ -44,7 +44,7 @@ async function toggleMode(newMode) {
   // required for iOS Safari: first speech must be directly triggered by user action
   playSpatialSpeech(" ");
   // ...as well as device orientation tracking
-  startCompassListener((h) => myLocation.setHeading(h));
+  useDeviceOrientation((h) => myLocation.setHeading(h));
 
   // Clear queued audio
   if (activeMode.value) {

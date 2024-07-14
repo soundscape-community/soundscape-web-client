@@ -1,7 +1,7 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-import { HeadingCalculator } from '../utils/heading.js'
+import { useDirectionOfTravel } from '../composables/compass.js'
 
 const headingWindowSize = 5;  // number of recent points to use for estimating heading
 
@@ -17,7 +17,7 @@ function useGPX(file, callbacks) {
   let currentIndex = 0;
   let sliderValue = 0;
 
-  const headingCalculator = new HeadingCalculator(headingWindowSize);
+  const headingCalculator = useDirectionOfTravel(headingWindowSize);
 
   let gpxPlayer = {
     speedupFactor: 1,
