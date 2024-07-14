@@ -22,8 +22,8 @@ var beaconLayer = new L.LayerGroup();
 // Create a custom divIcon with rotation
 var arrowIcon = L.divIcon({
   className: 'arrow-icon',
-  iconSize: [0, 0], // set size to 0, as it's controlled by CSS
-  iconAnchor: [7, 25] // adjust anchor based on the arrow design
+  iconSize: [0, 0],
+  iconAnchor: [12, 30],
 });
 
 var beaconIcon = L.divIcon({
@@ -141,7 +141,7 @@ watch(props.beacon, (newValue, oldValue) => {
   height: 0;
   border-left: 10px solid transparent;
   border-right: 10px solid transparent;
-  border-bottom: 40px solid red;
+  border-bottom: 30px solid red;
   transform-origin: bottom center;
 }
 
