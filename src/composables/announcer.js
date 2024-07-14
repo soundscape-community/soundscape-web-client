@@ -8,7 +8,7 @@ import { centroid } from '@turf/centroid';
 import { nearestPointOnLine } from '@turf/nearest-point-on-line';
 import cache from "../state/cache.js";
 import { audioQueue } from '../state/audio.js';
-import { enumerateTilesAround } from "../utils/tile.js";
+import { enumerateTilesAround } from "../composables/tile.js";
 import { watch } from 'vue';
 import { myLocation, myTurfPoint, distanceTo } from '../state/location.js';
 
