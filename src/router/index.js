@@ -6,6 +6,7 @@ import HelpView from '../views/HelpView.vue'
 
 const routes = [
   { path: '/', component: MainView },
+  { path: '/at/:lat/:lon', component: MainView },
   { path: '/gpx', component: GPXView },
   { path: '/help', component: HelpView },
 ]

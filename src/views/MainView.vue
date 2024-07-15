@@ -36,16 +36,18 @@ import { recentCallouts } from '../state/audio.js';
 import { audioQueue } from '../state/audio.js';
 import { useFixedPosition, useRealPosition } from '../composables/tracking.js';
 import { onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 
-var tracker = ref(null);
+const route = useRoute();
+const tracker = ref(null);
 
 onMounted(() => {
   // Use fixed location if user specified URL parameters.
-  const params = new URLSearchParams(window.location.search);
-  var lat = parseFloat(params.get("lat"));
-  var lon = parseFloat(params.get("lon"));
-  if (!isNaN(lat) && !isNaN(lon)) {
-    tracker.value = useFixedPosition(lat, lon);
+  if (!isNaN(route.params.lat) && !isNaN(route.params.lon)) {
+    tracker.value = useFixedPosition(
+      parseFloat(route.params.lat),
+      parseFloat(route.params.lon),
+    );
   } else {
     tracker.value = useRealPosition();
   }
