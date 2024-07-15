@@ -3,11 +3,20 @@
     <button
       id="toggleBeacon"
       class="beacon-button"
+      :title="beacon.enabled ? 'Pause beacon' : 'Play beacon'"
       @click="toggleBeacon"
     >
       {{ beacon.enabled ? '⏸' : '▶' }}
     </button>
     <span id="currentBeacon">{{ beacon.name }}</span>
+    <button
+      class="beacon-button"
+      id="clearBeacon"
+      title="Clear beacon"
+      @click="clearBeacon"
+    >
+      ❌
+    </button>
   </p>
 </template>
 
@@ -21,6 +30,11 @@ const toggleBeacon = () => {
     beacon.start();
   }
 };
+
+const clearBeacon = () => {
+  beacon.stop();
+  beacon.clear();
+};
 </script>
 
 <style>
@@ -28,9 +42,15 @@ const toggleBeacon = () => {
   background-color: #e74c3c;
   color: #fff;
   font-weight: bold;
+  position: relative;
 }
 
 #recentCalloutsArea p button {
   background-color: #2c3e50;
+}
+
+#clearBeacon {
+  position: absolute;
+  right: 15px;
 }
 </style>
