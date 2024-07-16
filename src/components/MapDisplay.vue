@@ -9,7 +9,12 @@ import * as L from 'leaflet';
 const props = defineProps({
   location: Object,
   beacon: Object,
-})
+  follow: {
+    type: Boolean,
+    default: true,
+  },
+  points: Array,
+});
 
 // To be initialized on component mount
 var map = null;
@@ -18,6 +23,7 @@ var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 })
 var myLocationLayer = new L.LayerGroup();
 var beaconLayer = new L.LayerGroup();
+var pointsLayer = new L.LayerGroup();
 
 // Create a custom divIcon with rotation
 var arrowIcon = L.divIcon({
@@ -36,11 +42,17 @@ onMounted(() => {
   tileLayer.addTo(map);
   myLocationLayer.addTo(map);
   beaconLayer.addTo(map);
+  pointsLayer.addTo(map);
+
+  if (props.points) {
+    plotPoints(pointsLayer, props.points, 20);
+    map.setView([props.points[0].latitude, props.points[0].longitude], 16);
+  }
 });
 
-const plotPoints = (points, radiusMeters) => {
+const plotPoints = (layer, points, radiusMeters) => {
   // Clear existing markers
-  myLocationLayer.clearLayers();
+  layer.clearLayers();
 
   // Plot each point on the map
   points.forEach(function(point) {
@@ -50,13 +62,13 @@ const plotPoints = (points, radiusMeters) => {
       fillColor: '#f03',
       fillOpacity: 0.3,
       radius: radiusMeters  // drawn radius is based on proximity threshold for callouts
-    }).addTo(myLocationLayer);
+    }).addTo(layer);
 
     if (point.heading !== null && !isNaN(point.heading)) {
       // Also render a directional arrow showing inferred compass heading
       var arrowMarker = L.marker([point.latitude, point.longitude], {
         icon: arrowIcon,
-      }).addTo(myLocationLayer);
+      }).addTo(layer);
       arrowMarker._icon.style.transform += ' rotate(' + point.heading + 'deg)';
     }
   });
@@ -65,6 +77,7 @@ const plotPoints = (points, radiusMeters) => {
 const plotMyLocation = () => {
   const radiusMeters = 40; //FIXME import form location
   plotPoints(
+    myLocationLayer,
     [{
       latitude: props.location.latitude,
       longitude: props.location.longitude,
@@ -78,7 +91,9 @@ const plotMyLocation = () => {
 watch(props.location, (newValue, oldValue) => {
   // Map should follow current point
   if (newValue.latitude && newValue.longitude) {
-    map.setView([newValue.latitude, newValue.longitude], 16);
+    if (props.follow) {
+      map.setView([newValue.latitude, newValue.longitude], 16);
+    }
     plotMyLocation();
   }
 });

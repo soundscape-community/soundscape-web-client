@@ -165,11 +165,12 @@ export function createSpatialPlayer() {
     }
 
     // Compute current distance to POI (may be greater than proximityThreshold, if user has moved away since it was queued)
+    var textToSpeak = currentItem.text;
     if (currentItem.includeDistance) {
       const units = "feet";
       const distance = distanceTo.value(currentItem.location, { units: units })
         .toFixed(0);
-      currentItem.text += `, ${distance} ${units}`;
+      textToSpeak += `, ${distance} ${units}`;
     }
 
     if (typeof currentItem === "object" && currentItem.soundUrl) {
@@ -187,7 +188,7 @@ export function createSpatialPlayer() {
         recentCallouts.value.unshift(currentItem);
       }
       await playSpatialSpeech(
-        currentItem.text,
+        textToSpeak,
         player.voice,
         player.rate,
         relativePosition.x || 0,

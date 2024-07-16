@@ -9,7 +9,7 @@
       :decAction="audioQueue.decreaseRate"
     />
     <button class="nav-button">
-      <RouterLink to="/help">
+      <RouterLink :to="{name: 'Help'}">
         <i class="fas fa-question" style="color: white;"></i>
       </RouterLink>
     </button>

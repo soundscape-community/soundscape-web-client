@@ -23,7 +23,7 @@ Select a local GPX file from your computer, and it will be replayed on a visual 
 https://soundscape-community.github.io/soundscape-web-client/#/gpx
 
 ### Location override
-To use a location other than what's reported by your device, include the latitude and longitude in the URL, e.g. https://soundscape-community.github.io/soundscape-web-client/#/at/38.897600/-77.006156 will place you near Union Station in Washington, D.C. The compass heading will follow your mouse pointer.
+To use a location other than what's reported by your device, you can include the latitude and longitude in the URL, e.g. https://soundscape-community.github.io/soundscape-web-client/#/fixed/38.897600/-77.006156 will place you near Union Station in Washington, D.C. The compass heading will follow your mouse pointer.
 
 ### Running the app on your own machine
 1. Install dependencies, build the app, and start the server
@@ -38,18 +38,18 @@ To use a location other than what's reported by your device, include the latitud
     3. Many other [tunneling options](https://github.com/anderspitman/awesome-tunneling?tab=readme-ov-file)
 
 ### Running the Android version
-1. Build and sync the app
+1. Build and sync the app:
     ```
     npm ci && npm run build && npx cap sync
     ```
-2. Open it in Android studio and run it from there
+2. Open it in Android Studio and run it from there:
     ```
     npx cap open android
     ```
-    From Android studio you can run it either in an emulator or on a real device.
+    From Android Studio, you can run it either in an emulator or on a real device.
 
-### Update Splash Screens and Icons Android
-Just place your images as decrived in in `\assets` https://capacitorjs.com/docs/guides/splash-screens-and-icons and run `npx capacitor-assets generate --android`
+#### Update Splash Screens and Icons (Android)
+Just place your images as described in in `\assets` https://capacitorjs.com/docs/guides/splash-screens-and-icons and run `npx capacitor-assets generate --android`.
 
 ## Third-party libraries used
 1. [Turf.js](https://turfjs.org/) (for GeoJSON processingand geospatial calculations)

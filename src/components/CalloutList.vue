@@ -14,7 +14,13 @@
         >
           🔊
         </button>
-        {{ callout.text }}
+        <RouterLink :to="{ name: 'Detail', params: {
+          name: callout.text,
+          lat: callout.location.geometry.coordinates[1],
+          lon: callout.location.geometry.coordinates[0],
+         } }">
+          {{ callout.text }}
+        </RouterLink>
       </li>
     </ul>
   </section>
@@ -71,5 +77,10 @@ const startBeacon = (e) => {
 
 #recentCalloutsArea button {
   width: 60px;
+}
+
+#recentCalloutsList a {
+  text-decoration: none;
+  color:#000;
 }
 </style>
