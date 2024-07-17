@@ -25,7 +25,7 @@
   <MapDisplay
     :location="myLocation"
     :beacon="beacon"
-    :points="[{latitude: props.lat, longitude: props.lon }]"
+    :pointOfInterest="pointOfInterest"
     follow="false"
   />
 </template>
@@ -35,7 +35,7 @@ import MapDisplay from '../components/MapDisplay.vue';
 import { beacon } from '../state/beacon.js';
 import { myLocation, distanceTo } from '../state/location.js'
 import { point } from '@turf/helpers';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 
 const props = defineProps({
   lat: Number,
@@ -44,6 +44,10 @@ const props = defineProps({
 });
 
 const fullUrl = ref('');
+const pointOfInterest = reactive({
+  latitude: props.lat,
+  longitude: props.lon,
+});
 
 const turfPoint = computed(
   () => point([props.lon, props.lat])

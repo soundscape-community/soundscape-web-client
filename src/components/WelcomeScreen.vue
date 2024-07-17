@@ -52,8 +52,7 @@ const watchLocation = (callback) => {
       console.log(position);
       callback(
         position.coords.latitude,
-        position.coords.longitude,
-        position.coords.heading,
+        position.coords.longitude
       );
     },
     function (error) {

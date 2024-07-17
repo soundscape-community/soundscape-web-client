@@ -3,8 +3,9 @@
 </template>  
 
 <script setup>
-import { inject, ref, onMounted, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import * as L from 'leaflet';
+import { useReactiveMapLayer } from '../composables/layer.js';
 
 const props = defineProps({
   location: Object,
@@ -13,128 +14,48 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-  points: Array,
+  pointOfInterest: Object,
 });
 
-// To be initialized on component mount
-var map = null;
-var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap contributors'
-})
-var myLocationLayer = new L.LayerGroup();
-var beaconLayer = new L.LayerGroup();
-var pointsLayer = new L.LayerGroup();
-
-// Create a custom divIcon with rotation
-var arrowIcon = L.divIcon({
-  className: 'arrow-icon',
-  iconSize: [0, 0],
-  iconAnchor: [12, 30],
-});
-
-var beaconIcon = L.divIcon({
-  className: 'beacon-icon',
-  iconSize: [20, 20],
-});
+const map = ref(null);
 
 onMounted(() => {
-  map = L.map("map");
-  tileLayer.addTo(map);
-  myLocationLayer.addTo(map);
-  beaconLayer.addTo(map);
-  pointsLayer.addTo(map);
-
-  if (props.points) {
-    plotPoints(pointsLayer, props.points, 20);
-    map.setView([props.points[0].latitude, props.points[0].longitude], 16);
-  }
+  map.value = L.map("map");
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map.value);
 });
 
-const plotPoints = (layer, points, radiusMeters) => {
-  // Clear existing markers
-  layer.clearLayers();
-
-  // Plot each point on the map
-  points.forEach(function(point) {
-    // Render a circle reflecting the radius of POIs within speaking distance
-    L.circle([point.latitude, point.longitude], {
-      color: 'red',
-      fillColor: '#f03',
-      fillOpacity: 0.3,
-      radius: radiusMeters  // drawn radius is based on proximity threshold for callouts
-    }).addTo(layer);
-
-    if (point.heading !== null && !isNaN(point.heading)) {
-      // Also render a directional arrow showing inferred compass heading
-      var arrowMarker = L.marker([point.latitude, point.longitude], {
-        icon: arrowIcon,
-      }).addTo(layer);
-      arrowMarker._icon.style.transform += ' rotate(' + point.heading + 'deg)';
-    }
-  });
-};
-
-const plotMyLocation = () => {
-  const radiusMeters = 40; //FIXME import form location
-  plotPoints(
-    myLocationLayer,
-    [{
-      latitude: props.location.latitude,
-      longitude: props.location.longitude,
-      heading: props.location.heading,
-    }],
-    radiusMeters
-  );
-};
-
-// Register for updates to location
-watch(props.location, (newValue, oldValue) => {
-  // Map should follow current point
-  if (newValue.latitude && newValue.longitude) {
-    if (props.follow) {
-      map.setView([newValue.latitude, newValue.longitude], 16);
-    }
-    plotMyLocation();
+// Plot current location
+useReactiveMapLayer(map, props.location, props.follow, (x) => L.circle(
+  [x.latitude, x.longitude],
+  {
+    color: 'red',
+    fillColor: '#f03',
+    fillOpacity: 0.3,
+    radius: 40
   }
-});
-
-const plotBeacon = (lat, lon) => {
-  // Clear existing beacons
-  beaconLayer.clearLayers();
-
-  // Render a pulsing circle (see CSS)
-  L.marker([lat, lon], {
-  icon: beaconIcon,
-  }).addTo(beaconLayer);
-};
-
-// Beacon pulses hwen it is active
-const startBeaconPulse = () => {
-  beaconLayer.eachLayer(layer => {
-    layer.getElement().classList.add('pulsing');
-  })
-};
-
-// Stop beacon pulsing whern it is inactive
-const pauseBeaconPulse = () => {
-  beaconLayer.eachLayer(layer => {
-    layer.getElement().classList.remove('pulsing');
-  })
-};
-
-watch(props.beacon, (newValue, oldValue) => {
-  if (newValue.name) {
-    plotBeacon(newValue.latitude, newValue.longitude);
-  } else {
-    beaconLayer.clearLayers();
+));
+// Plot active beacon, if any
+useReactiveMapLayer(map, props.beacon, props.follow, (x) => L.marker(
+  [x.latitude, x.longitude],
+  {
+    icon: L.divIcon({
+      className: 'beacon-icon',
+      iconSize: [20, 20],
+    })
   }
-
-  if (newValue.enabled) {
-    startBeaconPulse();
-  } else {
-    pauseBeaconPulse();
+));
+// Plot point of interest, e.g. on detail page
+useReactiveMapLayer(map, props.pointOfInterest, props.follow, (x) => L.marker(
+  [x.latitude, x.longitude],
+  {
+    icon: L.divIcon({
+      className: 'poi-icon',
+      iconSize: [20, 20],
+    })
   }
-});
+));
 </script>
 
 <style>
@@ -184,5 +105,15 @@ watch(props.beacon, (newValue, oldValue) => {
   50% {
       opacity: 1.0;
   }
+}
+
+/* Detail marker on map */
+.poi-icon {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  background-color: black;
+  border-radius: 50% 50% 50% 50%;
+  border: 3px solid #2c3e50;
 }
 </style>
