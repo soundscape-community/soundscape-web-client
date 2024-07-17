@@ -28,24 +28,6 @@ The resulting audio graph looks something like this:
                       V
                     output
 */
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-const panner = createPanner(audioContext);
-
-const onCourseAudio = new Audio(Classic_OnAxis_wav);
-const offCourseAudio = new Audio(Classic_OffAxis_wav);
-onCourseAudio.loop = true;
-offCourseAudio.loop = true;
-
-const onCourseSource = audioContext.createMediaElementSource(onCourseAudio);
-const offCourseSource = audioContext.createMediaElementSource(offCourseAudio);
-const onCourseGain = audioContext.createGain();
-const offCourseGain = audioContext.createGain();
-onCourseSource.connect(onCourseGain);
-offCourseSource.connect(offCourseGain);
-onCourseGain.connect(panner);
-offCourseGain.connect(panner);
-panner.connect(audioContext.destination);
-
 export const beacon = reactive({
   name: null,
   latitude: null,
@@ -53,17 +35,45 @@ export const beacon = reactive({
   lastAnnouncedDistance: null,
   enabled: false,
 
+  // In some browsers, audio initialization needs to be triggerred by a user action
+  initialize() {
+    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    this.panner = createPanner(this.audioContext);
+
+    this.onCourseAudio = new Audio(Classic_OnAxis_wav);
+    this.offCourseAudio = new Audio(Classic_OffAxis_wav);
+    this.onCourseAudio.loop = true;
+    this.offCourseAudio.loop = true;
+
+    this.onCourseGain = this.audioContext.createGain();
+    this.offCourseGain = this.audioContext.createGain();
+
+    this.audioContext
+        .createMediaElementSource(this.onCourseAudio)
+        .connect(this.onCourseGain);
+    this.audioContext
+        .createMediaElementSource(this.offCourseAudio)
+        .connect(this.offCourseGain);
+
+    this.onCourseGain.connect(this.panner);
+    this.offCourseGain.connect(this.panner);
+    this.panner.connect(this.audioContext.destination);
+  },
+
   set(name, latitude, longitude) {
     this.name = name;
     this.latitude = latitude;
     this.longitude = longitude;
     this.lastAnnouncedDistance = null;
   },
+
   clear() { this.set(null, null, null); },
+
   start() {
     this.enabled = true;
     looper.start();
   },
+
   stop() {
     this.enabled = false;
     looper.stop();
@@ -87,7 +97,7 @@ const relativePosition = computed(
 
 // Set the beacon sound effect spatial position.
 watch(relativePosition, (newValue, oldVAlue) => {
-  beacon.enabled ? panner.setCoordinates(newValue.x, newValue.y) : null;
+  beacon.enabled ? beacon.panner.setCoordinates(newValue.x, newValue.y) : null;
 });
 
 // True if we are roughly facing the beacon, +/- onCourseAngle
@@ -105,26 +115,26 @@ const looper = {
   intervalId: null,
   async start() {
     // Resume the audio context (especially needed for Safari)
-    if (audioContext.state === 'suspended') {
-      await audioContext.resume();
+    if (beacon.audioContext.state === 'suspended') {
+      await beacon.audioContext.resume();
     }
-    onCourseAudio.play();
-    offCourseAudio.play()
+    beacon.onCourseAudio.play();
+    beacon.offCourseAudio.play()
     // Switch between on/off-course effects no more than once per second
     this.intervalId = setInterval(() => {
       if (isOnCourse.value) {
-        onCourseGain.gain.setValueAtTime(1, audioContext.currentTime);
-        offCourseGain.gain.setValueAtTime(0, audioContext.currentTime);
+        beacon.onCourseGain.gain.setValueAtTime(1, beacon.audioContext.currentTime);
+        beacon.offCourseGain.gain.setValueAtTime(0, beacon.audioContext.currentTime);
       } else {
-        onCourseGain.gain.setValueAtTime(0, audioContext.currentTime);
-        offCourseGain.gain.setValueAtTime(1, audioContext.currentTime);
+        beacon.onCourseGain.gain.setValueAtTime(0, beacon.audioContext.currentTime);
+        beacon.offCourseGain.gain.setValueAtTime(1, beacon.audioContext.currentTime);
       }
     }, 1000);
   },
   stop() {
     clearInterval(this.intervalId);
-    onCourseAudio.pause();
-    offCourseAudio.pause();
+    beacon.onCourseAudio.pause();
+    beacon.offCourseAudio.pause();
   },
 };
 

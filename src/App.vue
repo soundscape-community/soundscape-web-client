@@ -1,8 +1,16 @@
 <template>
-  <router-view></router-view>
+  <WelcomeScreen @initialized="handleInitialized" />
+  <router-view v-if="!isWelcomeScreenVisible"></router-view>
 </template>
 
 <script setup>
+import WelcomeScreen from './components/WelcomeScreen.vue';
+import { ref } from 'vue';
+
+const isWelcomeScreenVisible = ref(true);
+const handleInitialized = () => {
+  isWelcomeScreenVisible.value = false;
+};
 </script>
 
 <style>

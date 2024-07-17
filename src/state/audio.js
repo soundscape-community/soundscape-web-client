@@ -3,10 +3,23 @@
 
 import { ref } from 'vue';
 import { TextToSpeech } from "@capacitor-community/text-to-speech";
+import unmute from "../vendor/unmute.js";
 import { normalizedRelativePositionTo, distanceTo } from '../state/location.js';
 
-export const audioContext = new (window.AudioContext ||
-  window.webkitAudioContext)();
+export var audioContext = null;
+export var audioQueue = null;
+
+export const initializeAudioQueue = () => {
+  audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+  // iOS Safari workaround to allow audio while mute switch is on
+  let allowBackgroundPlayback = true;
+  let forceIOSBehavior = false;
+  unmute(audioContext, allowBackgroundPlayback, forceIOSBehavior);
+
+  audioQueue = createSpatialPlayer();
+  audioQueue.loadVoices();
+};
 
 // Use a Vue ref for recent callouts list so that changes trigger UI updates
 export const recentCallouts = ref([]);
@@ -204,8 +217,6 @@ export function createSpatialPlayer() {
 
   return player;
 }
-
-export const audioQueue = createSpatialPlayer();
 
 // Create a WebAudio panner with the settings that will be used by both
 // beacons and callouts.

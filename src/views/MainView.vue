@@ -1,6 +1,6 @@
 <template>
   <nav>
-    <MainModeSelector :tracker="tracker" />
+    <MainModeSelector />
     <VoiceSelector />
     <InputSpinner
       title="Speaking rate"
@@ -34,24 +34,48 @@ import { beacon } from '../state/beacon.js';
 import { myLocation } from '../state/location.js';
 import { recentCallouts } from '../state/audio.js';
 import { audioQueue } from '../state/audio.js';
-import { useFixedPosition, useRealPosition } from '../composables/tracking.js';
 import { onMounted, ref } from 'vue';
 
 const props = defineProps({
   lat: Number,
   lon: Number,
 });
-const tracker = ref(null);
 
 onMounted(() => {
   // Use fixed location if user specified URL parameters.
   if (props.lat && props.lon) {
-    tracker.value = useFixedPosition(
+    myLocation.setLocation(
       parseFloat(props.lat),
       parseFloat(props.lon),
     );
-  } else {
-    tracker.value = useRealPosition();
+    // Compass points at mouse pointer
+    const mapLocation = document.getElementById("map");
+    window.addEventListener('mousemove', (event) => {
+      const angle = getMouseAngle(mapLocation, event);
+      myLocation.setHeading(angle);
+    });
   }
 });
+
+// For testing, let heading follow mouse pointer
+function getMouseAngle(node, event) {
+  // Get the node's bounding rectangle
+  const rect = node.getBoundingClientRect();
+
+  // Calculate the center of the node
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+
+  // Calculate the position of the mouse relative to the center of the node
+  const mouseX = event.clientX - centerX;
+  const mouseY = event.clientY - centerY;
+
+  // Calculate the angle in radians
+  const angleRadians = Math.atan2(mouseX, -mouseY);
+
+  // Convert the angle to degrees
+  const angleDegrees = angleRadians * (180 / Math.PI);
+
+  return angleDegrees;
+}
 </script>

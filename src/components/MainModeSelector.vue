@@ -24,14 +24,9 @@ import mode_exit_wav from "/assets/sounds/mode_exit.wav";
 import mode_enter_wav from "/assets/sounds/mode_enter.wav";
 
 import { ref } from 'vue';
-import { audioQueue, playSpatialSpeech } from '../state/audio.js';
+import { audioQueue } from '../state/audio.js';
 import useAnnouncer from '../composables/announcer.js';
-import { useDeviceOrientation } from "../composables/compass.js";
 import { myLocation } from '../state/location.js';
-
-const props = defineProps({
-  tracker: Object,
-});
 
 const announcer = useAnnouncer();
 const activeMode = ref(null);
@@ -41,11 +36,6 @@ var wakeLock = null;
 //   If a mode is currently active, end that mode
 //   If mode button was different from current mode, start new mode
 async function toggleMode(newMode) {
-  // required for iOS Safari: first speech must be directly triggered by user action
-  playSpatialSpeech(" ");
-  // ...as well as device orientation tracking
-  useDeviceOrientation((h) => myLocation.setHeading(h));
-
   // Clear queued audio
   if (activeMode.value) {
     audioQueue.stopAndClear();
@@ -54,7 +44,6 @@ async function toggleMode(newMode) {
 
   // Remove any location and orientation change event handlers
   announcer.stopWatching()
-  props.tracker.stop();
 
   // Stop here if the intent was to end the current mode
   if (activeMode.value == newMode) {
@@ -97,15 +86,15 @@ async function toggleMode(newMode) {
   switch (newMode) {
     case "callouts":
       announcer.startWatching();
-      props.tracker.start();
       break;
 
     case "near_me":
-      props.tracker.current()
-        .then((coords) => {
-          announcer.calloutNearestRoad(coords.latitude, coords.longitude);
-          announcer.calloutAllFeaturesOrSayNoneFound(coords.latitude, coords.longitude);
-        })
+      announcer.calloutNearestRoad(
+        myLocation.latitude, myLocation.longitude
+      );
+      announcer.calloutAllFeaturesOrSayNoneFound(
+        myLocation.latitude, myLocation.longitude
+      );
       break;
   }
 };

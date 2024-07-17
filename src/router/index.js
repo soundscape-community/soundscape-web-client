@@ -7,7 +7,12 @@ import HelpView from '../views/HelpView.vue';
 
 const routes = [
   { name: "Home", path: '/', component: MainView },
-  { path: '/fixed/:lat/:lon', component: MainView, props: true },
+  {
+    name: "Fixed",
+    path: '/fixed/:lat/:lon',
+    component: MainView,
+    props: true
+  },
   {
     name: "Detail",
     path: '/detail/:lat/:lon/:name',
