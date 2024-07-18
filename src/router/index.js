@@ -6,7 +6,12 @@ import GPXView from '../views/GPXView.vue';
 import HelpView from '../views/HelpView.vue';
 
 const routes = [
-  { name: "Home", path: '/', component: MainView },
+  {
+    name: "Home",
+    path: '/',
+    component: MainView,
+    meta: { requiresGeolocation: true },
+  },
   {
     name: "Fixed",
     path: '/fixed/:lat/:lon',
@@ -17,7 +22,8 @@ const routes = [
     name: "Detail",
     path: '/detail/:lat/:lon/:name',
     component: DetailView,
-    props: true
+    props: true,
+    meta: { requiresGeolocation: true },
   },
   { name: "GPX", path: '/gpx', component: GPXView },
   { name: "Help", path: '/help', component: HelpView },

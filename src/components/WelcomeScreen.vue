@@ -31,8 +31,8 @@ const removewall = () => {
   // ...as well as device orientation tracking
   useDeviceOrientation((h) => myLocation.setHeading(h));
 
-  // Start geolocation services, unless we're in fixed-location mode
-  if (router.name != "Fixed") {
+  // Start geolocation services, on certain pages
+  if (router.meta.requiresGeolocation) {
     watchLocation((latitude, longitude) => {
       myLocation.setLocation(latitude, longitude);
     });
