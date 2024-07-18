@@ -1,14 +1,5 @@
 <template>
-    <nav>
-        <div class="home-container">
-            <button class="home" title="Home">
-                <RouterLink to="/" class="help-link">&#x2302;</RouterLink>
-            </button>
-        </div>
-        <div class="title-container">
-            <h1>Help</h1>
-        </div>
-    </nav>
+    <SubpageTopbar title="Help" />
     
     <div class="container">
         <div class="row">
@@ -60,6 +51,7 @@
 
 <script setup>
 import InputSpinner from '../components/InputSpinner.vue';
+import SubpageTopbar from '../components/SubpageTopbar.vue';
 </script>
 
 <style>

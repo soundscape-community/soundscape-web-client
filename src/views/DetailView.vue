@@ -1,9 +1,5 @@
 <template>
-  <nav>
-    <RouterLink class="nav-button" :to="{name: 'Home'}">&laquo;</RouterLink>
-    <h1>Location</h1>
-    <div></div> <!-- balance nodes in nav so h1 is centered -->
-  </nav>
+  <SubpageTopbar title="Location" />
 
   <h2>{{ props.name }}</h2>
 
@@ -32,6 +28,7 @@
 
 <script setup>
 import MapDisplay from '../components/MapDisplay.vue';
+import SubpageTopbar from '../components/SubpageTopbar.vue';
 import { beacon } from '../state/beacon.js';
 import { myLocation, distanceTo } from '../state/location.js'
 import { point } from '@turf/helpers';
