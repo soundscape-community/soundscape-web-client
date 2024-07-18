@@ -8,8 +8,9 @@ var arrowIcon = L.divIcon({
   iconAnchor: [12, 30],
 });
 
-export function useReactiveMapLayer(map, reactivePoint, follow, createMarker) {
+export function useReactiveMapLayer(map, reactivePoint, options) {
   let layer;
+  let drawnYet = false;
 
   const initializeLayer = () => {
     layer = L.layerGroup().addTo(map.value);
@@ -24,9 +25,21 @@ export function useReactiveMapLayer(map, reactivePoint, follow, createMarker) {
     // Render point as marker
     layer.clearLayers();
     if (reactivePoint.latitude && reactivePoint.longitude) {
-      createMarker(reactivePoint).addTo(layer);
-      if (follow) {
+      L.marker(
+        [reactivePoint.latitude, reactivePoint.longitude],
+        {
+          icon: L.divIcon({
+            className: options.className,
+            iconSize: options.iconSize
+          })
+        }
+      ).addTo(layer);
+`
+      // Move the map view if we should follow the point, or if this is the first value
+      // of the point we've seen.`
+      if (options.follow || (options.setMapView && !drawnYet)) {
         map.value.setView([reactivePoint.latitude, reactivePoint.longitude], 16);
+        drawnYet = true;
       }
     }
 
@@ -44,7 +57,7 @@ export function useReactiveMapLayer(map, reactivePoint, follow, createMarker) {
     }
   };
 
-  // Beacon pulses hwen it is active
+  // Beacon pulses when it is active
   const startPulse = () => {
     layer.eachLayer(l => {
       l.getElement().classList.add('pulsing');

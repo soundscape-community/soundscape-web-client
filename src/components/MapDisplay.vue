@@ -27,35 +27,25 @@ onMounted(() => {
 });
 
 // Plot current location
-useReactiveMapLayer(map, props.location, props.follow, (x) => L.circle(
-  [x.latitude, x.longitude],
-  {
-    color: 'red',
-    fillColor: '#f03',
-    fillOpacity: 0.3,
-    radius: 40
-  }
-));
+useReactiveMapLayer(map, props.location, {
+  setMapView: true,
+  follow: props.follow,
+  className: 'my-location-icon',
+  iconSize: [40, 40],
+});
+
 // Plot active beacon, if any
-useReactiveMapLayer(map, props.beacon, props.follow, (x) => L.marker(
-  [x.latitude, x.longitude],
-  {
-    icon: L.divIcon({
-      className: 'beacon-icon',
-      iconSize: [20, 20],
-    })
-  }
-));
+useReactiveMapLayer(map, props.beacon, {
+  className: 'beacon-icon',
+  iconSize: [20, 20],
+});
+
 // Plot point of interest, e.g. on detail page
-useReactiveMapLayer(map, props.pointOfInterest, props.follow, (x) => L.marker(
-  [x.latitude, x.longitude],
-  {
-    icon: L.divIcon({
-      className: 'poi-icon',
-      iconSize: [20, 20],
-    })
-  }
-));
+useReactiveMapLayer(map, props.pointOfInterest, {
+  setMapView: true,
+  className: 'poi-icon',
+  iconSize: [20, 20],
+});
 </script>
 
 <style>
@@ -74,6 +64,13 @@ useReactiveMapLayer(map, props.pointOfInterest, props.follow, (x) => L.marker(
   }
 }
 
+/* My location marker on map */
+.my-location-icon {
+  background-color: rgba(255, 0, 0, 0.3);
+  border-radius: 50% 50% 50% 50%;
+  border: 3px solid red;
+}
+
 /* Current position marker on map */
 .arrow-icon {
   width: 0;
@@ -86,9 +83,6 @@ useReactiveMapLayer(map, props.pointOfInterest, props.follow, (x) => L.marker(
 
 /* Current beacon marker on map */
 .beacon-icon {
-  position: relative;
-  width: 20px;
-  height: 20px;
   background-color: #e74c3c;
   border-radius: 50% 50% 50% 50%;
   border: 3px solid #2c3e50;
@@ -109,9 +103,6 @@ useReactiveMapLayer(map, props.pointOfInterest, props.follow, (x) => L.marker(
 
 /* Detail marker on map */
 .poi-icon {
-  position: relative;
-  width: 20px;
-  height: 20px;
   background-color: black;
   border-radius: 50% 50% 50% 50%;
   border: 3px solid #2c3e50;

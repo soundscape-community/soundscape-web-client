@@ -81,7 +81,6 @@ function useGPX(file, callbacks) {
       // Update the slider's value based on the current index
       const totalPoints = this.trackPoints.length - 1;
       sliderValue = (currentIndex / totalPoints) * 100;
-      document.getElementById("pointSlider").value = sliderValue;
     },
   };
 

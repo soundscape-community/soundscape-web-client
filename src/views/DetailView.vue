@@ -26,7 +26,7 @@
     :location="myLocation"
     :beacon="beacon"
     :pointOfInterest="pointOfInterest"
-    follow="false"
+    :follow="false"
   />
 </template>
 
