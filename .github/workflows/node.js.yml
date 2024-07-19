@@ -26,6 +26,11 @@ jobs:
     - run: npm ci
     - run: npm run build --if-present
     - run: npm test
+    - name: Cypress run
+      uses: cypress-io/github-action@v6
+      with:
+        # Linux and MacOS
+        start: npm start
 
     - uses: actions/upload-pages-artifact@v3
       with:

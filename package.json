@@ -8,11 +8,14 @@
     "mobile"
   ],
   "scripts": {
-    "start": "vite",
+    "start": "node server.js",
     "build": "vite build",
     "preview": "vite preview",
     "test": "mocha --require @babel/register",
-    "serve-tiles": "node server.js"
+    "cy:open": "start-server-and-test start http://localhost:8080 cy:open-only",
+    "cy:run": "start-server-and-test start http://localhost:8080 cy:run-only",
+    "cy:open-only": "cypress open",
+    "cy:run-only": "cypress run"
   },
   "dependencies": {
     "@capacitor-community/text-to-speech": "^4.0.2",
@@ -40,10 +43,12 @@
     "@vitejs/plugin-vue": "^5.0.5",
     "axios": "^1.7.2",
     "chai": "^5.1.1",
+    "cypress": "^13.13.1",
     "esm": "^3.2.25",
     "express": "^4.19.2",
     "mocha": "^10.6.0",
     "morgan": "^1.10.0",
+    "start-server-and-test": "^2.0.4",
     "vite": "^5.3.3",
     "vite-plugin-pwa": "^0.20.0",
     "workbox-window": "^7.1.0"

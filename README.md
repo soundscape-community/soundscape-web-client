@@ -28,7 +28,7 @@ To use a location other than what's reported by your device, you can include the
 ### Running the app on your own machine
 1. Install dependencies, build the app, and start the server
     ```
-    npm ci && npm run build && npm run serve-tiles
+    npm ci && npm run build && npm start
     ```
     The app should now be running and accessible over HTTP from a web browser at http://127.0.0.1:8080/
 
