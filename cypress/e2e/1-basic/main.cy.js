@@ -3,6 +3,7 @@
 describe('GPX view', () => {
   beforeEach(() => {
     cy.visit('http://localhost:8080/soundscape-web-client/#/gpx')
+    cy.mockSpeechSynthesis();
   })
 
   it('displays the welcome screen', () => {
