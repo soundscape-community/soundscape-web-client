@@ -5,7 +5,7 @@ describe('GPX view', () => {
     cy.visit('http://localhost:8080/soundscape-web-client/#/gpx')
     cy.mockSpeechSynthesis();
 
-    // Return fixed tile data for all network calls
+    // Return static tile data for all network calls
     cy.intercept('GET', /\/tiles\/.*/, {
       fixture: 'tiles_16_18109_23965.json'
     }).as('tile');
@@ -38,7 +38,7 @@ describe('GPX view', () => {
 
   it('starts fetching tiles', () => {
     cy.get('button').click()
-    //cy.get('#btn_clear').click()
+    cy.get('#btn_clear').click()
     cy.get('#gpxFileInput').selectFile('cypress/fixtures/waterloo.gpx')
 
     const expectedTileUrl = '/tiles/16/18108/23964.json';
@@ -49,12 +49,13 @@ describe('GPX view', () => {
 
   it('starts speaking', () => {
     cy.get('button').click()
-    //cy.get('#btn_clear').click()
+    cy.get('#btn_clear').click()
     cy.get('#gpxFileInput').selectFile('cypress/fixtures/waterloo.gpx')
 
     const expectedFirstCallout = "Memorial Park";
 
     cy.get('#playPauseButton').click()
+    // First callout is spoken a few steps in, hence the longer timeout
     cy.get('@speak', { timeout: 10000 }).should('have.been.calledWithMatch', (utterance) => {
       return utterance.text === expectedFirstCallout;
     });
