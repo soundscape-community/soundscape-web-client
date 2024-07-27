@@ -42,6 +42,14 @@ function clearObjectStore(objectStoreName) {
 
   request.onsuccess = function (event) {
     var db = event.target.result;
+
+    // Check if the object store exists
+    if (!db.objectStoreNames.contains(objectStoreName)) {
+      console.log(`Object store '${objectStoreName}' does not exist.`);
+      db.close();
+      return;
+    }
+
     var transaction = db.transaction([objectStoreName], 'readwrite');
     var objectStore = transaction.objectStore(objectStoreName);
 
