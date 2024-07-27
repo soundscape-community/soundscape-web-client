@@ -30,4 +30,16 @@ describe('GPX view', () => {
       expect(zoom).to.equal(expectedZoom);
     });
   })
+
+  it('should start speaking', () => {
+    cy.get('button').click()
+    cy.get('#gpxFileInput').selectFile('cypress/fixtures/waterloo.gpx')
+
+    const expectedFirstCallout = "ChargePoint";
+
+    cy.get('#playPauseButton').click()
+    cy.get('@speak', { timeout: 10000 }).should('have.been.calledWithMatch', (utterance) => {
+      return utterance.text === expectedFirstCallout;
+    });
+  })
 })
