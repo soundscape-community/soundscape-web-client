@@ -1,5 +1,5 @@
 <template>
-  <div id="map"></div>
+  <div id="map" ref="mapElement"></div>
 </template>  
 
 <script setup>
@@ -17,17 +17,20 @@ const props = defineProps({
   pointOfInterest: Object,
 });
 
-const map = ref(null);
+const mapElement = ref(null);
+const leafletMap = ref(null);
 
 onMounted(() => {
-  map.value = L.map("map");
+  leafletMap.value = L.map(mapElement.value);
+  // Store the map instance in the map element for Cypress access
+  mapElement.value._leafletMap = leafletMap.value;
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
-  }).addTo(map.value);
+  }).addTo(leafletMap.value);
 });
 
 // Plot current location
-useReactiveMapLayer(map, props.location, {
+useReactiveMapLayer(leafletMap, props.location, {
   setMapView: true,
   follow: props.follow,
   className: 'my-location-icon',
@@ -35,13 +38,13 @@ useReactiveMapLayer(map, props.location, {
 });
 
 // Plot active beacon, if any
-useReactiveMapLayer(map, props.beacon, {
+useReactiveMapLayer(leafletMap, props.beacon, {
   className: 'beacon-icon',
   iconSize: [20, 20],
 });
 
 // Plot point of interest, e.g. on detail page
-useReactiveMapLayer(map, props.pointOfInterest, {
+useReactiveMapLayer(leafletMap, props.pointOfInterest, {
   setMapView: true,
   className: 'poi-icon',
   iconSize: [20, 20],
