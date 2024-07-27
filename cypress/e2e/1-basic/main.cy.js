@@ -4,6 +4,11 @@ describe('GPX view', () => {
   beforeEach(() => {
     cy.visit('http://localhost:8080/soundscape-web-client/#/gpx')
     cy.mockSpeechSynthesis();
+
+    // Return fixed tile data for all network calls
+    cy.intercept('GET', /\/tiles\/.*/, {
+      fixture: 'tiles_16_18109_23965.json'
+    }).as('tile');
   })
 
   it('displays the welcome screen', () => {
@@ -31,11 +36,23 @@ describe('GPX view', () => {
     });
   })
 
-  it('should start speaking', () => {
+  it('starts fetching tiles', () => {
     cy.get('button').click()
+    //cy.get('#btn_clear').click()
     cy.get('#gpxFileInput').selectFile('cypress/fixtures/waterloo.gpx')
 
-    const expectedFirstCallout = "ChargePoint";
+    const expectedTileUrl = '/tiles/16/18108/23964.json';
+
+    cy.get('#playPauseButton').click()
+    cy.wait('@tile').its('request.url').should('include', expectedTileUrl);
+  })
+
+  it('starts speaking', () => {
+    cy.get('button').click()
+    //cy.get('#btn_clear').click()
+    cy.get('#gpxFileInput').selectFile('cypress/fixtures/waterloo.gpx')
+
+    const expectedFirstCallout = "Memorial Park";
 
     cy.get('#playPauseButton').click()
     cy.get('@speak', { timeout: 10000 }).should('have.been.calledWithMatch', (utterance) => {
