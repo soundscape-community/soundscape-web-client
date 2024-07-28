@@ -37,36 +37,20 @@ async function openDatabase() {
   });
 }
 
-function clearObjectStore(objectStoreName) {
-  var request = indexedDB.open(dbName);
+async function clearObjectStore(objectStoreName) {
+  var db = await openDatabase();
+  var transaction = db.transaction([objectStoreName], 'readwrite');
+  var objectStore = transaction.objectStore(objectStoreName);
 
-  request.onsuccess = function (event) {
-    var db = event.target.result;
+  // Clear all data in the object store
+  var clearRequest = objectStore.clear();
 
-    // Check if the object store exists
-    if (!db.objectStoreNames.contains(objectStoreName)) {
-      console.log(`Object store '${objectStoreName}' does not exist.`);
-      db.close();
-      return;
-    }
-
-    var transaction = db.transaction([objectStoreName], 'readwrite');
-    var objectStore = transaction.objectStore(objectStoreName);
-
-    // Clear all data in the object store
-    var clearRequest = objectStore.clear();
-
-    clearRequest.onsuccess = function () {
-      console.log('Data cleared successfully.');
-    };
-
-    clearRequest.onerror = function (error) {
-      console.error('Error clearing data:', error);
-    };
+  clearRequest.onsuccess = function () {
+    console.log('Data cleared successfully.');
   };
 
-  request.onerror = function (error) {
-    console.error('Error opening database:', error);
+  clearRequest.onerror = function (error) {
+    console.error('Error clearing data:', error);
   };
 }
 
