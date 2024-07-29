@@ -16,7 +16,7 @@ describe('GPX view', () => {
     cy.get('button').first().should('have.text', 'Start exploring')
   })
 
-  it('sets map to first point in the GPX file', () => {
+  it('sets the map to the first point in the GPX file', () => {
     cy.get('button').click()
     cy.get('#gpxFileInput').selectFile('cypress/fixtures/waterloo.gpx')
 
@@ -33,6 +33,24 @@ describe('GPX view', () => {
 
       const zoom = map.getZoom();
       expect(zoom).to.equal(expectedZoom);
+    });
+  })
+
+  it('updates the map based on slider input', () => {
+    cy.get('button').click()
+    cy.get('#gpxFileInput').selectFile('cypress/fixtures/waterloo.gpx')
+
+    cy.get('#pointSlider').invoke('val', 50).trigger('input')
+
+    const expectedLat = 43.453;
+    const expectedLng = -80.498;
+
+    cy.get('#map').should(($map) => {
+      const map = $map[0]._leafletMap;
+
+      const center = map.getCenter();
+      expect(center.lat).to.be.closeTo(expectedLat, 0.001);
+      expect(center.lng).to.be.closeTo(expectedLng, 0.001);
     });
   })
 
@@ -54,9 +72,11 @@ describe('GPX view', () => {
 
     const expectedFirstCallout = "Memorial Park";
 
+    // Advance the GPX file slightly so we hit the first callout more quickly
+    cy.get('#pointSlider').invoke('val', 1).trigger('input')
+
     cy.get('#playPauseButton').click()
-    // First callout is spoken a few steps in, hence the longer timeout
-    cy.get('@speak', { timeout: 10000 }).should('have.been.calledWithMatch', (utterance) => {
+    cy.get('@speak').should('have.been.calledWithMatch', (utterance) => {
       return utterance.text === expectedFirstCallout;
     });
   })
