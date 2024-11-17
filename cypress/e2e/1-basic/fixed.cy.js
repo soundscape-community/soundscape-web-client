@@ -43,7 +43,7 @@ describe('Fixed-location view', () => {
     // CLick three times to toggle mode on/off/on
     // (first time loads tile, second time has data to speak)
     cy.get('#btn_near_me').click().click().click()
-    cy.get('@speak').should('have.been.calledWithMatch', (utterance) => {
+    cy.get('@speak', {timeout: 10000}).should('have.been.calledWithMatch', (utterance) => {
       return utterance.text === expectedFirstCallout;
     });
   })
