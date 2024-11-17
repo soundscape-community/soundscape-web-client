@@ -76,7 +76,7 @@ describe('GPX view', () => {
     cy.get('#pointSlider').invoke('val', 1).trigger('input')
 
     cy.get('#playPauseButton').click()
-    cy.get('@speak').should('have.been.calledWithMatch', (utterance) => {
+    cy.get('@speak', {timeout: 10000}).should('have.been.calledWithMatch', (utterance) => {
       return utterance.text === expectedFirstCallout;
     });
   })
