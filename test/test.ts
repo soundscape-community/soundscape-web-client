@@ -2,7 +2,7 @@ import { expect } from "chai";
 import {
   createBoundingBox,
   latLonToTileCoords,
-} from "../src/composables/tile.js";
+} from "../src/composables/tile";
 
 describe("createBoundingBox", () => {
   it("should create a half-kilometer bounding box around a point", () => {
