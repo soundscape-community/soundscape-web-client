@@ -29,6 +29,7 @@ onMounted(async () => {
     // Update voices when they change (and when they initially become available)
     window.speechSynthesis.onvoiceschanged = reloadVoices;
   }
+  await reloadVoices();
 });
 
 const reloadVoices = async () => {

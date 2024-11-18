@@ -76,6 +76,7 @@ describe('GPX view', () => {
     cy.get('#pointSlider').invoke('val', 1).trigger('input')
 
     cy.get('#playPauseButton').click()
+    cy.wait(1000)  // Allow time to process tile data
     cy.get('@speak', {timeout: 10000}).should('have.been.calledWithMatch', (utterance) => {
       return utterance.text === expectedFirstCallout;
     });
