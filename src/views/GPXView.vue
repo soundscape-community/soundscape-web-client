@@ -60,7 +60,7 @@ import useAnnouncer from '../composables/announcer.js';
 import useGPX from '../composables/gpx.js';
 import { beacon } from '../state/beacon.js';
 import cache from '../state/cache';
-import { myLocation } from '../state/location.js';
+import { myLocation } from '../state/location';
 import { audioQueue, recentCallouts } from '../state/audio.js';
 import { inject, ref } from 'vue';
 

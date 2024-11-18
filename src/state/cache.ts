@@ -15,11 +15,6 @@ interface CachedURL {
   lastFetchTime: number;
 }
 
-interface Tile {
-  key: string;
-  // Add other tile properties if needed
-}
-
 interface IDBEventTargetWithResult extends EventTarget {
   result: IDBDatabase;
   error?: Error;
@@ -186,7 +181,7 @@ const cache = {
     });
   },
 
-  getFeatures: async function(tile: Tile): Promise<GeoJSONFeature[]> {
+  getFeatures: async function(tileKey: string): Promise<GeoJSONFeature[]> {
     return new Promise(async (resolve, reject) => {
       if (!cache.db) {
         cache.db = await openDatabase();
@@ -195,7 +190,7 @@ const cache = {
       const objectStore = transaction.objectStore('features');
       const tileIndex = objectStore.index('tile');
 
-      const range = IDBKeyRange.only(tile.key);
+      const range = IDBKeyRange.only(tileKey);
       const request = tileIndex.openCursor(range);
 
       const features: GeoJSONFeature[] = [];

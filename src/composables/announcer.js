@@ -10,7 +10,7 @@ import cache from "../state/cache";
 import { audioQueue } from '../state/audio.js';
 import { enumerateTilesAround } from "../composables/tile";
 import { watch } from 'vue';
-import { myLocation, myTurfPoint, distanceTo } from '../state/location.js';
+import { myLocation, myTurfPoint, distanceTo } from '../state/location';
 
 function useAnnouncer() {
   // Avoid repeating myself, by maintaining a list of the most recent POIs announced

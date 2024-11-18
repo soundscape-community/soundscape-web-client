@@ -116,7 +116,7 @@ function createTile(x: number, y: number, z: number): Tile {
       }
     },
     getFeatures: async function(): Promise<Feature[]> {
-      return cache.getFeatures(tile);
+      return cache.getFeatures(tile.key);
     },
   };
 
