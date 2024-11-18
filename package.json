@@ -28,6 +28,7 @@
     "@turf/distance": "^7.0.0",
     "@turf/helpers": "^7.0.0",
     "@turf/nearest-point-on-line": "^7.0.0",
+    "@types/leaflet": "^1.9.14",
     "leaflet": "^1.9.4",
     "vue": "^3.4.31",
     "vue-router": "^4.4.0"
@@ -41,6 +42,7 @@
     "@capacitor/cli": "latest",
     "@vite-pwa/assets-generator": "^0.2.4",
     "@vitejs/plugin-vue": "^5.0.5",
+    "@vue/cli-plugin-typescript": "^5.0.8",
     "axios": "^1.7.2",
     "chai": "^5.1.1",
     "cypress": "^13.15.2",
@@ -49,8 +51,11 @@
     "mocha": "^10.6.0",
     "morgan": "^1.10.0",
     "start-server-and-test": "^2.0.4",
+    "typescript": "^5.6.3",
     "vite": "^5.3.3",
+    "vite-plugin-checker": "^0.8.0",
     "vite-plugin-pwa": "^0.20.0",
+    "vite-tsconfig-paths": "^5.1.2",
     "workbox-window": "^7.1.0"
   },
   "author": "",

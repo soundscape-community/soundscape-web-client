@@ -6,27 +6,29 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 
-const props = defineProps({
-  title: String,
-  initial: Number,
-  min: Number,
-  max: Number,
-  incAction: Function,
-  decAction: Function,
-})
+interface CounterProps {
+  title: string;
+  initial: number;
+  min: number;
+  max: number;
+  incAction: () => number;
+  decAction: () => number;
+}
+const props = defineProps<CounterProps>();
 
-const value = ref(props.initial);
 
-const increment = () => {
+const value = ref<number>(props.initial);
+
+const increment = (): void => {
   if (value.value < props.max) {
     value.value = props.incAction();
   }
 }
 
-const decrement = () => {
+const decrement = (): void => {
   if (value.value > props.min) {
     value.value = props.decAction();
   }
