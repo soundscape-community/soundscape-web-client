@@ -12,8 +12,9 @@
   </nav>
 </template>
 
-<script setup>
-const props = defineProps({
-  title: String,
-})
+<script setup lang="ts">
+interface SubpageTopbarProps {
+  title: string;
+}
+const props = defineProps<SubpageTopbarProps>();
 </script>
