@@ -8,7 +8,7 @@ import SS_beaconFound2_48k_wav from "/assets/sounds/SS_beaconFound2_48k.wav";
 
 import { point } from '@turf/helpers';
 import { computed, reactive, watch } from 'vue';
-import { distanceTo, normalizedRelativePositionTo } from '../state/location.js';
+import { distanceTo, normalizedRelativePositionTo } from '../state/location';
 import { audioQueue, createPanner } from '../state/audio.js';
 
 const onCourseAngle = 30; // degrees +/- Y axis

@@ -4,7 +4,7 @@
 import { ref } from 'vue';
 import { TextToSpeech } from "@capacitor-community/text-to-speech";
 import unmute from "../vendor/unmute.js";
-import { normalizedRelativePositionTo, distanceTo } from '../state/location.js';
+import { normalizedRelativePositionTo, distanceTo } from '../state/location';
 
 export var audioContext = null;
 export var audioQueue = null;

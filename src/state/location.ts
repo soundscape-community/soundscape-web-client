@@ -1,38 +1,47 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-import { distance } from '@turf/distance';
-import { point } from '@turf/helpers';
+import { Feature, Point } from 'geojson';
+import { distance, point } from '@turf/turf';
 import { computed, reactive } from 'vue';
 
-export const myLocation = reactive({
+interface MyLocation {
+  latitude: number | null;
+  longitude: number | null;
+  heading: number | null;
+  radiusMeters: number;
+  setLocation(latitude: number, longitude: number): void;
+  setHeading(heading: number): void;
+}
+
+export const myLocation = reactive<MyLocation>({
   latitude: null,
   longitude: null,
   heading: null,
   radiusMeters: 40,
 
-  setLocation(latitude, longitude) {
+  setLocation(latitude: number, longitude: number) {
     this.latitude = latitude;
     this.longitude = longitude;
   },
 
-  setHeading(heading) {
+  setHeading(heading: number) {
     this.heading = heading;
   },
 });
 
 export const myTurfPoint = computed(() => {
-  return point([myLocation.longitude, myLocation.latitude]);
+  return point([myLocation.longitude!, myLocation.latitude!]);
 });
 
 export const relativePositionTo = computed(() => {
-  return (someLocation) => geoToXY(myTurfPoint.value, myLocation.heading, someLocation);
+  return (someLocation: Feature<Point>) => geoToXY(myTurfPoint.value, myLocation.heading!, someLocation);
 });
 
 // Relative position normalized to the unit circle
 // Useful for audio sources that are based on angle, not distance (like beacons)
 export const normalizedRelativePositionTo = computed(() => {
-  return (someLocation) => {
+  return (someLocation: Feature<Point>) => {
     let {x, y} = relativePositionTo.value(someLocation);
     let angle = Math.atan2(x, y);
     return { x: Math.sin(angle), y: Math.cos(angle) };
@@ -40,14 +49,14 @@ export const normalizedRelativePositionTo = computed(() => {
 });
 
 export const distanceTo = computed(() => {
-  return (someLocation, options) => {
+  return (someLocation: Feature<Point>, options?: object) => {
     return distance(myTurfPoint.value, someLocation, options);
   };
 });
 
-function geoToXY(myLocation, myHeading, poiLocation) {
+function geoToXY(myLocation: Feature<Point>, myHeading: number, poiLocation: Feature<Point>): { x: number, y: number } {
   // Convert degrees to radians
-  const toRadians = degree => degree * (Math.PI / 180);
+  const toRadians = (degree: number) => degree * (Math.PI / 180);
 
   // Earth radius in meters
   const earthRadius = 6371000;
