@@ -32,8 +32,7 @@ import MapDisplay from '../components/MapDisplay.vue';
 import VoiceSelector from '../components/VoiceSelector.vue';
 import { beacon } from '../state/beacon.js';
 import { myLocation } from '../state/location';
-import { recentCallouts } from '../state/audio.js';
-import { audioQueue } from '../state/audio.js';
+import { audioQueue, recentCallouts } from '../state/audio';
 import { onMounted, ref } from 'vue';
 
 const props = defineProps({

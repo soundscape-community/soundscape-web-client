@@ -1,16 +1,23 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
+import { Feature, Point } from 'geojson';
 import { ref } from 'vue';
-import { TextToSpeech } from "@capacitor-community/text-to-speech";
-import unmute from "../vendor/unmute.js";
+import { SpeechSynthesisVoice, TextToSpeech } from "@capacitor-community/text-to-speech";
+import unmute from "@vendor/unmute.js";
 import { normalizedRelativePositionTo, distanceTo } from '../state/location';
 
-export var audioContext = null;
-export var audioQueue = null;
+export var audioContext: AudioContext;
+export var audioQueue: SpatialPlayer;
 
 export const initializeAudioQueue = () => {
-  audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  if ('AudioContext' in window) {
+    audioContext = new AudioContext();
+  } else if ('webkitAudioContext' in window) {
+    audioContext = new (window as any).webkitAudioContext();
+  } else {
+    throw new Error('AudioContext is not supported in this browser.');
+  }
 
   // iOS Safari workaround to allow audio while mute switch is on
   let allowBackgroundPlayback = true;
@@ -22,33 +29,31 @@ export const initializeAudioQueue = () => {
 };
 
 // Use a Vue ref for recent callouts list so that changes trigger UI updates
-export const recentCallouts = ref([]);
+export const recentCallouts = ref<QueuedSpeech[]>([]);
 
 // Variables to store the current sound and speech sources
-let currentSoundSource = null;
+let currentSoundSource: AudioBufferSourceNode;
 // let currentSpeechSource = null;
 
 // Fetch and decode each sound effect only once, and store here by URL
-let audioBufferCache = {};
+interface AudioDictionary {
+  [key: string]: AudioBuffer;
+}
+let audioBufferCache: AudioDictionary = {};
 
 // Function to load a sound file
-async function loadSound(url) {
+async function loadSound(url: string): Promise<AudioBuffer> {
   if (!audioBufferCache[url]) {
     // fetch sound URL, decode, and store buffer in cache
-    try {
-      const response = await fetch(url);
-      const arrayBuffer = await response.arrayBuffer();
-      audioBufferCache[url] = await audioContext.decodeAudioData(arrayBuffer);
-    } catch (error) {
-      console.error("Error loading sound:", error);
-      return;
-    }
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    audioBufferCache[url] = await audioContext.decodeAudioData(arrayBuffer);
   }
   return audioBufferCache[url];
 }
 
 // Function to create a spatial audio source
-function createSpatialSource(buffer, x, y) {
+function createSpatialSource(buffer: AudioBuffer, x: number, y: number): AudioBufferSourceNode {
   const source = audioContext.createBufferSource();
   const panner = createPanner(audioContext);
 
@@ -64,13 +69,13 @@ function createSpatialSource(buffer, x, y) {
 }
 
 // Function to play a sound with spatial audio
-function playSpatialSound(buffer, x, y) {
+function playSpatialSound(buffer: AudioBuffer, x: number, y: number) {
   // Cancel the current sound source if any
   if (currentSoundSource) {
     currentSoundSource.stop();
   }
 
-  return new Promise((resolve) => {
+  return new Promise<void>((resolve) => {
     const spatialSource = createSpatialSource(buffer, x, y);
     spatialSource.onended = () => resolve();
     spatialSource.start();
@@ -82,20 +87,50 @@ function playSpatialSound(buffer, x, y) {
 
 // Function to play synthesized speech with spatial audio
 //FIXME not actually spatial
-export async function playSpatialSpeech(text, voice, rate, x, y) {
+export async function playSpatialSpeech(text: string, voiceIndex: number, rate: number, x: number, y: number) {
   // Cancel the current speech source if any
   TextToSpeech.stop();
 
   return TextToSpeech.speak({
     text,
-    voice: typeof voice !== "undefined" ? voice.voiceIndex : voice,
+    voice: voiceIndex,
     rate,
   });
 }
 
+type SpeechSynthesisVoiceWithIndex = SpeechSynthesisVoice & {
+  voiceIndex: number;
+}
+
+interface QueuedEffect {
+  soundUrl: string;
+  location?: Feature<Point>;
+}
+interface QueuedSpeech {
+  text: string;
+  location?: Feature<Point>;
+  includeDistance?: boolean;
+}
+type QueueItem = QueuedEffect | QueuedSpeech;
+
+interface SpatialPlayer {
+  queue: QueueItem[];
+  isPlaying: boolean;
+  voices: SpeechSynthesisVoiceWithIndex[] | null;
+  voice: SpeechSynthesisVoiceWithIndex | null;
+  rate: number;
+  setVoice: (voiceIndex: number) => void;
+  setRate: (rate: number) => void;
+  increaseRate: () => number;
+  decreaseRate: () => number;
+  addToQueue: (item: QueueItem) => void;
+  stopAndClear: () => void;
+  loadVoices: () => Promise<SpeechSynthesisVoiceWithIndex[]>;
+}
+
 // Function to create a player with a dynamic sequence of spatial sounds and spatial speech
-export function createSpatialPlayer() {
-  const player = {
+export function createSpatialPlayer(): SpatialPlayer {
+  const player: SpatialPlayer = {
     queue: [],
     isPlaying: false,
 
@@ -103,10 +138,12 @@ export function createSpatialPlayer() {
     voices: null,
     voice: null,
     rate: 2,
-    setVoice(voiceIndex) {
-      player.voice = player.voices[voiceIndex];
+    setVoice(voiceIndex: number) {
+      if (player.voices) {
+        player.voice = player.voices[voiceIndex];
+      }
     },
-    setRate(rate) {
+    setRate(rate: number) {
       player.rate = rate;
     },
     increaseRate() {
@@ -116,7 +153,7 @@ export function createSpatialPlayer() {
       return --player.rate;
     },
 
-    addToQueue(item) {
+    addToQueue(item: QueueItem) {
       player.queue.push(item);
       //console.log(item);
       if (!player.isPlaying) {
@@ -133,39 +170,35 @@ export function createSpatialPlayer() {
       TextToSpeech.stop();
     },
 
-    async loadVoices() {
+    async loadVoices(): Promise<SpeechSynthesisVoiceWithIndex[]> {
       // Build list of available voices
-      return TextToSpeech.getSupportedVoices().then((voices) => {
+      let voices = await TextToSpeech.getSupportedVoices();
+
+      player.voices = voices.voices.filter((voice) =>
+        voice.lang.startsWith("en")
+      ).map((voice, index) =>
         // add "voiceIndex" as it is required by the TextToSpeech.speak
-        voices.voices.forEach(function (voice, index) {
-          voice.voiceIndex = index;
-        });
+        Object.assign(voice, {voiceIndex: index})
+      );
 
-        const voicesEn = voices.voices.filter((voice) =>
-          voice.lang.startsWith("en")
-        );
-        const voicesNames = new Set(voicesEn.map((voice) => voice.name));
+      // Select the system default voice by default
+      const systemDefaultVoice = player.voices.find((voice) => voice.default);
+      if (systemDefaultVoice) {
+        player.setVoice(systemDefaultVoice.voiceIndex);
+      } else {
+        player.setVoice(0);
+      }
 
-        player.voices = Array.from(voicesNames).map((name) =>
-          voicesEn.find((voice) => voice.name === name)
-        );
-
-        // Select the system default voice by default
-        const systemDefaultVoice = player.voices.find((voice) => voice.default) || 0;
-        player.setVoice(systemDefaultVoice);
-
-        return player.voices;
-      });
+      return player.voices;
     },
   };
 
-  async function playNext() {
-    if (player.queue.length === 0) {
+  async function playNext(): Promise<void> {
+    const currentItem = player.queue.shift();
+    if (!currentItem) {
       player.isPlaying = false;
       return; // Nothing left in the queue
     }
-
-    const currentItem = player.queue.shift();
 
     // Calculate the Cartesian coordinates to position the audio.
     // (done just before the audio is spoken, since the user may have
@@ -177,16 +210,7 @@ export function createSpatialPlayer() {
       );
     }
 
-    // Compute current distance to POI (may be greater than proximityThreshold, if user has moved away since it was queued)
-    var textToSpeak = currentItem.text;
-    if (currentItem.includeDistance) {
-      const units = "feet";
-      const distance = distanceTo.value(currentItem.location, { units: units })
-        .toFixed(0);
-      textToSpeak += `, ${distance} ${units}`;
-    }
-
-    if (typeof currentItem === "object" && currentItem.soundUrl) {
+    if ('soundUrl' in currentItem) {
       // If it's an object with a 'soundUrl' property, assume it's a spatial sound
       const soundBuffer = await loadSound(currentItem.soundUrl);
       await playSpatialSound(
@@ -194,7 +218,16 @@ export function createSpatialPlayer() {
         relativePosition.x || 0,
         relativePosition.y || 0
       );
-    } else if (typeof currentItem === "object" && currentItem.text) {
+    } else {
+      // Compute current distance to POI (may be greater than proximityThreshold, if user has moved away since it was queued)
+      var textToSpeak = currentItem.text || '';
+      if ('includeDistance' in currentItem && currentItem.location) {
+        const units = "feet";
+        const distance = distanceTo.value(currentItem.location, { units: units })
+          .toFixed(0);
+        textToSpeak += `, ${distance} ${units}`;
+      }
+
       // If it's an object with a 'text' property, assume it's spatial speech
       if (currentItem.location) {
         // Visual list will update with callouts as they are announced
@@ -202,13 +235,11 @@ export function createSpatialPlayer() {
       }
       await playSpatialSpeech(
         textToSpeak,
-        player.voice,
+        player.voice ? player.voice.voiceIndex : 0,
         player.rate,
         relativePosition.x || 0,
         relativePosition.y || 0
       );
-    } else {
-      console.error(`unrecognized object in audio queue: ${currentItem}`);
     }
 
     // Play the next item recursively
@@ -221,7 +252,9 @@ export function createSpatialPlayer() {
 // Create a WebAudio panner with the settings that will be used by both
 // beacons and callouts.
 // https://developer.mozilla.org/en-US/docs/Web/API/PannerNode
-export function createPanner(audioContext) {
+export function createPanner(audioContext: AudioContext): PannerNode & {
+  setCoordinates: (x: number, y: number) => void;
+} {
   const panner = audioContext.createPanner();
   panner.panningModel = "HRTF";
   // Keep a constant volume regardless of distance from source.
@@ -234,7 +267,7 @@ export function createPanner(audioContext) {
   panner.coneOuterAngle = 0;
   panner.coneOuterGain = 0;
 
-  panner.setCoordinates = (x, y) => {
+  const setCoordinates = (x: number, y: number): void => {
     panner.positionX.value = x;
     // Note that the panner's axes are *not* the same axes as ours,
     // namely that Y is up/down, and Z is forward/backward.
@@ -242,5 +275,5 @@ export function createPanner(audioContext) {
     panner.positionZ.value = y;
   };
 
-  return panner;
+  return Object.assign(panner, { setCoordinates });
 }

@@ -24,7 +24,7 @@ import mode_exit_wav from "/assets/sounds/mode_exit.wav";
 import mode_enter_wav from "/assets/sounds/mode_enter.wav";
 
 import { ref } from 'vue';
-import { audioQueue } from '../state/audio.js';
+import { audioQueue } from '../state/audio';
 import useAnnouncer from '../composables/announcer.js';
 import { myLocation } from '../state/location';
 
