@@ -221,7 +221,7 @@ export function createSpatialPlayer(): SpatialPlayer {
     } else {
       // Compute current distance to POI (may be greater than proximityThreshold, if user has moved away since it was queued)
       var textToSpeak = currentItem.text || '';
-      if ('includeDistance' in currentItem && currentItem.location) {
+      if (currentItem.includeDistance && currentItem.location) {
         const units = "feet";
         const distance = distanceTo.value(currentItem.location, { units: units })
           .toFixed(0);
