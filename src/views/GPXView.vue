@@ -61,7 +61,7 @@ import useGPX from '../composables/gpx.js';
 import { beacon } from '../state/beacon.js';
 import cache from '../state/cache';
 import { myLocation } from '../state/location';
-import { audioQueue, recentCallouts } from '../state/audio.js';
+import { audioQueue, recentCallouts } from '../state/audio';
 import { inject, ref } from 'vue';
 
 const playing = ref(false);

@@ -14,7 +14,7 @@
 import { beacon } from '../state/beacon.js';
 import { useDeviceOrientation } from "../composables/compass.js";
 import { myLocation } from '../state/location';
-import { initializeAudioQueue, playSpatialSpeech } from '../state/audio.js';
+import { initializeAudioQueue, playSpatialSpeech } from '../state/audio';
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 

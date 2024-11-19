@@ -7,7 +7,7 @@ import sense_poi_wav from "/assets/sounds/sense_poi.wav";
 import { centroid } from '@turf/centroid';
 import { nearestPointOnLine } from '@turf/nearest-point-on-line';
 import cache from "../state/cache";
-import { audioQueue } from '../state/audio.js';
+import { audioQueue } from '../state/audio';
 import { enumerateTilesAround } from "../composables/tile";
 import { watch } from 'vue';
 import { myLocation, myTurfPoint, distanceTo } from '../state/location';

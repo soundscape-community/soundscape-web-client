@@ -42,6 +42,11 @@ export default defineConfig({
   ],
   // root: './src',
   // Use relative paths for assets, since our Github Pages deploy is not at the root
+  resolve: {
+    alias: {
+      '@vendor': 'src/vendor'
+    }
+  },
   base: './',
   build: {
     outDir: './dist',
