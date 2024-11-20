@@ -47,6 +47,7 @@ export default defineConfig({
       '@vendor': 'src/vendor'
     }
   },
+  assetsInclude: ['**/*.wav'],
   base: './',
   build: {
     outDir: './dist',

@@ -252,9 +252,10 @@ export function createSpatialPlayer(): SpatialPlayer {
 // Create a WebAudio panner with the settings that will be used by both
 // beacons and callouts.
 // https://developer.mozilla.org/en-US/docs/Web/API/PannerNode
-export function createPanner(audioContext: AudioContext): PannerNode & {
+export type PannerNodeWithCoordinates = PannerNode & {
   setCoordinates: (x: number, y: number) => void;
-} {
+}
+export function createPanner(audioContext: AudioContext): PannerNodeWithCoordinates {
   const panner = audioContext.createPanner();
   panner.panningModel = "HRTF";
   // Keep a constant volume regardless of distance from source.

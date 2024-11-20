@@ -1,5 +1,5 @@
 <template>
-  <p v-if="beacon.name">
+  <p v-if="beacon.location">
     <button
       id="toggleBeacon"
       class="beacon-button"
@@ -8,7 +8,7 @@
     >
       {{ beacon.enabled ? '⏸' : '▶' }}
     </button>
-    <span id="currentBeacon">{{ beacon.name }}</span>
+    <span id="currentBeacon">{{ beacon.location.name }}</span>
     <button
       class="beacon-button"
       id="clearBeacon"
@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import { beacon } from '../state/beacon.js';
+import { beacon } from '../state/beacon';
 
 const toggleBeacon = () => {
   if (beacon.enabled) {

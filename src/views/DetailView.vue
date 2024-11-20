@@ -29,7 +29,7 @@
 <script setup>
 import MapDisplay from '../components/MapDisplay.vue';
 import SubpageTopbar from '../components/SubpageTopbar.vue';
-import { beacon } from '../state/beacon.js';
+import { beacon } from '../state/beacon';
 import { myLocation, distanceTo } from '../state/location'
 import { point } from '@turf/helpers';
 import { computed, onMounted, reactive, ref } from 'vue';

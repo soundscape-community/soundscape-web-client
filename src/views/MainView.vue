@@ -30,7 +30,7 @@ import InputSpinner from '../components/InputSpinner.vue';
 import MainModeSelector from '../components/MainModeSelector.vue';
 import MapDisplay from '../components/MapDisplay.vue';
 import VoiceSelector from '../components/VoiceSelector.vue';
-import { beacon } from '../state/beacon.js';
+import { beacon } from '../state/beacon';
 import { myLocation } from '../state/location';
 import { audioQueue, recentCallouts } from '../state/audio';
 import { onMounted, ref } from 'vue';

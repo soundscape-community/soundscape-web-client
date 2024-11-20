@@ -11,7 +11,7 @@
 </template>
   
 <script setup>
-import { beacon } from '../state/beacon.js';
+import { beacon } from '../state/beacon';
 import { useDeviceOrientation } from "../composables/compass.js";
 import { myLocation } from '../state/location';
 import { initializeAudioQueue, playSpatialSpeech } from '../state/audio';

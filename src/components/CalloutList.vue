@@ -28,18 +28,18 @@
 
 <script setup>
 import BeaconController from './BeaconController.vue'
-import { beacon } from '../state/beacon.js';
+import { beacon } from '../state/beacon';
 
 const props = defineProps({
   callouts: Array,
 })
 
 const startBeacon = (e) => {
-  beacon.set(
-    e.target.getAttribute("data-name"),
-    e.target.getAttribute('data-latitude'),
-    e.target.getAttribute('data-longitude')
-  );
+  beacon.set({
+    name: e.target.getAttribute("data-name"),
+    latitude: e.target.getAttribute('data-latitude'),
+    longitude: e.target.getAttribute('data-longitude')
+  });
   beacon.start();
 };
 </script>

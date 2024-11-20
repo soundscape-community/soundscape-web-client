@@ -58,7 +58,7 @@ import InputSpinner from '../components/InputSpinner.vue';
 import MapDisplay from '../components/MapDisplay.vue';
 import useAnnouncer from '../composables/announcer.js';
 import useGPX from '../composables/gpx.js';
-import { beacon } from '../state/beacon.js';
+import { beacon } from '../state/beacon';
 import cache from '../state/cache';
 import { myLocation } from '../state/location';
 import { audioQueue, recentCallouts } from '../state/audio';
