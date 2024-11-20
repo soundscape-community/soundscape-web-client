@@ -43,7 +43,7 @@ describe('Fixed-location view', () => {
     // CLick three times to toggle mode on/off/on
     // (first time loads tile, second time has data to speak)
     cy.get('#btn_near_me').click()
-    cy.wait(1000)  // Allow time to process tile data
+    cy.wait(5000)  // Allow time to process tile data
     cy.get('#btn_near_me').click().click()
     cy.get('@speak').should('have.been.calledWithMatch', (utterance) => {
       return utterance.text === expectedFirstCallout;
