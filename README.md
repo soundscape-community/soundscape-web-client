@@ -1,4 +1,5 @@
 # Soundscape Web Client
+[![Node.js CI](https://github.com/soundscape-community/soundscape-web-client/actions/workflows/node.js.yml/badge.svg)](https://github.com/soundscape-community/soundscape-web-client/actions/workflows/node.js.yml)
 
 The Soundscape web client provides a Soundscape-like experience by announcing nearby points of interest and intersections and playing audio beacons, all with spatial audio.
 
