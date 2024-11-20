@@ -1,7 +1,7 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-import { useDirectionOfTravel } from '../composables/compass.js'
+import { useDirectionOfTravel } from '../composables/compass'
 
 const headingWindowSize = 5;  // number of recent points to use for estimating heading
 

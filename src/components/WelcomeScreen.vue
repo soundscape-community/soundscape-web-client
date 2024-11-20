@@ -12,7 +12,7 @@
   
 <script setup>
 import { beacon } from '../state/beacon';
-import { useDeviceOrientation } from "../composables/compass.js";
+import { useDeviceOrientation } from "../composables/compass";
 import { myLocation } from '../state/location';
 import { initializeAudioQueue, playSpatialSpeech } from '../state/audio';
 import { ref } from 'vue';

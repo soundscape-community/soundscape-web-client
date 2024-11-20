@@ -3,12 +3,12 @@
 
 // Cross-platform compass heading
 // https://stackoverflow.com/a/75792197
-export function useDeviceOrientation(callback) {
+export function useDeviceOrientation(callback: (compass: number) => any) {
   if (!window["DeviceOrientationEvent"]) {
     console.warn("DeviceOrientation API not available");
     return;
   }
-  let absoluteListener = (e) => {
+  let absoluteListener = (e: DeviceOrientationEvent) => {
     if (!e.absolute || e.alpha == null || e.beta == null || e.gamma == null)
       return;
     let compass = -(e.alpha + e.beta * e.gamma / 90);
@@ -16,7 +16,7 @@ export function useDeviceOrientation(callback) {
     window.removeEventListener("deviceorientation", webkitListener);
     callback(compass);
   };
-  let webkitListener = (e) => {
+  let webkitListener = (e: any) => {
     let compass = e.webkitCompassHeading;
     if (compass!=null && !isNaN(compass)) {
       callback(compass);
@@ -30,9 +30,10 @@ export function useDeviceOrientation(callback) {
     window.addEventListener("deviceorientation", webkitListener);
   }
 
-  if (typeof (DeviceOrientationEvent["requestPermission"]) === "function") {
-    DeviceOrientationEvent["requestPermission"]()
-    .then(response => {
+  if ('requestPermission' in DeviceOrientationEvent &&
+      typeof DeviceOrientationEvent.requestPermission === "function") {
+    DeviceOrientationEvent.requestPermission()
+    .then((response: string) => {
       if (response == "granted") {
         addListeners();
       } else
@@ -44,23 +45,26 @@ export function useDeviceOrientation(callback) {
 
 // For estimating heading using stream of points
 class HeadingCalculator {
-  constructor(windowSize) {
+  windowSize: number;
+  points: { latitude: number, longitude: number }[];
+
+  constructor(windowSize: number) {
     this.windowSize = windowSize;
     this.points = [];
   }
 
-  addPoint(latitude, longitude) {
+  addPoint(latitude: number, longitude: number): void {
     this.points.push({ latitude, longitude });
     if (this.points.length > this.windowSize) {
       this.points.shift(); // Remove the oldest point if the window size is exceeded
     }
   }
 
-  resetPoints() {
+  resetPoints(): void {
     this.points = [];
   }
 
-  computeHeading() {
+  computeHeading(): number | null {
     if (this.points.length < 2) {
       //console.error('Insufficient points to compute heading');
       return null;
@@ -99,15 +103,15 @@ class HeadingCalculator {
     return averageHeading;
   }
 
-  degreesToRadians(degrees) {
+  degreesToRadians(degrees: number): number {
     return degrees * (Math.PI / 180);
   }
 
-  radiansToDegrees(radians) {
+  radiansToDegrees(radians: number): number {
     return radians * (180 / Math.PI);
   }
 }
 
-export const useDirectionOfTravel = (windowSize) => {
+export const useDirectionOfTravel = (windowSize: number) => {
   return new HeadingCalculator(windowSize);
 };
