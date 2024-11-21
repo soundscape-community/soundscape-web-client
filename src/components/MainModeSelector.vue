@@ -25,7 +25,7 @@ import mode_enter_wav from "/assets/sounds/mode_enter.wav";
 
 import { ref } from 'vue';
 import { audioQueue } from '../state/audio';
-import useAnnouncer from '../composables/announcer.js';
+import useAnnouncer from '../composables/announcer';
 import { myLocation } from '../state/location';
 
 const announcer = useAnnouncer();

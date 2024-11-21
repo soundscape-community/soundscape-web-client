@@ -2,8 +2,8 @@
 // with many thanks to ChatGPT
 
 import { point, buffer, bbox } from '@turf/turf';
-import { BBox, Feature } from "geojson";
-import cache from '../state/cache'
+import { BBox } from "geojson";
+import { cache, SoundscapeFeature } from '../state/cache'
 import config from '../config'
 
 export const zoomLevel = 16;
@@ -20,7 +20,7 @@ interface TileCoordinates {
 interface Tile extends TileCoordinates {
   key: string;
   load: () => Promise<void>;
-  getFeatures: () => Promise<Feature[]>;
+  getFeatures: () => Promise<SoundscapeFeature[]>;
 }
 
 // Function to create a half-kilometer bounding box around a point
@@ -115,7 +115,7 @@ function createTile(x: number, y: number, z: number): Tile {
         tilesInProgressOrDone.delete(tile.key);
       }
     },
-    getFeatures: async function(): Promise<Feature[]> {
+    getFeatures: async function(): Promise<SoundscapeFeature[]> {
       return cache.getFeatures(tile.key);
     },
   };

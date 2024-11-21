@@ -1,12 +1,14 @@
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
-interface GeoJSONFeature {
-  type: 'Feature';
-  geometry: any; // Could be more specific with GeoJSON types
-  properties: any;
+import { Feature } from 'geojson';
+
+// Tile server's custom extensions to GeoJSON Features
+export type SoundscapeFeature = Feature & {
+  feature_type: string;
+  feature_value: string;
+  osm_ids: number[];
   tile?: string;
-  osm_ids?: string[];
   id?: number;
 }
 
@@ -73,7 +75,7 @@ async function clearObjectStore(objectStoreName: string): Promise<void> {
   };
 }
 
-const cache = {
+export const cache = {
   db: null as IDBDatabase | null,  // to be populated on first request
 
   clear: function(): void {
@@ -158,7 +160,7 @@ const cache = {
   },
 
   // Function to add GeoJSON feature to the cache
-  addFeature: function(feature: GeoJSONFeature, tile: string): Promise<void> {
+  addFeature: function(feature: SoundscapeFeature, tile: string): Promise<void> {
     return new Promise(async (resolve, reject) => {
       if (!cache.db) {
         cache.db = await openDatabase();
@@ -181,7 +183,7 @@ const cache = {
     });
   },
 
-  getFeatures: async function(tileKey: string): Promise<GeoJSONFeature[]> {
+  getFeatures: async function(tileKey: string): Promise<SoundscapeFeature[]> {
     return new Promise(async (resolve, reject) => {
       if (!cache.db) {
         cache.db = await openDatabase();
@@ -193,13 +195,13 @@ const cache = {
       const range = IDBKeyRange.only(tileKey);
       const request = tileIndex.openCursor(range);
 
-      const features: GeoJSONFeature[] = [];
+      const features: SoundscapeFeature[] = [];
 
       request.onsuccess = function(event: Event) {
         const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
 
         if (cursor) {
-          features.push(cursor.value as GeoJSONFeature);
+          features.push(cursor.value as SoundscapeFeature);
           cursor.continue();
         } else {
           resolve(features);
@@ -239,7 +241,7 @@ const cache = {
     };
   },
 
-  getFeatureByOsmId: async function(osm_id: string): Promise<GeoJSONFeature | null> {
+  getFeatureByOsmId: async function(osm_id: string): Promise<SoundscapeFeature | null> {
     // Returns at most one feature, matching a single OSM ID (i.e. a road, not
     // intersectionss involving that road).
     return new Promise(async (resolve, reject) => {
@@ -257,7 +259,7 @@ const cache = {
         const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
 
         if (cursor) {
-          const feature = cursor.value as GeoJSONFeature;
+          const feature = cursor.value as SoundscapeFeature;
           if (feature.osm_ids?.length === 1) {
             resolve(feature);
           } else {

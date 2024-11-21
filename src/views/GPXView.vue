@@ -56,7 +56,7 @@
 import CalloutList from '../components/CalloutList.vue';
 import InputSpinner from '../components/InputSpinner.vue';
 import MapDisplay from '../components/MapDisplay.vue';
-import useAnnouncer from '../composables/announcer.js';
+import useAnnouncer from '../composables/announcer';
 import useGPX from '../composables/gpx';
 import { beacon } from '../state/beacon';
 import cache from '../state/cache';
