@@ -5,32 +5,50 @@ import { useDirectionOfTravel } from '../composables/compass'
 
 const headingWindowSize = 5;  // number of recent points to use for estimating heading
 
-function useGPX(file, callbacks) {
-  const {
-    loadedCallback = () => {},
-    finishedCallback = () => {},
-    pointCallback = () => {},
-    errorCallback = () => {}
-  } = callbacks;
+interface GPXPoint {
+  lat: number;
+  lon: number;
+  heading?: number | null;
+}
 
-  let intervalId;
+interface GPXCallbacks {
+  loadedCallback: (firstPoint: GPXPoint) => any;
+  finishedCallback: () => any;
+  pointCallback: (point: GPXPoint) => any;
+  errorCallback: (e: Error) => any;
+}
+
+interface GPXPlayer {
+  speedupFactor: number;
+  trackPoints: NodeListOf<Element>;
+
+  getPointAtIndex: (index: number) => GPXPoint;
+  getHeadingAtIndex: (index: number) => number | null;
+  play: () => void;
+  pause: () => void;
+  seekTo: (index: number) => void;
+  updateSlider: () => void;
+}
+
+function useGPX(file: File, callbacks: GPXCallbacks) {
+  let intervalId: number;
   let currentIndex = 0;
   let sliderValue = 0;
 
   const headingCalculator = useDirectionOfTravel(headingWindowSize);
 
-  let gpxPlayer = {
+  let gpxPlayer: GPXPlayer = {
     speedupFactor: 1,
-    trackPoints: [],
+    trackPoints: document.querySelectorAll('nonexistent'),  // empty NodeList
 
-    getPointAtIndex: function(index) {
+    getPointAtIndex: function(index: number): { lat: number, lon: number } {
       const point = this.trackPoints[index];
-      const lat = parseFloat(point.getAttribute("lat"));
-      const lon = parseFloat(point.getAttribute("lon"));
+      const lat = parseFloat(point.getAttribute("lat")!);
+      const lon = parseFloat(point.getAttribute("lon")!);
       return { lat, lon };
     },
 
-    getHeadingAtIndex: function(index) {
+    getHeadingAtIndex: function(index: number): number | null {
       // When seeking, compute heading by looking back, rather than using the running window.
       headingCalculator.resetPoints()
       let minIdx = Math.max(0, index - headingWindowSize);
@@ -43,38 +61,38 @@ function useGPX(file, callbacks) {
     },
 
     play: function() {
-      intervalId = setInterval(() => {
+      intervalId = window.setInterval(() => {
         if (currentIndex < gpxPlayer.trackPoints.length) {
           const { lat, lon } = this.getPointAtIndex(currentIndex);
 
           headingCalculator.addPoint(lat, lon);
           const heading = headingCalculator.computeHeading();
 
-          pointCallback({ lat, lon, heading });
+          callbacks.pointCallback({ lat, lon, heading });
           currentIndex++;
         } else {
           this.pause(); // Stop playing when all points are processed
-          finishedCallback();
+          callbacks.finishedCallback();
         }
       }, 1000 / this.speedupFactor // Delay between points in milliseconds
       );
     },
 
     pause: function() {
-      clearInterval(intervalId);
+      window.clearInterval(intervalId);
     },
 
-    seekTo: function(index) {
+    seekTo: function(index: number) {
       currentIndex = index;
       if (currentIndex < 0) {
         currentIndex = 0;
       } else if (currentIndex >= this.trackPoints.length) {
-        currentIndex = this,trackPoints.length - 1;
+        currentIndex = this.trackPoints.length - 1;
       }
 
       let jumpPoint = this.getPointAtIndex(currentIndex);
-      jumpPoint.heading = this.getHeadingAtIndex(currentIndex);
-      pointCallback(jumpPoint);
+      Object.assign(jumpPoint, { heading: this.getHeadingAtIndex(currentIndex) });
+      callbacks.pointCallback(jumpPoint);
     },
 
     updateSlider: function() {
@@ -85,8 +103,8 @@ function useGPX(file, callbacks) {
   };
 
   const reader = new FileReader();
-  reader.onload = function (e) {
-    const gpxContent = e.target.result;
+  reader.onload = function (e: ProgressEvent<FileReader>) {
+    const gpxContent = e.target!.result as string;
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(gpxContent, "text/xml");
 
@@ -95,11 +113,11 @@ function useGPX(file, callbacks) {
 
     // Trigger loadded callback with first point
     const firstPoint = gpxPlayer.getPointAtIndex(0);
-    loadedCallback(firstPoint);
+    callbacks.loadedCallback(firstPoint);
   };
 
-  reader.onerror = function (e) {
-    errorCallback(e.target.error);
+  reader.onerror = function (e: ProgressEvent<FileReader>) {
+    callbacks.errorCallback(e.target!.error!);
   };
 
   reader.readAsText(file);
