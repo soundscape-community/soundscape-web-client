@@ -5,7 +5,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import * as L from 'leaflet';
-import { useReactiveMapLayer } from '../composables/layer.js';
+import { useReactiveMapLayer } from '../composables/layer';
 
 const props = defineProps({
   location: Object,
