@@ -52,29 +52,29 @@
   </main>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import CalloutList from '../components/CalloutList.vue';
 import InputSpinner from '../components/InputSpinner.vue';
 import MapDisplay from '../components/MapDisplay.vue';
 import useAnnouncer from '../composables/announcer';
-import useGPX from '../composables/gpx';
+import { GPXPlayer, useGPX } from '../composables/gpx';
 import { beacon } from '../state/beacon';
 import cache from '../state/cache';
 import { myLocation } from '../state/location';
 import { audioQueue, recentCallouts } from '../state/audio';
 import { inject, ref } from 'vue';
 
-const playing = ref(false);
-const sliderPosition = ref(0);
-const speedupFactor = ref(5);
+const playing = ref<boolean>(false);
+const sliderPosition = ref<number>(0);
+const speedupFactor = ref<number>(5);
 
 const announcer = useAnnouncer();
-let gpxPlayer = null;  // to be initialized on file selection
+let gpxPlayer: GPXPlayer;  // to be initialized on file selection
 
-const fileChanged = (event) => {
-  const file = event.target.files[0];
-
-  if (file) {
+const fileChanged = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files[0]) {
+    const file = target.files[0];
     if (gpxPlayer && playing.value) {
       // Clear current playing file before loading new one
       playPause();
@@ -96,7 +96,7 @@ const fileChanged = (event) => {
         gpxPlayer.updateSlider();
       },
       pointCallback: (point) => {
-        myLocation.setHeading(point.heading);
+        myLocation.setHeading(point.heading!);
         myLocation.setLocation(point.lat, point.lon);
 
         // Update the slider when a new point is parsed

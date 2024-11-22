@@ -18,7 +18,7 @@ interface GPXCallbacks {
   errorCallback: (e: Error) => any;
 }
 
-interface GPXPlayer {
+export interface GPXPlayer {
   speedupFactor: number;
   trackPoints: NodeListOf<Element>;
 
@@ -30,7 +30,7 @@ interface GPXPlayer {
   updateSlider: () => void;
 }
 
-function useGPX(file: File, callbacks: GPXCallbacks) {
+export function useGPX(file: File, callbacks: GPXCallbacks) {
   let intervalId: number;
   let currentIndex = 0;
   let sliderValue = 0;

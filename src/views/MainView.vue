@@ -24,7 +24,7 @@
   </main>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import CalloutList from '../components/CalloutList.vue';
 import InputSpinner from '../components/InputSpinner.vue';
 import MainModeSelector from '../components/MainModeSelector.vue';
@@ -35,10 +35,11 @@ import { myLocation } from '../state/location';
 import { audioQueue, recentCallouts } from '../state/audio';
 import { onMounted, ref } from 'vue';
 
-const props = defineProps({
-  lat: Number,
-  lon: Number,
-});
+interface MainViewProps {
+  lat: string;
+  lon: string;
+}
+const props = defineProps<MainViewProps>();
 
 onMounted(() => {
   // Use fixed location if user specified URL parameters.
@@ -48,7 +49,7 @@ onMounted(() => {
       parseFloat(props.lon),
     );
     // Compass points at mouse pointer
-    const mapLocation = document.getElementById("map");
+    const mapLocation = document.getElementById("map")!;
     window.addEventListener('mousemove', (event) => {
       const angle = getMouseAngle(mapLocation, event);
       myLocation.setHeading(angle);
@@ -57,7 +58,7 @@ onMounted(() => {
 });
 
 // For testing, let heading follow mouse pointer
-function getMouseAngle(node, event) {
+function getMouseAngle(node: Element, event: MouseEvent) {
   // Get the node's bounding rectangle
   const rect = node.getBoundingClientRect();
 

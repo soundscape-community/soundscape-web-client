@@ -26,7 +26,7 @@
   />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import MapDisplay from '../components/MapDisplay.vue';
 import SubpageTopbar from '../components/SubpageTopbar.vue';
 import { beacon } from '../state/beacon';
@@ -34,13 +34,14 @@ import { myLocation, distanceTo } from '../state/location'
 import { point } from '@turf/helpers';
 import { computed, onMounted, reactive, ref } from 'vue';
 
-const props = defineProps({
-  lat: Number,
-  lon: Number,
-  name: String,
-});
+interface DetailProps {
+  lat: number;
+  lon: number;
+  name: string;
+}
+const props = defineProps<DetailProps>();
 
-const fullUrl = ref('');
+const fullUrl = ref<string>('');
 const pointOfInterest = reactive({
   latitude: props.lat,
   longitude: props.lon,
@@ -79,7 +80,11 @@ const toggleBeacon = () => {
   if (beacon.enabled) {
     beacon.stop();
   } else {
-    beacon.set(props.name, props.lat, props.lon);
+    beacon.set({
+      name: props.name,
+      latitude: props.lat,
+      longitude: props.lon
+    });
     beacon.start();
   }
 }
