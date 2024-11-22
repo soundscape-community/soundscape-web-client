@@ -2,12 +2,12 @@ import { Ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import L from 'leaflet';
 
 interface MapOptions {
-  follow: boolean;
-  setMapView: boolean;
+  follow?: boolean;
+  setMapView?: boolean;
   className: string,
   iconSize: [number, number],
 }
-interface MappablePoint {
+export interface MappablePoint {
   latitude: number;
   longitude: number;
   heading?: number;

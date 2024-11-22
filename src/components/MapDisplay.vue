@@ -2,31 +2,31 @@
   <div id="map" ref="mapElement"></div>
 </template>  
 
-<script setup>
-import { ref, onMounted } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted, withDefaults  } from 'vue';
 import * as L from 'leaflet';
-import { useReactiveMapLayer } from '../composables/layer';
+import { MappablePoint, useReactiveMapLayer } from '../composables/layer';
 
-const props = defineProps({
-  location: Object,
-  beacon: Object,
-  follow: {
-    type: Boolean,
-    default: true,
-  },
-  pointOfInterest: Object,
+interface MapProps {
+  location: MappablePoint,
+  beacon: MappablePoint,
+  follow: boolean,
+  pointOfInterest: MappablePoint,
+}
+const props = withDefaults(defineProps<MapProps>(), {
+  follow: true
 });
 
-const mapElement = ref(null);
-const leafletMap = ref(null);
+const mapElement = ref<string>();
+const leafletMap = ref<L.Map>();
 
 onMounted(() => {
-  leafletMap.value = L.map(mapElement.value);
+  leafletMap.value = L.map(mapElement.value!);
   // Store the map instance in the map element for Cypress access
-  mapElement.value._leafletMap = leafletMap.value;
+  (mapElement.value as any)._leafletMap = leafletMap.value;
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
-  }).addTo(leafletMap.value);
+  }).addTo(leafletMap.value!);
 });
 
 // Plot current location
