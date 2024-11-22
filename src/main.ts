@@ -2,7 +2,7 @@
 // with many thanks to ChatGPT
 import { createApp } from 'vue';
 import App from './App.vue';
-import router from './router/index.js';
+import router from './router/index';
 
 // Actions to take when page is rendered in full
 document.addEventListener("DOMContentLoaded", function () {
