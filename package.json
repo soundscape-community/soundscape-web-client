@@ -26,7 +26,7 @@
     "@types/leaflet": "^1.9.14",
     "leaflet": "^1.9.4",
     "vue": "^3.4.31",
-    "vue-router": "^4.4.0"
+    "vue-router": "^4.4.5"
   },
   "devDependencies": {
     "@capacitor-community/text-to-speech": "^5.1.0",
