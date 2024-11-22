@@ -17,12 +17,12 @@
   </select>
 </template>
 
-<script setup>
-import { audioQueue } from '../state/audio';
+<script setup lang="ts">
+import { audioQueue, SpeechSynthesisVoiceWithIndex } from '../state/audio';
 import { ref, onMounted, watch } from 'vue';
 
-const voices = ref([]);
-const selectedVoice = ref(null);
+const voices = ref<SpeechSynthesisVoiceWithIndex[]>([]);
+const selectedVoice = ref<number | null>(null);
 
 onMounted(async () => {
   if (window.speechSynthesis) {
@@ -34,12 +34,14 @@ onMounted(async () => {
 
 const reloadVoices = async () => {
   voices.value = await audioQueue.loadVoices();
-  selectedVoice.value = audioQueue.voice.voiceIndex;
+  if (audioQueue.voice) {
+    selectedVoice.value = audioQueue.voice.voiceIndex;
+  }
 };
 
 watch(selectedVoice, (newValue, oldValue) => {
   if (newValue !== null) {
-    audioQueue.setVoice(selectedVoice.value);
+    audioQueue.setVoice(newValue);
   }
 });
 </script>

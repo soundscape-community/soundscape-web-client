@@ -20,7 +20,7 @@
   </p>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { beacon } from '../state/beacon';
 
 const toggleBeacon = () => {

@@ -9,15 +9,15 @@
           class="beacon-button"
           @click="startBeacon"
           :data-name="callout.text"
-          :data-latitude="callout.location.geometry.coordinates[1]"
-          :data-longitude="callout.location.geometry.coordinates[0]"
+          :data-latitude="callout.location!.geometry.coordinates[1]"
+          :data-longitude="callout.location!.geometry.coordinates[0]"
         >
           🔊
         </button>
         <RouterLink :to="{ name: 'Detail', params: {
           name: callout.text,
-          lat: callout.location.geometry.coordinates[1],
-          lon: callout.location.geometry.coordinates[0],
+          lat: callout.location!.geometry.coordinates[1],
+          lon: callout.location!.geometry.coordinates[0],
          } }">
           {{ callout.text }}
         </RouterLink>
@@ -26,19 +26,22 @@
   </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import BeaconController from './BeaconController.vue'
+import { QueuedSpeech } from '../state/audio';
 import { beacon } from '../state/beacon';
 
-const props = defineProps({
-  callouts: Array,
-})
+interface CalloutListProps {
+  callouts: QueuedSpeech[];
+}
+const props = defineProps<CalloutListProps>();
 
-const startBeacon = (e) => {
+const startBeacon = (e: MouseEvent) => {
+  let target = e.target as HTMLButtonElement;
   beacon.set({
-    name: e.target.getAttribute("data-name"),
-    latitude: e.target.getAttribute('data-latitude'),
-    longitude: e.target.getAttribute('data-longitude')
+    name: target.getAttribute("data-name")!,
+    latitude: +target.getAttribute('data-latitude')!,
+    longitude: +target.getAttribute('data-longitude')!
   });
   beacon.start();
 };

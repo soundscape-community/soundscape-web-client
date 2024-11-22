@@ -98,7 +98,7 @@ export async function playSpatialSpeech(text: string, voiceIndex: number, rate: 
   });
 }
 
-type SpeechSynthesisVoiceWithIndex = SpeechSynthesisVoice & {
+export type SpeechSynthesisVoiceWithIndex = SpeechSynthesisVoice & {
   voiceIndex: number;
 }
 
@@ -106,7 +106,7 @@ interface QueuedEffect {
   soundUrl: string;
   location?: Feature<Point>;
 }
-interface QueuedSpeech {
+export interface QueuedSpeech {
   text: string;
   location?: Feature<Point>;
   includeDistance?: boolean;
