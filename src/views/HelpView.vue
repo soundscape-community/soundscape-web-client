@@ -49,7 +49,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import InputSpinner from '../components/InputSpinner.vue';
 import SubpageTopbar from '../components/SubpageTopbar.vue';
 </script>

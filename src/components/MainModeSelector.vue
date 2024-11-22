@@ -19,23 +19,23 @@
   </button>
 </template>
 
-<script setup>
-import mode_exit_wav from "/assets/sounds/mode_exit.wav";
-import mode_enter_wav from "/assets/sounds/mode_enter.wav";
-
+<script setup lang="ts">
 import { ref } from 'vue';
 import { audioQueue } from '../state/audio';
 import useAnnouncer from '../composables/announcer';
 import { myLocation } from '../state/location';
 
+const mode_exit_wav = new URL("/assets/sounds/mode_exit.wav", import.meta.url).href;
+const mode_enter_wav = new URL("/assets/sounds/mode_enter.wav", import.meta.url).href;
+
 const announcer = useAnnouncer();
-const activeMode = ref(null);
-var wakeLock = null;
+const activeMode = ref<string>();
+var wakeLock: WakeLockSentinel | null;
 
 // When mode button is clicked:
 //   If a mode is currently active, end that mode
 //   If mode button was different from current mode, start new mode
-async function toggleMode(newMode) {
+async function toggleMode(newMode: string) {
   // Clear queued audio
   if (activeMode.value) {
     audioQueue.stopAndClear();
@@ -48,7 +48,7 @@ async function toggleMode(newMode) {
   // Stop here if the intent was to end the current mode
   if (activeMode.value == newMode) {
     // exit current mode
-    activeMode.value = null;
+    activeMode.value = undefined;
 
     if (wakeLock) {
       // Release the Wake Lock
@@ -90,10 +90,10 @@ async function toggleMode(newMode) {
 
     case "near_me":
       announcer.calloutNearestRoad(
-        myLocation.latitude, myLocation.longitude
+        myLocation.latitude!, myLocation.longitude!
       );
       announcer.calloutAllFeaturesOrSayNoneFound(
-        myLocation.latitude, myLocation.longitude
+        myLocation.latitude!, myLocation.longitude!
       );
       break;
   }
