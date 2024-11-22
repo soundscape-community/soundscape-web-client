@@ -32,37 +32,39 @@ interface Announcer {
   unwatch?: () => void;
 }
 
-interface RecentQueue {
-  keys: Set<string>;
-  queue: string[];
-  max_size: number;
-  key: (osm_ids: number[]) => string;
-  add: (osm_ids: number[]) => void;
-  has: (osm_ids: number[]) => boolean;
+// Avoid repeating myself, by maintaining a list of the most recent POIs announced
+class RecentQueue {
+  keys: Set<string>;  // for quick lookups
+  queue: string[];  // for first in, first out
+  maxSize: number;
+
+  constructor(max_size: number) {
+    this.keys = new Set();
+    this.queue = [];
+    this.maxSize = max_size;
+  }
+
+  // feature can have multiple osm_ids (e.g. intersections)
+  key(osm_ids: number[]) {
+    return osm_ids.join("|");
+  }
+
+  add(osm_ids: number[]) {
+    if (this.keys.size > this.maxSize) {
+      const oldestKey = this.queue.shift()!;
+      this.keys.delete(oldestKey);
+    }
+    this.keys.add(this.key(osm_ids));
+    this.queue.push(this.key(osm_ids));
+  }
+
+  has(osm_ids: number[]): boolean {
+    return this.keys.has(this.key(osm_ids));
+  }
 }
 
 function useAnnouncer() {
-  // Avoid repeating myself, by maintaining a list of the most recent POIs announced
-  const spokenRecently: RecentQueue = {
-    keys: new Set(), // for quick lookups
-    queue: [], // for first in, first out
-    max_size: 100,
-    // feature can have multiple osm_ids (e.g. intersections)
-    key: (osm_ids: number[]) => osm_ids.join("|"),
-
-    add: function (osm_ids: number[]) {
-      if (this.keys.size > this.max_size) {
-        const oldestKey = this.queue.shift()!;
-        this.keys.delete(oldestKey);
-      }
-      this.keys.add(this.key(osm_ids));
-      this.queue.push(this.key(osm_ids));
-    },
-
-    has: function (osm_ids: number[]): boolean {
-      return this.keys.has(this.key(osm_ids));
-    },
-  };
+  const spokenRecently = new RecentQueue(100);
 
   function playSoundAndSpeech(soundUrl: string, text: string, sourceLocation: Feature<Point>, includeDistance: boolean) {
     audioQueue.addToQueue({
