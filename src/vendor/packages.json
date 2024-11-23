@@ -1,0 +1,7 @@
+{
+  "name": "vendor",
+  "type": "module",
+  "exports": {
+    "./unmute.js": "./unmute.js"
+  }
+}

@@ -1,10 +1,12 @@
+/// <reference path="../vendor/declarations.d.ts" />
+
 // Copyright (c) Daniel W. Steinbrook.
 // with many thanks to ChatGPT
 
 import { Feature, Point } from 'geojson';
 import { ref } from 'vue';
 import { SpeechSynthesisVoice, TextToSpeech } from "@capacitor-community/text-to-speech";
-import unmute from "@vendor/unmute.js";
+import unmute from "#vendor/unmute.js";
 import { normalizedRelativePositionTo, distanceTo } from '../state/location';
 
 export var audioContext: AudioContext;

@@ -150,13 +150,13 @@ const relativePosition = computed(() => {
 
 // Set the beacon sound effect spatial position.
 watch(relativePosition, (newValue, oldVAlue) => {
-  if (beacon.enabled && newValue !== undefined) {
+  if (beacon.enabled && beacon.audio && newValue) {
     beacon.getAudio().panner.setCoordinates(newValue.x, newValue.y);
   }
 });
 
 // True if we are roughly facing the beacon, +/- onCourseAngle
-const isOnCourse = computed(() => {
+export const isOnCourse = computed(() => {
   if (beacon.enabled && relativePosition.value) {
     const angle = Math.atan2(
       relativePosition.value.x,
@@ -205,7 +205,7 @@ const looper: Looper = {
 
 // Announce the beacon distance  periodically
 watch(distanceMeters, (newValue, oldValue) => {
-  if (!beacon.enabled || typeof newValue !== "number") {
+  if (!beacon.enabled || !beacon.audio || typeof newValue !== "number") {
     return;
   } else if(newValue < foundProximityMeters) {
     // Stop the beacon when we're within the threshold.

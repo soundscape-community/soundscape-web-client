@@ -44,7 +44,7 @@ export default defineConfig({
   // Use relative paths for assets, since our Github Pages deploy is not at the root
   resolve: {
     alias: {
-      '@vendor': 'src/vendor'
+      '#vendor': 'src/vendor'
     }
   },
   assetsInclude: ['**/*.wav'],

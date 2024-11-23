@@ -3,11 +3,11 @@
   <router-view v-if="!isWelcomeScreenVisible"></router-view>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import WelcomeScreen from './components/WelcomeScreen.vue';
 import { ref } from 'vue';
 
-const isWelcomeScreenVisible = ref(true);
+const isWelcomeScreenVisible = ref<boolean>(true);
 const handleInitialized = () => {
   isWelcomeScreenVisible.value = false;
 };
