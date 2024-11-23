@@ -124,7 +124,7 @@ function useAnnouncer() {
                   if (roadNames.size > 1) {
                     return "Intersection: " + [...roadNames].join(", ");
                   }
-                }) || "";
+                });
                 break;
               case "bus_stop":
                 //TODO

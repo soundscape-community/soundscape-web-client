@@ -20,7 +20,7 @@
 
   <MapDisplay
     :location="myLocation"
-    :beacon="beacon"
+    :beacon="beacon.location"
     :pointOfInterest="pointOfInterest"
     :follow="false"
   />
@@ -78,14 +78,14 @@ const toggleBeacon = () => {
   //tracker.start();
 
   if (beacon.enabled) {
-    beacon.stop();
+    beacon.disable();
   } else {
     beacon.set({
       name: props.name,
       latitude: props.lat,
       longitude: props.lon
     });
-    beacon.start();
+    beacon.enable();
   }
 }
 </script>

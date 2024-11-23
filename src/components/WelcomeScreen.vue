@@ -11,7 +11,7 @@
 </template>
   
 <script setup>
-import { beacon } from '../state/beacon';
+import { initializeBeaconAudio } from '../state/beacon_audio';
 import { useDeviceOrientation } from "../composables/compass";
 import { myLocation } from '../state/location';
 import { initializeAudioQueue, playSpatialSpeech } from '../state/audio';
@@ -39,7 +39,7 @@ const removewall = () => {
   }
 
   // Start audio context for beacon effects
-  beacon.initialize();
+  initializeBeaconAudio();
 
   // Report to parent that we're ready
   isVisible.value = false;

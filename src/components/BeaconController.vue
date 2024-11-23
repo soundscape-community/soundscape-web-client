@@ -25,14 +25,14 @@ import { beacon } from '../state/beacon';
 
 const toggleBeacon = () => {
   if (beacon.enabled) {
-    beacon.stop();
+    beacon.disable();
   } else {
-    beacon.start();
+    beacon.enable();
   }
 };
 
 const clearBeacon = () => {
-  beacon.stop();
+  beacon.disable();
   beacon.clear();
 };
 </script>

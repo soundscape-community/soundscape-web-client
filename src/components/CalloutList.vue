@@ -43,7 +43,7 @@ const startBeacon = (e: MouseEvent) => {
     latitude: +target.getAttribute('data-latitude')!,
     longitude: +target.getAttribute('data-longitude')!
   });
-  beacon.start();
+  beacon.enable();
 };
 </script>
 
