@@ -32,7 +32,5 @@ describe("beacon", () => {
 
     myLocation.setLocation(beacon.latitude!, beacon.longitude!);
     expect(isNearby.value).to.be.true;
-    //FIXME Beacon should be auto-disabled when we're nearME
-    //expect(beacon.enabled).to.be.false;
   });
 });

@@ -1,7 +1,7 @@
 // Copyright (c) Daniel W. Steinbrook.
 
 import { point } from '@turf/turf';
-import { computed, reactive, watch } from 'vue';
+import { computed, reactive } from 'vue';
 import { distanceTo, normalizedRelativePositionTo } from '../state/location';
 import { MappablePoint } from '../composables/layer';
 
@@ -89,11 +89,4 @@ export const isNearby = computed(() => {
     distanceMeters.value !== undefined &&
     distanceMeters.value < foundProximityMeters
   );
-});
-
-// Disable beacon when nearby
-watch(isNearby, (newValue, oldValue) => {
-  if (newValue === true && oldValue === false) {
-    beacon.disable();
-  }
 });
