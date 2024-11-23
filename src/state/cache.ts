@@ -241,7 +241,7 @@ export const cache = {
     };
   },
 
-  getFeatureByOsmId: async function(osm_id: string): Promise<SoundscapeFeature | null> {
+  getFeatureByOsmId: async function(osm_id: number): Promise<SoundscapeFeature | null> {
     // Returns at most one feature, matching a single OSM ID (i.e. a road, not
     // intersectionss involving that road).
     return new Promise(async (resolve, reject) => {

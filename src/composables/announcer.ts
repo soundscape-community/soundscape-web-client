@@ -81,7 +81,7 @@ function useAnnouncer() {
   // Get names of intersecting roads by looking up each road individually
   function getRoadNames(intersectionFeature: SoundscapeFeature): Promise<Set<string>> {
     return Promise.all(
-      intersectionFeature.osm_ids.map((id: number) => cache.getFeatureByOsmId(String(id)))
+      intersectionFeature.osm_ids.map(id => cache.getFeatureByOsmId(id))
     ).then(
       (roads) =>
         new Set(
