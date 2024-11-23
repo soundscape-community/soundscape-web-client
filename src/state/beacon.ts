@@ -3,37 +3,42 @@
 import { point } from '@turf/turf';
 import { computed, reactive, watch } from 'vue';
 import { distanceTo, normalizedRelativePositionTo } from '../state/location';
+import { MappablePoint } from '../composables/layer';
 
 const onCourseAngle = 30; // degrees +/- Y axis
 const foundProximityMeters = 10; // proximity to auto-stop beacon
 
-interface BeaconLocation {
-  name: string;
-  latitude: number;
-  longitude: number;
-}
-
-interface BeaconState {
-  location: BeaconLocation | null;
+interface BeaconState extends MappablePoint {
+  name: string | null;
+  latitude: number | null;
+  longitude: number | null;
   lastAnnouncedDistance: number | null;
   enabled: boolean;
 
-  set: (location: BeaconLocation) => void;
+  set: (name: string, latitude: number, longitude: number) => void;
   clear: () => void;
   enable: () => void;
   disable: () => void;
 }
 export const beacon = reactive<BeaconState>({
-  location: null,
+  name: null,
+  latitude: null,
+  longitude: null,
   lastAnnouncedDistance: null,
   enabled: false,
 
-  set(location: BeaconLocation) {
-    this.location = location;
+  set(name: string, latitude: number, longitude: number) {
+    this.name = name;
+    this.longitude = longitude;
+    this.latitude = latitude;
     this.lastAnnouncedDistance = null;
   },
 
-  clear() { this.location = null; },
+  clear() {
+    this.name = null;
+    this.longitude = null;
+    this.latitude = null;
+  },
 
   enable() {
     this.enabled = true;
@@ -46,8 +51,8 @@ export const beacon = reactive<BeaconState>({
 
 // Turf.js point of the beacon's location
 const sourceLocation = computed(() => {
-  if (beacon.location) {
-    return point([beacon.location.longitude, beacon.location.latitude]);
+  if (beacon.longitude && beacon.latitude) {
+    return point([beacon.longitude, beacon.latitude]);
   }
 });
 

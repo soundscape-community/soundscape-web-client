@@ -38,11 +38,11 @@ const props = defineProps<CalloutListProps>();
 
 const startBeacon = (e: MouseEvent) => {
   let target = e.target as HTMLButtonElement;
-  beacon.set({
-    name: target.getAttribute("data-name")!,
-    latitude: +target.getAttribute('data-latitude')!,
-    longitude: +target.getAttribute('data-longitude')!
-  });
+  beacon.set(
+    target.getAttribute("data-name")!,
+    +target.getAttribute('data-latitude')!,
+    +target.getAttribute('data-longitude')!
+  );
   beacon.enable();
 };
 </script>

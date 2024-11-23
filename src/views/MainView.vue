@@ -18,7 +18,7 @@
   <main>
     <MapDisplay
       :location="myLocation"
-      :beacon="beacon.location"
+      :beacon="beacon"
     />
     <CalloutList :callouts="recentCallouts" />
   </main>

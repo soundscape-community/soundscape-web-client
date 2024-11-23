@@ -4,8 +4,9 @@
 import { Feature, Point } from 'geojson';
 import { distance, point } from '@turf/turf';
 import { computed, reactive } from 'vue';
+import { MappablePoint } from '../composables/layer';
 
-interface MyLocation {
+interface MyLocation extends MappablePoint {
   latitude: number | null;
   longitude: number | null;
   heading: number | null;

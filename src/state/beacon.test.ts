@@ -4,11 +4,7 @@ import { myLocation } from '../state/location';
 
 describe("beacon", () => {
   it("should calculate on/off course", () => {
-    beacon.set({
-      name: "Washington Monument",
-      latitude: 38.889444,
-      longitude: -77.035278,
-    });
+    beacon.set("Washington Monument", 38.889444, -77.035278);
     beacon.enable();
 
     // US Capitol (due east of monument)
@@ -27,21 +23,14 @@ describe("beacon", () => {
   });
 
   it("should recognize nearby threshold", () => {
-    beacon.set({
-      name: "Washington Monument",
-      latitude: 38.889444,
-      longitude: -77.035278,
-    });
+    beacon.set("Washington Monument", 38.889444, -77.035278);
     beacon.enable();
 
     // US Capitol (due east of monument)
     myLocation.setLocation(38.889722, -77.008889);
     expect(isNearby.value).to.be.false;
 
-    myLocation.setLocation(
-      beacon.location!.latitude,
-      beacon.location!.longitude
-    );
+    myLocation.setLocation(beacon.latitude!, beacon.longitude!);
     expect(isNearby.value).to.be.true;
     //FIXME Beacon should be auto-disabled when we're nearME
     //expect(beacon.enabled).to.be.false;

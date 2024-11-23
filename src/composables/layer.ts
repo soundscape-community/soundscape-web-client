@@ -8,9 +8,10 @@ interface MapOptions {
   iconSize: [number, number],
 }
 export interface MappablePoint {
-  latitude: number;
-  longitude: number;
-  heading?: number;
+  latitude: number | null;
+  longitude: number | null;
+  heading?: number | null;
+  enabled?: boolean;
 }
 
 // Create a custom divIcon with rotation
@@ -60,7 +61,12 @@ export function useReactiveMapLayer(map: Ref, reactivePoint: MappablePoint, opti
       reactivePoint.enabled ? startPulse() : pausePulse();
     }
 
-    if ('heading' in reactivePoint && reactivePoint.heading !== undefined) {
+    if (
+      reactivePoint.latitude &&
+      reactivePoint.longitude &&
+      'heading' in reactivePoint &&
+      reactivePoint.heading !== undefined
+    ) {
       // Also render a directional arrow showing inferred compass heading
       var arrowMarker = L.marker([reactivePoint.latitude, reactivePoint.longitude], {
         icon: arrowIcon,
