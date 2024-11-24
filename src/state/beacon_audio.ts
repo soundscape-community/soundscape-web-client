@@ -86,7 +86,7 @@ class BeaconAudio {
 
     // Play "beacon found" effect when target is reached
     watch(isNearby, (newValue, oldValue) => {
-      if (newValue === true && oldValue === false) {
+      if (beacon.enabled && newValue && !oldValue) {
         beacon.disable();
         new Audio(SS_beaconFound2_48k_wav).play();
       }
