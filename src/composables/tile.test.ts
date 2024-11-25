@@ -6,14 +6,14 @@ import {
 
 describe("createBoundingBox", () => {
   it("should create a half-kilometer bounding box around a point", () => {
-    const latitude = 40.7128; // Example latitude
-    const longitude = -74.006; // Example longitude
-    const radiusMeters = 500; // Half-kilometer radius
+    const latitude = 40.7128;
+    const longitude = -74.006;
+    const radiusMeters = 500;
 
     const bbox = createBoundingBox(latitude, longitude, radiusMeters);
 
-    expect(bbox[0]).to.be.lessThan(bbox[2]); // Use Chai's expect syntax
-    expect(bbox[1]).to.be.lessThan(bbox[3]); // Use Chai's expect syntax
+    expect(bbox[0]).to.be.lessThan(bbox[2]);
+    expect(bbox[1]).to.be.lessThan(bbox[3]);
   });
 });
 

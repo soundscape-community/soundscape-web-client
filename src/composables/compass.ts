@@ -44,7 +44,7 @@ export function useDeviceOrientation(callback: (compass: number) => any) {
 }
 
 // For estimating heading using stream of points
-class HeadingCalculator {
+export class HeadingCalculator {
   windowSize: number;
   points: { latitude: number, longitude: number }[];
 

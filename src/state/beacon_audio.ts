@@ -103,20 +103,19 @@ class BeaconAudio {
     watch(distanceMeters, (newValue, oldValue) => {
       if (
         beacon.enabled &&
+        // Only announce if not actively playing something else (distance
+        // would be stale if queued)
+        !audioQueue.isPlaying &&
         newValue !== undefined && (
           beacon.lastAnnouncedDistance === null ||
           Math.abs(beacon.lastAnnouncedDistance - newValue) > announceEveryMeters
         )
       ) {
-        // Only announce if not actively playing something else (distance
-        // would be stale if queued)
-        if (!audioQueue.isPlaying) {
-          beacon.lastAnnouncedDistance = newValue;
-          audioQueue.addToQueue({ soundUrl: sense_mobility_wav });
-          audioQueue.addToQueue({
-            text: `Beacon: ${newValue.toFixed(0)} meters`,
-          });
-        }
+        beacon.lastAnnouncedDistance = newValue;
+        audioQueue.addToQueue({ soundUrl: sense_mobility_wav });
+        audioQueue.addToQueue({
+          text: `Beacon: ${newValue.toFixed(0)} meters`,
+        });
       }
     });
   }
