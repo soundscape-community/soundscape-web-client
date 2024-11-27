@@ -2,6 +2,8 @@
 // with many thanks to ChatGPT
 
 import { Feature } from 'geojson';
+// So that our unit tests can run outside of a browser
+import fetch from 'isomorphic-fetch';
 
 // Tile server's custom extensions to GeoJSON Features
 export type SoundscapeFeature = Feature & {
@@ -108,6 +110,7 @@ export const cache = {
             console.log("HIT: ", url);
             // Assume data has already been handled when it was first cached
             //resolve(result.cachedData);
+            resolve(null);
             return;
           } else {
             // Delete features from stale tile before proceeding to fetch new data.

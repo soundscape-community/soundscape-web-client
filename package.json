@@ -23,7 +23,9 @@
     "@capacitor/core": "latest",
     "@capacitor/splash-screen": "latest",
     "@turf/turf": "^7.1.0",
+    "@types/isomorphic-fetch": "^0.0.39",
     "@types/leaflet": "^1.9.14",
+    "isomorphic-fetch": "^3.0.0",
     "leaflet": "^1.9.4",
     "vue": "^3.4.31",
     "vue-router": "^4.4.5"
@@ -45,6 +47,7 @@
     "fake-indexeddb": "^6.0.0",
     "mocha": "^10.8.2",
     "morgan": "^1.10.0",
+    "nock": "^13.5.6",
     "start-server-and-test": "^2.0.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2",
