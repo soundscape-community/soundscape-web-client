@@ -85,8 +85,7 @@ export const cache = {
     clearObjectStore('urls');
   },
 
-  // Function to fetch a URL only if it hasn't been fetched for a certain duration
-  fetch: function(url: string, tileKey: string): Promise<any> {
+  lastFetchTime: function(url: string): Promise<number | null> {
     return new Promise(async (resolve, reject) => {
       if (!cache.db) {
         cache.db = await openDatabase();
@@ -101,64 +100,70 @@ export const cache = {
         const result = (event.target as IDBRequest<CachedURL>).result;
 
         if (result) {
-          // Check if the cached entry is still valid based on maxAgeMilliseconds
-          const currentTime = new Date().getTime();
-          const lastFetchTime = result.lastFetchTime || 0;
-
-          if (currentTime - lastFetchTime < maxAgeMilliseconds) {
-            // URL is still fresh, resolve with the cached data
-            console.log("HIT: ", url);
-            // Assume data has already been handled when it was first cached
-            //resolve(result.cachedData);
-            resolve(null);
-            return;
-          } else {
-            // Delete features from stale tile before proceeding to fetch new data.
-            console.log("STALE: ", url);
-            cache.deleteFeatures(tileKey);
-          }
+          resolve(result.lastFetchTime);
         } else {
-          // URL was not previously fetched
-          console.log("MISS: ", url);
-        }
-
-        // Fetch the URL since it's not in the cache or has expired
-        try {
-          const response = await fetch(url);
-          const data = await response.json();
-
-          if (!cache.db) {
-            cache.db = await openDatabase();
-          }
-
-          const newTransaction = cache.db.transaction(['urls'], 'readwrite');
-          const newObjectStore = newTransaction.objectStore('urls');
-
-          // Update or add the URL in the cache with the current timestamp
-          const putRequest = newObjectStore.put({
-            url: url,
-            lastFetchTime: new Date().getTime(),
-            // No need to keep the data (the individual features should be
-            // loaded into their own object store on first fetch)
-            //cachedData: data,
-          });
-
-          putRequest.onsuccess = () => {
-            console.log("Fetched: ", url);
-            resolve(data);
-          };
-
-          putRequest.onerror = (event: Event) => {
-            reject(`Error updating cache: ${(event.target as IDBEventTargetWithResult).error}`);
-          };
-        } catch (error) {
-          reject(`Error fetching URL: ${error}`);
+          resolve(null);
         }
       };
 
       getRequest.onerror = (event: Event) => {
         reject(`Error checking cache: ${(event.target as IDBEventTargetWithResult).error}`);
       };
+    });
+  },
+
+  shouldFetch: async function(url: string): Promise<boolean> {
+    // Check if the cached entry is still valid based on maxAgeMilliseconds
+    const currentTime = new Date().getTime();
+    const lastFetchTime = await this.lastFetchTime(url);
+
+    return (
+      lastFetchTime === null ||
+      currentTime - lastFetchTime > maxAgeMilliseconds
+    );
+    //TODO cache.deleteFeatures(tileKey);
+  },
+
+  // Function to fetch a URL only if it hasn't been fetched for a certain duration
+  fetch: function(url: string, tileKey: string): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+       if (!await cache.shouldFetch(url)) {
+        resolve(null);
+        return;
+      }
+
+      if (!cache.db) {
+        cache.db = await openDatabase();
+      }
+
+      // Fetch the URL since it's not in the cache or has expired
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        const newTransaction = cache.db.transaction(['urls'], 'readwrite');
+        const newObjectStore = newTransaction.objectStore('urls');
+
+        // Update or add the URL in the cache with the current timestamp
+        const putRequest = newObjectStore.put({
+          url: url,
+          lastFetchTime: new Date().getTime(),
+          // No need to keep the data (the individual features should be
+          // loaded into their own object store on first fetch)
+          //cachedData: data,
+        });
+
+        putRequest.onsuccess = () => {
+          console.log("Fetched: ", url);
+          resolve(data);
+        };
+
+        putRequest.onerror = (event: Event) => {
+          reject(`Error updating cache: ${(event.target as IDBEventTargetWithResult).error}`);
+        };
+      } catch (error) {
+        reject(`Error fetching URL: ${error}`);
+      }
     });
   },
 
