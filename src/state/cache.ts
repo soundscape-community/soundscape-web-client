@@ -2,8 +2,6 @@
 // with many thanks to ChatGPT
 
 import { Feature } from 'geojson';
-// So that our unit tests can run outside of a browser
-import fetch from 'isomorphic-fetch';
 
 // Tile server's custom extensions to GeoJSON Features
 export type SoundscapeFeature = Feature & {
@@ -27,7 +25,6 @@ interface IDBEventTargetWithResult extends EventTarget {
 // Bump this when changing schema (e.g. adding an index)
 const dbVersion = 1;
 const dbName = 'TileCache';
-const maxAgeMilliseconds = 1000 * 60 * 60 * 24 * 7; // 1 week
 
 // Function to open the IndexedDB database
 async function openDatabase(): Promise<IDBDatabase> {
@@ -80,9 +77,9 @@ async function clearObjectStore(objectStoreName: string): Promise<void> {
 export const cache = {
   db: null as IDBDatabase | null,  // to be populated on first request
 
-  clear: function(): void {
-    clearObjectStore('features');
-    clearObjectStore('urls');
+  clear: async function(): Promise<void> {
+    await clearObjectStore('features');
+    await clearObjectStore('urls');
   },
 
   lastFetchTime: function(url: string): Promise<number | null> {
@@ -112,17 +109,6 @@ export const cache = {
     });
   },
 
-  shouldFetch: async function(url: string): Promise<boolean> {
-    // Check if the cached entry is still valid based on maxAgeMilliseconds
-    const currentTime = new Date().getTime();
-    const lastFetchTime = await this.lastFetchTime(url);
-
-    return (
-      lastFetchTime === null ||
-      currentTime - lastFetchTime > maxAgeMilliseconds
-    );
-  },
-
   updateLastFetch: function(url: string): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
       if (!cache.db) {
@@ -139,7 +125,6 @@ export const cache = {
       });
 
       putRequest.onsuccess = () => {
-        console.log("Fetched: ", url);
         resolve(true);
       };
 
@@ -147,21 +132,6 @@ export const cache = {
         reject(`Error updating cache: ${(event.target as IDBEventTargetWithResult).error}`);
       };
     });
-  },
-
-  // Function to fetch a URL only if it hasn't been fetched for a certain duration
-  fetch: async function(url: string, tileKey: string): Promise<any> {
-    if (!await cache.shouldFetch(url)) {
-      return null;
-    }
-
-    // Delete any stale features
-    cache.deleteFeatures(tileKey);
-
-    // Fetch the URL since it's not in the cache or has expired
-    const response = await fetch(url);
-    cache.updateLastFetch(url);
-    return await response.json();
   },
 
   // Function to add GeoJSON feature to the cache

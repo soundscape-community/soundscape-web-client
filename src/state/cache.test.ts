@@ -1,7 +1,5 @@
 // Mock out IndexedDB and Fetch API for testing
 import 'fake-indexeddb/auto';
-import fs from 'fs';
-import nock from 'nock';
 import { expect } from "chai";
 import { cache, SoundscapeFeature } from "./cache";
 
@@ -24,6 +22,10 @@ describe("Cache", () => {
   };
 
   describe("feature", () => {
+    beforeEach(async () =>{
+      await cache.clear();
+    });
+
     it('should be empty for unloaded tiles', async () => {
       const result = await cache.getFeatures("16/18109/23965");
       expect(result.length).to.equal(0);
@@ -32,61 +34,23 @@ describe("Cache", () => {
     it('should store and retrieve features', async () => {
       cache.addFeature(testFeature, "16/18109/23965");
       const result = await cache.getFeatures("16/18109/23965");
-      expect(result.length).to.equal(1);
+      expect(result[0].id).to.be.a('number');
       // Original feature will be annotated with an id
-      expect(result[0]).to.deep.equal({...testFeature, id: 1});
-    });
+      expect(result[0].properties).to.deep.equal(testFeature.properties);
+      expect(result![0].geometry).to.deep.equal(testFeature.geometry);    });
 
     it ('should fetch features by OSM ID', async () => {
       cache.addFeature(testFeature, "16/18109/23965");
       const result = await cache.getFeatureByOsmId(testFeature.osm_ids[0]);
       // Original feature will be annotated with an id
-      expect(result).to.deep.equal({...testFeature, id: 1});
+      expect(result!.id).to.be.a('number');
+      expect(result!.properties).to.deep.equal(testFeature.properties);
+      expect(result!.geometry).to.deep.equal(testFeature.geometry);
     });
 
     it ('should return no results for invalid OSM ID', async () => {
       const result = await cache.getFeatureByOsmId(9999999);
       expect(result).to.equal(null);
-    });
-  });
-
-  describe('tile', () => {
-    before(() => {
-      nock.disableNetConnect();
-    });
-    afterEach(() => {
-      nock.cleanAll();
-    });
-
-    const tileData = JSON.parse(
-      fs.readFileSync(
-        'cypress/fixtures/tiles_16_18109_23965.json',
-        'utf8'
-      )
-    );
-
-    it('should fetch tile data when unavailable', async () => {
-      const scope = nock('https://tiles.soundscape.services')
-        .get('/tiles/16/18109/23965.json')
-        .reply(200, tileData);
-
-      await cache.fetch(
-        'https://tiles.soundscape.services/tiles/16/18109/23965.json',
-        '16/18109/23965'
-      );
-      expect(scope.isDone()).to.be.true;
-    });
-
-    it('should not re-request fresh tile data', async () => {
-      const scope = nock('https://tiles.soundscape.services')
-        .get('/tiles/16/18109/23965.json')
-        .reply(200, tileData);
-
-      await cache.fetch(
-        'https://tiles.soundscape.services/tiles/16/18109/23965.json',
-        '16/18109/23965'
-      );
-      expect(scope.isDone()).to.be.false;
     });
   });
 });

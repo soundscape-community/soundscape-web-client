@@ -1,9 +1,13 @@
+import fs from 'fs';
+import nock from 'nock';
 import { expect } from "chai";
 import {
   createBoundingBox,
+  createTile,
   latLonToTileCoords,
   enumerateTilesAround,
 } from "./tile";
+import config from '../config';
 
 describe('Tile', () => {
   describe("createBoundingBox", () => {
@@ -58,6 +62,41 @@ describe('Tile', () => {
       // 1km radius around Washington Monument
       const result = enumerateTilesAround(38.889444, -77.035278, 1000)
       expect(result.length).to.equal(25);
+    });
+  });
+
+  describe('load', () => {
+    before(() => {
+      nock.disableNetConnect();
+      config.tileServer = 'https://tiles.soundscape.services';
+    });
+    afterEach(() => {
+      nock.cleanAll();
+    });
+
+    const tileData = JSON.parse(
+      fs.readFileSync(
+        'cypress/fixtures/tiles_16_18109_23965.json',
+        'utf8'
+      )
+    );
+
+    it('should fetch tile data when unavailable', async () => {
+      const scope = nock(config.tileServer)
+        .get('/16/18109/23965.json')
+        .reply(200, tileData);
+
+      await createTile(18109, 23965, 16).load();
+      expect(scope.isDone()).to.be.true;
+    });
+
+    it('should not re-request fresh tile data', async () => {
+      const scope = nock(config.tileServer)
+        .get('/16/18109/23965.json')
+        .reply(200, tileData);
+
+      await createTile(18109, 23965, 16).load();
+      expect(scope.isDone()).to.be.false;
     });
   });
 });

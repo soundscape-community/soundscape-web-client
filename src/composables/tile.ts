@@ -1,5 +1,7 @@
 // Copyright (c) Daniel W. Steinbrook.
-// with many thanks to ChatGPT
+
+// So that our unit tests can run outside of a browser
+import fetch from 'isomorphic-fetch';
 
 import { point, buffer, bbox } from '@turf/turf';
 import { BBox } from "geojson";
@@ -7,6 +9,7 @@ import { cache, SoundscapeFeature } from '../state/cache'
 import config from '../config'
 
 export const zoomLevel = 16;
+const maxAgeMilliseconds = 1000 * 60 * 60 * 24 * 7; // 1 week
 
 // Track tiles that don't need to be re-requested at the moment
 const tilesInProgressOrDone = new Set<string>();
@@ -19,6 +22,8 @@ interface TileCoordinates {
 
 interface Tile extends TileCoordinates {
   key: string;
+  url: string,
+  shouldRefresh: () => Promise<boolean>;
   load: () => Promise<void>;
   getFeatures: () => Promise<SoundscapeFeature[]>;
 }
@@ -87,12 +92,25 @@ export function enumerateTilesInBoundingBox(
   return tiles;
 }
 
-function createTile(x: number, y: number, z: number): Tile {
+export function createTile(x: number, y: number, z: number): Tile {
   const tile: Tile = {
     x,
     y,
     z,
     key: `${z}/${x}/${y}`,
+    url: `${config.tileServer}/${z}/${x}/${y}.json`,
+
+    shouldRefresh: async function(): Promise<boolean> {
+      // Check if the cached entry is still valid based on maxAgeMilliseconds
+      const currentTime = new Date().getTime();
+      const lastFetchTime = await cache.lastFetchTime(this.url);
+
+      return (
+        lastFetchTime === null ||
+        currentTime - lastFetchTime > maxAgeMilliseconds
+      );
+    },
+
     load: async function(): Promise<void> {
       if (tilesInProgressOrDone.has(tile.key)) {
         // no need to request again
@@ -100,14 +118,25 @@ function createTile(x: number, y: number, z: number): Tile {
       }
       tilesInProgressOrDone.add(tile.key);
 
-      const urlToFetch = `${config.tileServer}/${tile.key}.json`;
+      if (!await this.shouldRefresh()) {
+        // Data is still fresh; no need to refresh
+        return;
+      }
+
+      // Delete any stale features
+      cache.deleteFeatures(this.key);
+
       try {
-        const data = await cache.fetch(urlToFetch, tile.key);
+        // Fetch the URL since it's not in the cache or has expired
+        const response = await fetch(this.url);
+        console.log("Fetched: ", this.url);
+        const data = await response.json();
         if (data?.features) {
           for (const feature of data.features) {
             await cache.addFeature(feature, tile.key);
           }
           console.log(`Loaded ${data.features.length} new features.`);
+          cache.updateLastFetch(this.url);
         }
       } catch (error) {
         console.error(error);
@@ -115,6 +144,7 @@ function createTile(x: number, y: number, z: number): Tile {
         tilesInProgressOrDone.delete(tile.key);
       }
     },
+
     getFeatures: async function(): Promise<SoundscapeFeature[]> {
       return cache.getFeatures(tile.key);
     },
