@@ -121,50 +121,47 @@ export const cache = {
       lastFetchTime === null ||
       currentTime - lastFetchTime > maxAgeMilliseconds
     );
-    //TODO cache.deleteFeatures(tileKey);
   },
 
-  // Function to fetch a URL only if it hasn't been fetched for a certain duration
-  fetch: function(url: string, tileKey: string): Promise<any> {
+  updateLastFetch: function(url: string): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
-       if (!await cache.shouldFetch(url)) {
-        resolve(null);
-        return;
-      }
-
       if (!cache.db) {
         cache.db = await openDatabase();
       }
 
-      // Fetch the URL since it's not in the cache or has expired
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
+      const newTransaction = cache.db.transaction(['urls'], 'readwrite');
+      const newObjectStore = newTransaction.objectStore('urls');
 
-        const newTransaction = cache.db.transaction(['urls'], 'readwrite');
-        const newObjectStore = newTransaction.objectStore('urls');
+      // Update or add the URL in the cache with the current timestamp
+      const putRequest = newObjectStore.put({
+        url: url,
+        lastFetchTime: new Date().getTime(),
+      });
 
-        // Update or add the URL in the cache with the current timestamp
-        const putRequest = newObjectStore.put({
-          url: url,
-          lastFetchTime: new Date().getTime(),
-          // No need to keep the data (the individual features should be
-          // loaded into their own object store on first fetch)
-          //cachedData: data,
-        });
+      putRequest.onsuccess = () => {
+        console.log("Fetched: ", url);
+        resolve(true);
+      };
 
-        putRequest.onsuccess = () => {
-          console.log("Fetched: ", url);
-          resolve(data);
-        };
-
-        putRequest.onerror = (event: Event) => {
-          reject(`Error updating cache: ${(event.target as IDBEventTargetWithResult).error}`);
-        };
-      } catch (error) {
-        reject(`Error fetching URL: ${error}`);
-      }
+      putRequest.onerror = (event: Event) => {
+        reject(`Error updating cache: ${(event.target as IDBEventTargetWithResult).error}`);
+      };
     });
+  },
+
+  // Function to fetch a URL only if it hasn't been fetched for a certain duration
+  fetch: async function(url: string, tileKey: string): Promise<any> {
+    if (!await cache.shouldFetch(url)) {
+      return null;
+    }
+
+    // Delete any stale features
+    cache.deleteFeatures(tileKey);
+
+    // Fetch the URL since it's not in the cache or has expired
+    const response = await fetch(url);
+    cache.updateLastFetch(url);
+    return await response.json();
   },
 
   // Function to add GeoJSON feature to the cache
