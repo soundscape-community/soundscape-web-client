@@ -63,9 +63,12 @@ export class Tile {
       console.log("Fetched: ", this.url);
       const data = await response.json();
       if (data?.features) {
-        for (const feature of data.features) {
-          await cache.addFeature(feature, this.key);
-        }
+        // Save each new feature to the cache
+        await Promise.all(
+          data.features.map(
+            (feature: SoundscapeFeature) => cache.addFeature(feature, this.key)
+          )
+        );
         console.log(`Loaded ${data.features.length} new features.`);
         cache.updateLastFetch(this.url);
       }
