@@ -15,7 +15,7 @@ import { initializeBeaconAudio } from '../state/beacon_audio';
 import { useDeviceOrientation } from "../composables/compass";
 import { myLocation } from '../state/location';
 import { initializeAudioQueue, playSpatialSpeech } from '../state/audio';
-import { loadTilesOnLocationCHange } from '../composables/tile';
+import { loadTilesOnLocationChange } from '../composables/tile';
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 
@@ -43,7 +43,7 @@ const removewall = () => {
   initializeBeaconAudio();
 
   // Automatically fetch tiles when location changes
-  loadTilesOnLocationCHange();
+  loadTilesOnLocationChange();
 
   // Report to parent that we're ready
   isVisible.value = false;

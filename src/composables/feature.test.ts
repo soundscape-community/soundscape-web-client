@@ -17,7 +17,7 @@ describe('nearbyFeatures', () => {
 
   before(async () => {
     // Washington Union Station
-    let lat = 38.897600, lon = -77.006156 
+    let lat = 38.897600, lon = -77.006156;
     await new Tile({ x: 18749, y: 25070, z: 16 }).import(tileData.features);
     myLocation.setLocation(lat, lon);
     nearby = await nearbyFeatures(lat, lon, radiusMeters);

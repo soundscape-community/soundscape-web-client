@@ -5,8 +5,12 @@ describe('Fixed-location view', () => {
     cy.visit('http://localhost:8080/soundscape-web-client/#/fixed/38.897600/-77.006156')
     cy.mockSpeechSynthesis();
 
-    // Return static tile data for all network calls
+    // Return empty data for all but one tile
     cy.intercept('GET', /\/tiles\/.*/, {
+      body: {},
+    }).as('other-tiles');
+
+    cy.intercept('GET', '/tiles/16/18749/25070.json', {
       fixture: 'tiles_16_18749_25070.json'
     }).as('tile');
   })

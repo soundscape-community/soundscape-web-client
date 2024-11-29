@@ -165,7 +165,7 @@ export function enumerateTilesAround(
     .map(coords => new Tile(coords));
 }
 
-export function loadTilesOnLocationCHange() {
+export function loadTilesOnLocationChange() {
   // Fetch nearby tiles when location changes
   watch(myLocation, (newValue, oldValue) => {
     if (newValue.latitude && newValue.longitude) {

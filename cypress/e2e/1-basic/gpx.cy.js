@@ -5,8 +5,12 @@ describe('GPX view', () => {
     cy.visit('http://localhost:8080/soundscape-web-client/#/gpx')
     cy.mockSpeechSynthesis();
 
-    // Return static tile data for all network calls
+    // Return empty data for all but one tile
     cy.intercept('GET', /\/tiles\/.*/, {
+      body: {},
+    }).as('other-tiles');
+
+    cy.intercept('GET', '/tiles/16/18109/23965.json', {
       fixture: 'tiles_16_18109_23965.json'
     }).as('tile');
   })
@@ -62,7 +66,7 @@ describe('GPX view', () => {
     const expectedTileUrl = '/tiles/16/18108/23964.json';
 
     cy.get('#playPauseButton').click()
-    cy.wait('@tile').its('request.url').should('include', expectedTileUrl);
+    cy.wait('@other-tiles').its('request.url').should('include', expectedTileUrl);
   })
 
   it('starts speaking', () => {
