@@ -57,21 +57,23 @@ async function openDatabase(): Promise<IDBDatabase> {
   });
 }
 
-async function clearObjectStore(objectStoreName: string): Promise<void> {
-  const db = await openDatabase();
-  const transaction = db.transaction([objectStoreName], 'readwrite');
-  const objectStore = transaction.objectStore(objectStoreName);
+async function clearObjectStore(objectStoreName: string): Promise<any> {
+  return new Promise(async (resolve, reject) => {
+    const db = await openDatabase();
+    const transaction = db.transaction([objectStoreName], 'readwrite');
+    const objectStore = transaction.objectStore(objectStoreName);
 
-  // Clear all data in the object store
-  const clearRequest = objectStore.clear();
+    // Clear all data in the object store
+    const clearRequest = objectStore.clear();
 
-  clearRequest.onsuccess = function() {
-    console.log('Data cleared successfully.');
-  };
+    clearRequest.onsuccess = function() {
+      resolve(true);
+    };
 
-  clearRequest.onerror = function(error: Event) {
-    console.error('Error clearing data:', error);
-  };
+    clearRequest.onerror = (event: Event) => {
+      reject(`Error updating cache: ${(event.target as IDBEventTargetWithResult).error}`);
+    };
+  });
 }
 
 export const cache = {

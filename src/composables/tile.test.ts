@@ -8,6 +8,7 @@ import {
   enumerateTilesAround,
 } from "./tile";
 import config from '../config';
+import cache from '../state/cache';
 
 describe('Tile', () => {
   describe("createBoundingBox", () => {
@@ -65,10 +66,31 @@ describe('Tile', () => {
     });
   });
 
+  describe('shouldRefresh', () => {
+    beforeEach(async () => {
+      await cache.clear();
+    });
+
+    it('should be true when tile has not been fetched', async () => {
+      let tile = createTile(18109, 23965, 16);
+      expect(await tile.shouldRefresh()).to.be.true;
+    });
+
+    it('should be false when tile has been fetched recently', async () => {
+      let tile = createTile(18109, 23965, 16);
+      cache.updateLastFetch(tile.url);
+      expect(await tile.shouldRefresh()).to.be.false;
+    });
+  });
+
   describe('load', () => {
     before(() => {
       nock.disableNetConnect();
+      // Unlike browser environment, Node needs full URL for fetch
       config.tileServer = 'https://tiles.soundscape.services';
+    });
+    beforeEach(async () => {
+      await cache.clear();
     });
     afterEach(() => {
       nock.cleanAll();
@@ -91,11 +113,15 @@ describe('Tile', () => {
     });
 
     it('should not re-request fresh tile data', async () => {
+      let tile = createTile(18109, 23965, 16);
+      // Pretend we just loaded tile data
+      cache.updateLastFetch(tile.url);
+
       const scope = nock(config.tileServer)
         .get('/16/18109/23965.json')
         .reply(200, tileData);
+      await tile.load();
 
-      await createTile(18109, 23965, 16).load();
       expect(scope.isDone()).to.be.false;
     });
   });
