@@ -20,12 +20,65 @@ interface TileCoordinates {
   z: number;
 }
 
-interface Tile extends TileCoordinates {
+export class Tile {
+  coordinates: TileCoordinates;
   key: string;
-  url: string,
-  shouldRefresh: () => Promise<boolean>;
-  load: () => Promise<void>;
-  getFeatures: () => Promise<SoundscapeFeature[]>;
+  url: string;
+
+  constructor(coords: TileCoordinates) {
+    this.coordinates = coords;
+    this.key = `${coords.z}/${coords.x}/${coords.y}`;
+    this.url = `${config.tileServer}/${this.key}.json`;
+  }
+
+  async shouldRefresh(): Promise<boolean> {
+    // Check if the cached entry is still valid based on maxAgeMilliseconds
+    const currentTime = new Date().getTime();
+    const lastFetchTime = await cache.lastFetchTime(this.url);
+
+    return (
+      lastFetchTime === null ||
+      currentTime - lastFetchTime > maxAgeMilliseconds
+    );
+  }
+
+  async load(): Promise<void> {
+    if (tilesInProgressOrDone.has(this.key)) {
+      // no need to request again
+      return;
+    }
+    tilesInProgressOrDone.add(this.key);
+
+    if (!await this.shouldRefresh()) {
+      // Data is still fresh; no need to refresh
+      return;
+    }
+
+    // Delete any stale features
+    cache.deleteFeatures(this.key);
+
+    try {
+      // Fetch the URL since it's not in the cache or has expired
+      const response = await fetch(this.url);
+      console.log("Fetched: ", this.url);
+      const data = await response.json();
+      if (data?.features) {
+        for (const feature of data.features) {
+          await cache.addFeature(feature, this.key);
+        }
+        console.log(`Loaded ${data.features.length} new features.`);
+        cache.updateLastFetch(this.url);
+      }
+    } catch (error) {
+      console.error(error);
+      // should be retried when next needed
+      tilesInProgressOrDone.delete(this.key);
+    }
+  }
+
+  async getFeatures(): Promise<SoundscapeFeature[]> {
+    return cache.getFeatures(this.key);
+  }
 }
 
 // Function to create a half-kilometer bounding box around a point
@@ -92,67 +145,6 @@ export function enumerateTilesInBoundingBox(
   return tiles;
 }
 
-export function createTile(x: number, y: number, z: number): Tile {
-  const tile: Tile = {
-    x,
-    y,
-    z,
-    key: `${z}/${x}/${y}`,
-    url: `${config.tileServer}/${z}/${x}/${y}.json`,
-
-    shouldRefresh: async function(): Promise<boolean> {
-      // Check if the cached entry is still valid based on maxAgeMilliseconds
-      const currentTime = new Date().getTime();
-      const lastFetchTime = await cache.lastFetchTime(this.url);
-
-      return (
-        lastFetchTime === null ||
-        currentTime - lastFetchTime > maxAgeMilliseconds
-      );
-    },
-
-    load: async function(): Promise<void> {
-      if (tilesInProgressOrDone.has(tile.key)) {
-        // no need to request again
-        return;
-      }
-      tilesInProgressOrDone.add(tile.key);
-
-      if (!await this.shouldRefresh()) {
-        // Data is still fresh; no need to refresh
-        return;
-      }
-
-      // Delete any stale features
-      cache.deleteFeatures(this.key);
-
-      try {
-        // Fetch the URL since it's not in the cache or has expired
-        const response = await fetch(this.url);
-        console.log("Fetched: ", this.url);
-        const data = await response.json();
-        if (data?.features) {
-          for (const feature of data.features) {
-            await cache.addFeature(feature, tile.key);
-          }
-          console.log(`Loaded ${data.features.length} new features.`);
-          cache.updateLastFetch(this.url);
-        }
-      } catch (error) {
-        console.error(error);
-        // should be retried when next needed
-        tilesInProgressOrDone.delete(tile.key);
-      }
-    },
-
-    getFeatures: async function(): Promise<SoundscapeFeature[]> {
-      return cache.getFeatures(tile.key);
-    },
-  };
-
-  return tile;
-}
-
 export function enumerateTilesAround(
   latitude: number,
   longitude: number,
@@ -161,5 +153,5 @@ export function enumerateTilesAround(
   // Find all tiles within radiusMeters radius of location
   const boundingBox = createBoundingBox(latitude, longitude, radiusMeters);
   return enumerateTilesInBoundingBox(boundingBox, zoomLevel, zoomLevel)
-    .map(tile => createTile(tile.x, tile.y, tile.z));
+    .map(coords => new Tile(coords));
 }

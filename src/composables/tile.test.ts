@@ -2,8 +2,8 @@ import fs from 'fs';
 import nock from 'nock';
 import { expect } from "chai";
 import {
+  Tile,
   createBoundingBox,
-  createTile,
   latLonToTileCoords,
   enumerateTilesAround,
 } from "./tile";
@@ -51,11 +51,10 @@ describe('Tile', () => {
       // 10m radius around Washington Monument
       const result = enumerateTilesAround(38.889444, -77.035278, 10)
       expect(result.length).to.equal(1);
-      expect(result[0]).to.include({
+      expect(result[0].coordinates).to.deep.equal({
         x: 18744,
         y: 25072,
         z: 16,
-        key: '16/18744/25072',
       });
     });
   
@@ -72,12 +71,12 @@ describe('Tile', () => {
     });
 
     it('should be true when tile has not been fetched', async () => {
-      let tile = createTile(18109, 23965, 16);
+      let tile = new Tile({ x: 18109, y: 23965, z: 16 });
       expect(await tile.shouldRefresh()).to.be.true;
     });
 
     it('should be false when tile has been fetched recently', async () => {
-      let tile = createTile(18109, 23965, 16);
+      let tile = new Tile({ x: 18109, y: 23965, z: 16 });
       cache.updateLastFetch(tile.url);
       expect(await tile.shouldRefresh()).to.be.false;
     });
@@ -108,12 +107,13 @@ describe('Tile', () => {
         .get('/16/18109/23965.json')
         .reply(200, tileData);
 
-      await createTile(18109, 23965, 16).load();
+      let tile = new Tile({ x: 18109, y: 23965, z: 16 });
+      await tile.load();
       expect(scope.isDone()).to.be.true;
     });
 
     it('should not re-request fresh tile data', async () => {
-      let tile = createTile(18109, 23965, 16);
+      let tile = new Tile({ x: 18109, y: 23965, z: 16 });
       // Pretend we just loaded tile data
       cache.updateLastFetch(tile.url);
 
