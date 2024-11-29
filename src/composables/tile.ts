@@ -44,6 +44,15 @@ export class Tile {
     );
   }
 
+  async import(features: SoundscapeFeature[]): Promise<void> {
+    // Save each new feature to the cache
+    await Promise.all(
+      features.map(
+        (feature) => cache.addFeature(feature, this.key)
+      )
+    );
+  }
+
   async load(): Promise<void> {
     if (tilesInProgressOrDone.has(this.key)) {
       // no need to request again
@@ -65,12 +74,7 @@ export class Tile {
       console.log("Fetched: ", this.url);
       const data = await response.json();
       if (data?.features) {
-        // Save each new feature to the cache
-        await Promise.all(
-          data.features.map(
-            (feature: SoundscapeFeature) => cache.addFeature(feature, this.key)
-          )
-        );
+        this.import(data.features);
         console.log(`Loaded ${data.features.length} new features.`);
         cache.updateLastFetch(this.url);
       }
@@ -161,13 +165,15 @@ export function enumerateTilesAround(
     .map(coords => new Tile(coords));
 }
 
-// Fetch nearby tiles when location changes
-watch(myLocation, (newValue, oldValue) => {
-  if (newValue.latitude && newValue.longitude) {
-    enumerateTilesAround(
-      newValue.latitude,
-      newValue.longitude,
-      2 * myLocation.radiusMeters
-    ).map((t) => t.load());
-  }
-});
+export function loadTilesOnLocationCHange() {
+  // Fetch nearby tiles when location changes
+  watch(myLocation, (newValue, oldValue) => {
+    if (newValue.latitude && newValue.longitude) {
+      enumerateTilesAround(
+        newValue.latitude,
+        newValue.longitude,
+        2 * myLocation.radiusMeters
+      ).map((t) => t.load());
+    }
+  });
+}

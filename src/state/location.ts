@@ -32,6 +32,7 @@ export const myLocation = reactive<MyLocation>({
 });
 
 export const myTurfPoint = computed(() => {
+  //FIXME can be null
   return point([myLocation.longitude!, myLocation.latitude!]);
 });
 
