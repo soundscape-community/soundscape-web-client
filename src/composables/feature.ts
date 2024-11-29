@@ -71,7 +71,6 @@ export function nearbyFeatures(latitude: number, longitude: number, radiusMeters
   return Promise.all(
     // Get all features from nearby tiles
     enumerateTilesAround(latitude, longitude, radiusMeters).map((t) => {
-      t.load();
       return t.getFeatures();
     })
   ).then((tileFeatures) => {

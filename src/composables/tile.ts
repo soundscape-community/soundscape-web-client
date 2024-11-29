@@ -7,6 +7,8 @@ import { point, buffer, bbox } from '@turf/turf';
 import { BBox } from "geojson";
 import { cache, SoundscapeFeature } from '../state/cache'
 import config from '../config'
+import { watch } from 'vue';
+import { myLocation } from '../state/location';
 
 export const zoomLevel = 16;
 const maxAgeMilliseconds = 1000 * 60 * 60 * 24 * 7; // 1 week
@@ -158,3 +160,14 @@ export function enumerateTilesAround(
   return enumerateTilesInBoundingBox(boundingBox, zoomLevel, zoomLevel)
     .map(coords => new Tile(coords));
 }
+
+// Fetch nearby tiles when location changes
+watch(myLocation, (newValue, oldValue) => {
+  if (newValue.latitude && newValue.longitude) {
+    enumerateTilesAround(
+      newValue.latitude,
+      newValue.longitude,
+      2 * myLocation.radiusMeters
+    ).map((t) => t.load());
+  }
+});
