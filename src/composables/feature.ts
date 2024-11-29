@@ -67,51 +67,46 @@ function speakable(feature: SoundscapeFeature): SpeakableFeature {
   return extendedFeature;
 }
 
-export function nearbyFeatures(latitude: number, longitude: number, radiusMeters: number): Promise<SpeakableFeature[]> {
-  return Promise.all(
+export async function nearbyFeatures(latitude: number, longitude: number, radiusMeters: number): Promise<SpeakableFeature[]> {
+  let tileFeatures = await Promise.all(
     // Get all features from nearby tiles
-    enumerateTilesAround(latitude, longitude, radiusMeters).map((t) => {
-      return t.getFeatures();
-    })
-  ).then((tileFeatures) => {
-    // Flatten list of features across all nearby tiles
-    return (
-      tileFeatures
-        .reduce((acc, cur) => acc.concat(cur), [])
-        // Annotate each feature with its center and distance to our location
-        .map(feature => speakable(feature))
-        // Limit to features within the specified radius
-        .filter((f) => f.distance < radiusMeters)
-        // Sort by closest features first
-        .sort((a, b) => a.distance - b.distance)
-    );
-  });
+    enumerateTilesAround(latitude, longitude, radiusMeters).map(
+      (t) => t.getFeatures()
+    )
+  );
+  // Flatten list of features across all nearby tiles
+  return tileFeatures
+    .reduce((acc, cur) => acc.concat(cur), [])
+    // Annotate each feature with its center and distance to our location
+    .map(feature => speakable(feature))
+    // Limit to features within the specified radius
+    .filter((f) => f.distance < radiusMeters)
+    // Sort by closest features first
+    .sort((a, b) => a.distance - b.distance);
 };
 
 // Filter nearby features to just named roads.
-export function nearbyRoads(latitude: number, longitude: number, radiusMeters: number): Promise<SpeakableFeature[]> {
-  return nearbyFeatures(latitude, longitude, radiusMeters)
-    .then((features) =>
-      features.filter(
-        (f) =>
-          f.feature_type == "highway" &&
-          f.geometry.type == "LineString" &&
-          ["primary", "residential", "tertiary"].includes(
-            f.feature_value
-          ) &&
-          f.properties &&
-          f.properties.name
-      )
-    );
+export async function nearbyRoads(latitude: number, longitude: number, radiusMeters: number): Promise<SpeakableFeature[]> {
+  let features = await nearbyFeatures(latitude, longitude, radiusMeters);
+  return features.filter((f) =>
+    f.feature_type == "highway" &&
+    f.geometry.type == "LineString" &&
+    ["primary", "residential", "tertiary"].includes(
+      f.feature_value
+    ) &&
+    f.properties &&
+    f.properties.name
+  );
 };
 
 // Get names of intersecting roads by looking up each road individually
-function getRoadNames(intersectionFeature: SoundscapeFeature): Promise<Set<string>> {
-  return Promise.all(
+async function getRoadNames(intersectionFeature: SoundscapeFeature): Promise<Set<string>> {
+  let roads = await Promise.all(
     intersectionFeature.osm_ids.map(id => cache.getFeatureByOsmId(id))
-  ).then(roads => new Set(
-      roads
-        .filter((r) => r && r.properties && r.properties.name !== undefined)
-        .map((r) => r!.properties!.name)
-  ));
+  );
+  return new Set(
+    roads
+      .filter((r) => r && r.properties && r.properties.name !== undefined)
+      .map((r) => r!.properties!.name)
+  );
 }
