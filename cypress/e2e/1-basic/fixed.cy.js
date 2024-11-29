@@ -40,11 +40,8 @@ describe('Fixed-location view', () => {
 
     const expectedFirstCallout = "Blue Bottle Coffee, 55 feet";
 
-    // CLick three times to toggle mode on/off/on
-    // (first time loads tile, second time has data to speak)
+    cy.wait(2000)  // Allow time for tile data to load
     cy.get('#btn_near_me').click()
-    cy.wait(5000)  // Allow time to process tile data
-    cy.get('#btn_near_me').click().click()
     cy.get('@speak').should('have.been.calledWithMatch', (utterance) => {
       return utterance.text === expectedFirstCallout;
     });

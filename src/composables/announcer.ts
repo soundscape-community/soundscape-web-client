@@ -65,73 +65,66 @@ function useAnnouncer() {
   }
 
   // Speaks a feature if it has a non-empty audio label (returns true if so)
-  function announce(feature: SpeakableFeature, options: { includeDistance: boolean }): Promise<boolean> {
-    return feature.getAudioLabel().then((label) => {
-      if (label) {
-        spokenRecently.add(feature.osm_ids);
-        playSoundAndSpeech(
-          feature.soundEffectUrl,
-          label,
-          feature.speechOrigin,
-          options.includeDistance
-        );
-        return true;
-      } else {
-        return false;
-      }
-    });
+  async function announce(feature: SpeakableFeature, options: { includeDistance: boolean }): Promise<boolean> {
+    const label = await feature.getAudioLabel();
+    if (label) {
+      spokenRecently.add(feature.osm_ids);
+      playSoundAndSpeech(
+        feature.soundEffectUrl,
+        label,
+        feature.speechOrigin,
+        options.includeDistance
+      );
+      return true;
+    } else {
+      return false;
+    }
   }
 
   const announcer: Announcer = {
     // Announce all speakable nearby features
     // Returns true if anything was queued for speaking
-    calloutAllFeatures: (latitude: number, longitude: number): Promise<boolean> => {
+    calloutAllFeatures: async (latitude: number, longitude: number): Promise<boolean> => {
       // Use 2x wider radius than standard location updates
       const radiusMeters = 2 * myLocation.radiusMeters;
-      return nearbyFeatures(latitude, longitude, radiusMeters)
-        .then((fs) => {
-          return Promise.all(
-            fs.map((f) => announce(f, { includeDistance: true }))
-          ).then((willAnnounce) => willAnnounce.some((x) => x));
-        });
+      const fs = await nearbyFeatures(latitude, longitude, radiusMeters);
+      const willAnnounce = await Promise.all(
+        fs.map((f) => announce(f, { includeDistance: true }))
+      );
+      return willAnnounce.some((x) => x);
     },
 
     // Same as above, but says a message if no features were announced
-    calloutAllFeaturesOrSayNoneFound: (latitude: number, longitude: number): void => {
-      announcer
-        .calloutAllFeatures(latitude, longitude)
-        .then((anythingToSay) => {
-          if (!anythingToSay) {
-            audioQueue.addToQueue({
-              text: "Nothing to call out right now",
-            });
-          }
+    calloutAllFeaturesOrSayNoneFound: async (latitude: number, longitude: number): Promise<void> => {
+      const anythingToSay = await announcer.calloutAllFeatures(latitude, longitude);
+      if (!anythingToSay) {
+        audioQueue.addToQueue({
+          text: "Nothing to call out right now",
         });
+      }
     },
 
     // Announce only features not already called out (useful for continuous tracking)
-    calloutNewFeatures: (latitude: number, longitude: number) => {
+    calloutNewFeatures: async (latitude: number, longitude: number) => {
       const radiusMeters = myLocation.radiusMeters;
-      nearbyFeatures(latitude, longitude, radiusMeters).then((fs) => {
-        // Omit features already announced
-        fs.filter((f) => !spokenRecently.has(f.osm_ids)).forEach((f) =>
-          announce(f, { includeDistance: false })
-        );
-      });
+      const fs = await nearbyFeatures(latitude, longitude, radiusMeters);
+      // Omit features already announced
+      fs.filter((f) => !spokenRecently.has(f.osm_ids)).forEach((f) =>
+        announce(f, { includeDistance: false })
+      );
     },
 
-    calloutNearestRoad: (latitude: number, longitude: number) => {
+    calloutNearestRoad: async (latitude: number, longitude: number) => {
       const radiusMeters = myLocation.radiusMeters;
-      nearbyRoads(latitude, longitude, radiusMeters).then((roads) => {
-        if (roads.length > 0 && roads[0].properties) {
-          playSoundAndSpeech(
-            sense_mobility_wav,
-            `Nearest road: ${roads[0].properties.name}`,
-            roads[0].speechOrigin,
-            true
-          );
-        }
-      });
+      const roads = await nearbyRoads(latitude, longitude, radiusMeters);
+      if (roads.length > 0 && roads[0].properties) {
+        playSoundAndSpeech(
+          sense_mobility_wav,
+          `Nearest road: ${roads[0].properties.name}`,
+          roads[0].speechOrigin,
+          true
+        );
+      }
     },
 
     startWatching: () => {
